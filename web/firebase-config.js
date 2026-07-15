@@ -1,11 +1,9 @@
-// Pega aquí la CONFIG WEB de tu proyecto Firebase.
-// Consola Firebase → ⚙ Configuración del proyecto → "Tus apps" (Web) → SDK setup → Config.
-// Es config PÚBLICA (segura en el navegador). Si la dejas vacía, la app usa el backend LOCAL.
+// Config PÚBLICA de Firebase (segura en el cliente). Generada automáticamente.
 window.FIREBASE_CONFIG = {
-  // apiKey: "…",
-  // authDomain: "TU-PROJECT-ID.firebaseapp.com",
-  // projectId: "TU-PROJECT-ID",
-  // storageBucket: "TU-PROJECT-ID.appspot.com",
-  // messagingSenderId: "…",
-  // appId: "…"
+  apiKey: "AIzaSyD11tw2NilmzyZizpSGWPLBxg1_fgxWeyo",
+  authDomain: "donpepito-2607151158.firebaseapp.com",
+  projectId: "donpepito-2607151158",
+  storageBucket: "donpepito-2607151158.firebasestorage.app",
+  messagingSenderId: "3120736747",
+  appId: "1:3120736747:web:487651208e08b9f73791ae",
 };
