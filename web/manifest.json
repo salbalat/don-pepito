@@ -1,0 +1,12 @@
+{
+  "name": "Mojito Boat",
+  "short_name": "Mojito Boat",
+  "description": "Cócteles a tu barco, en el mar",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0a7ea4",
+  "theme_color": "#0a7ea4",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

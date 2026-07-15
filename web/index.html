@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Mojito Boat 🍹</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a7ea4">
+<style>
+  :root{
+    --sea:#0a7ea4; --sea-d:#075e7a; --deep:#052f3f; --lime:#8ed081; --mint:#c7efcf;
+    --sun:#ffd166; --coral:#ff6b5e; --ink:#0d2530; --dim:#5b7683; --card:#ffffff; --line:#dbe8ed;
+    --shadow:0 1px 2px rgba(5,40,55,.08),0 10px 26px rgba(5,40,55,.12);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(180deg,#eaf6fa,#f4faf7);color:var(--ink);-webkit-text-size-adjust:100%}
+  header{position:sticky;top:0;z-index:5;background:linear-gradient(135deg,var(--sea),var(--sea-d));color:#fff;
+    padding:12px 16px calc(12px + env(safe-area-inset-top))}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand h1{font-size:19px;margin:0;font-weight:800;letter-spacing:.3px}
+  .brand small{opacity:.85;font-weight:500;font-size:12px}
+  .modes{display:flex;gap:6px;margin-top:10px;background:rgba(255,255,255,.16);border-radius:12px;padding:3px}
+  .modes button{flex:1;border:0;background:none;color:#fff;opacity:.75;padding:8px;border-radius:9px;font:inherit;font-weight:800;cursor:pointer;font-size:14px}
+  .modes button.on{background:#fff;color:var(--sea-d);opacity:1}
+  .langs{position:absolute;top:calc(12px + env(safe-area-inset-top));right:14px;display:flex;gap:4px}
+  .langs button{border:0;background:rgba(255,255,255,.2);color:#fff;border-radius:7px;padding:3px 7px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+  .langs button.on{background:#fff;color:var(--sea-d)}
+  main{padding:14px 16px 120px;max-width:640px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+  h2{font-size:15px;margin:0 0 10px;letter-spacing:.2px}
+  /* MAPA esquemático del mar */
+  .sea{position:relative;border-radius:16px;overflow:hidden;height:230px;box-shadow:var(--shadow);
+    background:radial-gradient(120% 90% at 50% -10%,#6fd0e8,#0a7ea4 60%,#075e7a)}
+  .sea svg{position:absolute;inset:0;width:100%;height:100%}
+  .seahud{position:absolute;left:12px;bottom:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+  .seahud b{font-size:22px}.seahud span{font-size:12px;opacity:.9}
+  .btn{width:100%;border:0;border-radius:13px;padding:14px;font:inherit;font-weight:800;font-size:15px;cursor:pointer;box-shadow:var(--shadow)}
+  .btn.p{background:var(--coral);color:#fff}.btn.s{background:#fff;color:var(--sea-d);border:1px solid var(--line)}
+  .btn.go{background:var(--lime);color:#0d3a1e}
+  .row{display:flex;gap:10px}.row>*{flex:1}
+  .item{display:flex;align-items:center;gap:11px;padding:9px 4px;border-bottom:1px solid var(--line)}
+  .item:last-child{border-bottom:0}
+  .item .em{font-size:22px;width:28px;text-align:center}
+  .item .nm{flex:1}.item .nm b{display:block;font-size:15px}.item .nm span{font-size:12px;color:var(--dim)}
+  .step{display:flex;align-items:center;gap:8px}
+  .step button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:19px;cursor:pointer}
+  .step b{min-width:20px;text-align:center}
+  .cat{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--dim);font-weight:800;margin:12px 2px 2px}
+  .total{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:17px;margin:10px 2px}
+  .eta{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#eafaf0,#fff);border:1px solid #cdeed7;border-radius:14px;padding:14px;margin-bottom:12px}
+  .eta .big{font-size:32px;font-weight:900;color:#187a3e;line-height:1}
+  .eta small{color:var(--dim)}
+  .status{display:inline-block;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:800}
+  .st-pendiente{background:#fff3d6;color:#9a6b00}.st-en_camino{background:#dbeafe;color:#1e5bb8}.st-entregado{background:#e7f6ea;color:#1f7a3a}
+  .note{font-size:13px;color:var(--dim);margin-top:8px}
+  .qi{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid var(--line);border-radius:13px;margin-bottom:9px}
+  .qi .n{width:26px;height:26px;border-radius:50%;background:var(--sea);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+  .qi .info{flex:1}.qi .info b{font-size:15px}.qi .info span{font-size:12px;color:var(--dim);display:block}
+  .qi .acts{display:flex;flex-direction:column;gap:5px}
+  .qi .acts button{border:0;border-radius:9px;padding:7px 10px;font:inherit;font-weight:700;font-size:12px;cursor:pointer}
+  .mini{background:var(--sea);color:#fff}.mini.done{background:var(--lime);color:#0d3a1e}
+  .hidden{display:none}
+  .pill{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,#f4faf7 65%,transparent);max-width:640px;margin:0 auto}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:92px;background:#0d2530;color:#fff;padding:11px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.2s;z-index:30;box-shadow:var(--shadow);max-width:90%}
+  .toast.show{opacity:1}
+  input[type=text],input[type=number]{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;font:inherit}
+</style>
+</head>
+<body>
+<header>
+  <div class="langs" id="langs"></div>
+  <div class="brand"><span style="font-size:26px">🍹⛵</span>
+    <div><h1>Mojito Boat</h1><small id="tagline">Cócteles a tu barco, en el mar</small></div></div>
+  <div class="modes">
+    <button id="mCliente" class="on" onclick="setMode('cliente')">🧍 <span data-t="cliente">Cliente</span></button>
+    <button id="mBarco" onclick="setMode('barco')">⛵ <span data-t="barco">Barco</span></button>
+  </div>
+</header>
+
+<main>
+  <!-- ===== CLIENTE ===== -->
+  <section id="cli">
+    <div class="sea card" style="padding:0"><div class="sea" id="map">
+      <svg viewBox="0 0 300 230" id="mapsvg"></svg>
+      <div class="seahud"><b id="distTxt">—</b><br><span id="distSub" data-t="tapLoc">Toca «Localizarme»</span></div>
+    </div></div>
+    <button class="btn go" onclick="locateMe()" style="margin-bottom:14px" id="locBtn" data-t="locate">📍 Localizarme</button>
+
+    <div id="etaBox" class="hidden"></div>
+
+    <div class="card" id="menuCard">
+      <h2 data-t="menu">Carta</h2>
+      <div id="menu"></div>
+      <div class="total"><span data-t="total">Total</span><span id="total">0,00 €</span></div>
+      <div class="note" data-t="paynote">💶 Se paga al recibir, en el barco.</div>
+    </div>
+    <div style="margin-bottom:12px"><input type="text" id="cname" placeholder="Tu nombre / matrícula del barco" data-tp="yourname"></div>
+  </section>
+
+  <!-- ===== BARCO ===== -->
+  <section id="bar" class="hidden">
+    <div class="card">
+      <h2>⛵ Mi posición (GPS)</h2>
+      <button class="btn go" id="shareBtn" onclick="toggleShare()">📡 Compartir mi GPS en vivo</button>
+      <div class="row" style="margin-top:10px">
+        <div><label class="note">Velocidad (km/h)</label><input type="number" id="speed" value="12" min="3" max="40"></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn s" onclick="pushSpeed()">Guardar</button></div>
+      </div>
+      <div class="note" id="boatPos">Sin compartir todavía.</div>
+    </div>
+    <div class="card">
+      <h2>🧾 Cola de pedidos (<span id="qcount">0</span>)</h2>
+      <div id="queue"></div>
+    </div>
+  </section>
+</main>
+
+<div class="pill" id="pill">
+  <button class="btn p" onclick="placeOrder()" id="orderBtn"><span data-t="order">Pedir</span> · <span id="orderTotal">0,00 €</span></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ---------- i18n ----------
+const T={
+  es:{cliente:"Cliente",barco:"Barco",menu:"Carta",total:"Total",order:"Pedir",locate:"📍 Localizarme",
+      tapLoc:"Toca «Localizarme»",paynote:"💶 Se paga al recibir, en el barco.",yourname:"Tu nombre / barco",
+      away:"a tu posición",min:"min",queuePos:"en la cola",ordered:"¡Pedido enviado!",onway:"En camino",
+      pending:"En preparación",delivered:"¡Entregado! 🍹",tagline:"Cócteles a tu barco, en el mar",
+      needLoc:"Necesito tu ubicación para calcular el tiempo.",empty:"Añade algo a tu pedido."},
+  en:{cliente:"Customer",barco:"Boat",menu:"Menu",total:"Total",order:"Order",locate:"📍 Locate me",
+      tapLoc:"Tap “Locate me”",paynote:"💶 Pay on delivery, at the boat.",yourname:"Your name / boat",
+      away:"to your spot",min:"min",queuePos:"in the queue",ordered:"Order sent!",onway:"On the way",
+      pending:"Preparing",delivered:"Delivered! 🍹",tagline:"Cocktails to your boat, at sea",
+      needLoc:"I need your location to estimate the time.",empty:"Add something to your order."},
+  de:{cliente:"Kunde",barco:"Boot",menu:"Karte",total:"Gesamt",order:"Bestellen",locate:"📍 Orten",
+      tapLoc:"„Orten“ tippen",paynote:"💶 Zahlung bei Lieferung am Boot.",yourname:"Ihr Name / Boot",
+      away:"zu deinem Platz",min:"Min",queuePos:"in der Schlange",ordered:"Bestellung gesendet!",onway:"Unterwegs",
+      pending:"Wird zubereitet",delivered:"Geliefert! 🍹",tagline:"Cocktails zu deinem Boot, auf See",
+      needLoc:"Ich brauche deinen Standort für die Zeitschätzung.",empty:"Füge etwas hinzu."},
+};
+let lang=localStorage.getItem('mb_lang')||'es';
+function t(k){return (T[lang]&&T[lang][k])||T.es[k]||k}
+function applyLang(){
+  document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
+  document.querySelectorAll('[data-tp]').forEach(e=>e.placeholder=t(e.dataset.tp));
+  document.getElementById('cname').placeholder=t('yourname');
+  document.getElementById('tagline').textContent=t('tagline');
+  document.querySelectorAll('#langs button').forEach(b=>b.classList.toggle('on',b.dataset.l===lang));
+  renderMenu(); if(myOrder) trackRender();
+}
+document.getElementById('langs').innerHTML=['es','en','de'].map(l=>`<button data-l="${l}" onclick="setLang('${l}')">${l.toUpperCase()}</button>`).join('');
+function setLang(l){lang=l;localStorage.setItem('mb_lang',l);applyLang();}
+
+// ---------- estado ----------
+let MENU=[], cart={}, me=null, boat=null, myOrder=null, pollTimer=null, shareId=null;
+const eur=n=>n.toFixed(2).replace('.',',')+' €';
+
+async function loadState(){
+  try{ const s=await (await fetch('/api/state')).json();
+    MENU=s.menu; boat=s.boat&&s.boat.lat!=null?s.boat:null;
+    if(!document.getElementById('menu').children.length) renderMenu();
+    drawMap(); renderQueue(s.orders);
+    if(myOrder){ const o=s.orders.find(x=>x.id===myOrder.id); if(o){myOrder=o;trackRender();} }
+  }catch(_){}
+}
+
+// ---------- CLIENTE: carta ----------
+function renderMenu(){
+  const cats={"cóctel":"🍸 Cócteles",refresco:"🥤 Refrescos",picar:"🍟 Para picar"};
+  let html='';
+  Object.keys(cats).forEach(c=>{
+    const items=MENU.filter(m=>m.cat===c); if(!items.length)return;
+    html+=`<div class="cat">${cats[c]}</div>`;
+    items.forEach(m=>{ const q=cart[m.id]||0;
+      html+=`<div class="item"><div class="em">${m.emoji}</div>
+        <div class="nm"><b>${m.name}</b><span>${eur(m.price)}</span></div>
+        <div class="step"><button onclick="chg('${m.id}',-1)">−</button><b id="q-${m.id}">${q}</b><button onclick="chg('${m.id}',1)">+</button></div></div>`;
+    });
+  });
+  document.getElementById('menu').innerHTML=html; updateTotal();
+}
+function chg(id,d){ cart[id]=Math.max(0,(cart[id]||0)+d); if(!cart[id])delete cart[id];
+  const el=document.getElementById('q-'+id); if(el)el.textContent=cart[id]||0; updateTotal(); }
+function cartTotal(){ return Object.entries(cart).reduce((s,[id,q])=>{const m=MENU.find(x=>x.id===id);return s+(m?m.price*q:0)},0); }
+function updateTotal(){ const tt=eur(cartTotal()); document.getElementById('total').textContent=tt; document.getElementById('orderTotal').textContent=tt; }
+
+// ---------- CLIENTE: localización + mapa ----------
+function locateMe(){
+  if(!navigator.geolocation){toast('GPS no disponible');return;}
+  document.getElementById('locBtn').textContent='…';
+  navigator.geolocation.getCurrentPosition(p=>{
+    me={lat:p.coords.latitude,lng:p.coords.longitude}; document.getElementById('locBtn').textContent='✅ '+t('locate');
+    drawMap();
+  },e=>{ document.getElementById('locBtn').textContent=t('locate'); toast(t('needLoc')); },{enableHighAccuracy:true,timeout:10000});
+}
+function drawMap(){
+  const svg=document.getElementById('mapsvg'); const pts=[]; if(me)pts.push(me); if(boat)pts.push(boat);
+  let dist=null, body='';
+  // olas decorativas
+  for(let y=40;y<230;y+=34) body+=`<path d="M0 ${y} q 25 -10 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0" stroke="rgba(255,255,255,.15)" fill="none" stroke-width="2"/>`;
+  if(pts.length){
+    const lats=pts.map(p=>p.lat),lngs=pts.map(p=>p.lng);
+    let minLa=Math.min(...lats),maxLa=Math.max(...lats),minLo=Math.min(...lngs),maxLo=Math.max(...lngs);
+    const pad=Math.max(0.0009,(maxLa-minLa)*0.4,(maxLo-minLo)*0.4);
+    minLa-=pad;maxLa+=pad;minLo-=pad;maxLo+=pad;
+    const X=lo=>40+(lo-minLo)/((maxLo-minLo)||1)*220, Y=la=>190-(la-minLa)/((maxLa-minLa)||1)*160;
+    if(me&&boat){ body+=`<line x1="${X(me.lng)}" y1="${Y(me.lat)}" x2="${X(boat.lng)}" y2="${Y(boat.lat)}" stroke="#fff" stroke-dasharray="4 5" stroke-width="2" opacity="0.8"/>`;
+      dist=haversine(me,boat); }
+    if(boat) body+=marker(X(boat.lng),Y(boat.lat),'⛵');
+    if(me) body+=marker(X(me.lng),Y(me.lat),'🧍');
+  }
+  svg.innerHTML=body;
+  const d=document.getElementById('distTxt'), sub=document.getElementById('distSub');
+  if(dist!=null){ d.textContent=(dist<1?Math.round(dist*1000)+' m':dist.toFixed(1)+' km'); sub.textContent='⛵ '+t('away'); }
+  else if(me&&!boat){ d.textContent='🛰️'; sub.textContent='Esperando al barco…'; }
+  else { d.textContent='—'; sub.textContent=t('tapLoc'); }
+}
+function marker(x,y,em){return `<g><ellipse cx="${x}" cy="${y+11}" rx="12" ry="4" fill="rgba(0,0,0,.25)"/><text x="${x}" y="${y}" font-size="26" text-anchor="middle" dominant-baseline="central">${em}</text></g>`;}
+function haversine(a,b){const R=6371,r=x=>x*Math.PI/180,dLa=r(b.lat-a.lat),dLo=r(b.lng-a.lng);
+  const h=Math.sin(dLa/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(h)));}
+
+// ---------- CLIENTE: pedir + seguir ----------
+async function placeOrder(){
+  const items=Object.entries(cart).map(([id,qty])=>({id,qty})); if(!items.length){toast(t('empty'));return;}
+  if(!me){toast(t('needLoc'));locateMe();return;}
+  const b=document.getElementById('orderBtn'); b.disabled=true;
+  try{
+    const r=await (await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:document.getElementById('cname').value,items,lat:me.lat,lng:me.lng})})).json();
+    if(r.ok){ myOrder=r; cart={}; renderMenu(); toast(t('ordered')); trackRender(); }
+    else toast(r.mensaje||'Error');
+  }catch(e){ toast('Sin conexión — reintenta'); }
+  b.disabled=false;
+}
+function trackRender(){
+  const box=document.getElementById('etaBox'); if(!myOrder){box.classList.add('hidden');return;}
+  box.classList.remove('hidden');
+  const stt={pendiente:t('pending'),en_camino:t('onway'),entregado:t('delivered')}[myOrder.status]||myOrder.status;
+  const eta=myOrder.eta_min!=null?`<div class="eta"><div class="big">${myOrder.eta_min}</div><div><b>${t('min')}</b><br><small>${myOrder.status==='entregado'?'':'⛵ '+t('away')}</small></div></div>`:'';
+  box.innerHTML=`<div class="card"><h2>🧾 ${myOrder.name} · ${eur(myOrder.total)}</h2>
+    ${myOrder.status!=='entregado'?eta:''}
+    <div><span class="status st-${myOrder.status}">${stt}</span>
+      ${myOrder.status!=='entregado'&&myOrder.queue_pos?` · #${myOrder.queue_pos} ${t('queuePos')}`:''}</div>
+    <div class="note">${myOrder.items.map(i=>i.qty+'× '+i.emoji+' '+i.name).join(' · ')}</div>
+    <div class="note">${t('paynote')}</div></div>`;
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ---------- BARCO ----------
+function toggleShare(){
+  const btn=document.getElementById('shareBtn');
+  if(shareId){ navigator.geolocation.clearWatch(shareId); shareId=null; btn.textContent='📡 Compartir mi GPS en vivo'; btn.classList.remove('p'); return; }
+  if(!navigator.geolocation){toast('GPS no disponible');return;}
+  shareId=navigator.geolocation.watchPosition(async p=>{
+    const pos={lat:p.coords.latitude,lng:p.coords.longitude,speed:+document.getElementById('speed').value||12};
+    await fetch('/api/boat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pos)});
+    document.getElementById('boatPos').textContent='📍 Compartiendo: '+pos.lat.toFixed(5)+', '+pos.lng.toFixed(5);
+  },e=>toast('No pude leer el GPS'),{enableHighAccuracy:true});
+  btn.textContent='🛑 Dejar de compartir'; btn.classList.add('p');
+}
+async function pushSpeed(){ if(!boat){toast('Comparte el GPS primero');return;}
+  await fetch('/api/boat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat:boat.lat,lng:boat.lng,speed:+document.getElementById('speed').value||12})}); toast('Velocidad guardada'); }
+function renderQueue(orders){
+  const pend=(orders||[]).filter(o=>o.status!=='entregado');
+  document.getElementById('qcount').textContent=pend.length;
+  document.getElementById('queue').innerHTML=pend.length?pend.map((o,i)=>`
+    <div class="qi"><div class="n">${i+1}</div>
+      <div class="info"><b>${o.name} · ${eur(o.total)}</b>
+        <span>${o.items.map(x=>x.qty+'× '+x.name).join(', ')}</span>
+        <span>${o.eta_min!=null?'⏱️ '+o.eta_min+' min · ':''}${o.status==='en_camino'?'🚤 en camino':'⏳ pendiente'}</span></div>
+      <div class="acts">
+        ${o.status==='pendiente'?`<button class="mini" onclick="setOrder(${o.id},'en_camino')">🚤 En camino</button>`:''}
+        <button class="mini done" onclick="setOrder(${o.id},'entregado')">✅ Entregado</button></div></div>`).join('')
+    :`<div class="note">No hay pedidos ahora mismo.</div>`;
+}
+async function setOrder(id,status){ await fetch('/api/order/'+id+'/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})}); loadState(); }
+
+// ---------- modo / arranque ----------
+function setMode(m){
+  const cli=m==='cliente';
+  document.getElementById('cli').classList.toggle('hidden',!cli);
+  document.getElementById('bar').classList.toggle('hidden',cli);
+  document.getElementById('pill').classList.toggle('hidden',!cli);
+  document.getElementById('mCliente').classList.toggle('on',cli);
+  document.getElementById('mBarco').classList.toggle('on',!cli);
+  localStorage.setItem('mb_mode',m);
+}
+let _tt; function toast(x){const e=document.getElementById('toast');e.textContent=x;e.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('show'),2600);}
+setMode(localStorage.getItem('mb_mode')||'cliente');
+applyLang(); loadState(); pollTimer=setInterval(loadState,4000);
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
