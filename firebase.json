@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "donpepito-2607151158",
     "public": "web",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "backend/**", "brainstorms/**"],
     "rewrites": [{ "source": "**", "destination": "/index.html" }]

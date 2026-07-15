@@ -97,6 +97,7 @@
       <div class="note" data-t="paynote">💶 Se paga al recibir, en el barco.</div>
     </div>
     <div style="margin-bottom:12px"><input type="text" id="cname" placeholder="Tu nombre / matrícula del barco" data-tp="yourname"></div>
+    <button class="btn" id="waBtn" onclick="orderWhatsApp()" style="width:100%;background:#25D366;color:#04310f;margin-bottom:14px">💬 Pedir por WhatsApp</button>
   </section>
 
   <!-- ===== BARCO ===== -->
@@ -113,6 +114,14 @@
         <div style="display:flex;align-items:flex-end"><button class="btn s" onclick="pushSpeed()">Guardar</button></div>
       </div>
       <div class="note" id="boatPos">Sin compartir todavía.</div>
+    </div>
+    <div class="card">
+      <h2>WhatsApp del barco</h2>
+      <div class="row">
+        <div style="flex:1"><input type="tel" id="waNum" placeholder="+34 6XX XXX XXX"></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn s" onclick="saveWa()">Guardar</button></div>
+      </div>
+      <div class="note">Número al que llegan los pedidos por WhatsApp. Puedes cambiarlo cuando quieras.</div>
     </div>
     <div class="card">
       <h2>Cola de pedidos (<span id="qcount">0</span>)</h2>
@@ -175,6 +184,8 @@ const MENU=[
 ];
 let cart={}, me=null, boat=null, _orders=[], myOrder=null, shareId=null;
 let myOrderId=localStorage.getItem('mb_oid')||null;
+const WA_DEFAULT="34604805968";                       // WhatsApp del barco (editable en modo Barco)
+let waNumber=localStorage.getItem('mb_wa')||WA_DEFAULT;
 const eur=n=>n.toFixed(2).replace('.',',')+' €';
 
 // --- Firebase (si hay config) o backend local ---
@@ -204,8 +215,10 @@ async function bootData(){
       FB.db=F.getFirestore(A.initializeApp(FB.cfg)); FB.fs=F;
       F.onSnapshot(F.doc(FB.db,'boat','current'), d=>applyData(d.exists()?d.data():null,_orders));
       F.onSnapshot(F.collection(FB.db,'orders'), s=>{const a=[];s.forEach(x=>a.push({id:x.id,...x.data()}));applyData(boat,a);});
+      F.onSnapshot(F.doc(FB.db,'config','current'), d=>{ if(d.exists()&&d.data().whatsapp){ waNumber=String(d.data().whatsapp); refreshWaUI(); } });
     }catch(e){ toast('Error Firebase: '+e.message); }
   } else { pollLocal(); setInterval(pollLocal,4000); }
+  refreshWaUI();
 }
 
 // ---------- CLIENTE: carta ----------
@@ -326,6 +339,28 @@ async function saveBoat(pos){
 }
 async function pushSpeed(){ if(!boat){toast('Comparte el GPS primero');return;}
   await saveBoat({lat:boat.lat,lng:boat.lng,speed:+document.getElementById('speed').value||12,updated:Date.now()/1000}); toast('Velocidad guardada'); }
+
+// ---------- WhatsApp: número editable (modo Barco) + pedir por WhatsApp (cliente) ----------
+function normWa(s){ let d=(s||'').replace(/\D/g,''); if(!d)return ''; if(d.length<=9)d='34'+d; return d; }
+function refreshWaUI(){ const el=document.getElementById('waNum'); if(el&&document.activeElement!==el)el.value='+'+waNumber; }
+async function saveWa(){
+  const d=normWa(document.getElementById('waNum').value);
+  if(d.length<9){ toast('Número no válido'); return; }
+  waNumber=d; localStorage.setItem('mb_wa',d);
+  try{ if(useFB()){ const F=FB.fs; await F.setDoc(F.doc(FB.db,'config','current'),{whatsapp:d}); } }catch(e){}
+  document.getElementById('waNum').value='+'+d; toast('WhatsApp guardado ✓');
+}
+function orderWhatsApp(){
+  const items=Object.entries(cart).filter(([,q])=>q>0);
+  if(!items.length){ toast(t('empty')); return; }
+  const lines=items.map(([id,q])=>{const m=MENU.find(x=>x.id===id);return q+'× '+m.emoji+' '+m.name;});
+  const nom=(document.getElementById('cname').value||'').trim();
+  let msg='¡Hola Don Pepito! Quiero pedir:\n'+lines.join('\n')+'\nTotal: '+eur(cartTotal());
+  if(nom)msg+='\nNombre/barco: '+nom;
+  if(me)msg+='\nMi ubicación: https://maps.google.com/?q='+me.lat.toFixed(5)+','+me.lng.toFixed(5);
+  else msg+='\n(pulsa «Localizarme» en la app para enviar mi posición)';
+  window.open('https://wa.me/'+waNumber+'?text='+encodeURIComponent(msg),'_blank');
+}
 function renderQueue(orders){
   const pend=(orders||[]).filter(o=>o.status!=='entregado').sort((a,b)=>(a.created||0)-(b.created||0));
   document.getElementById('qcount').textContent=pend.length;
