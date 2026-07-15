@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Mojito Boat 🍹</title>
+<title>Don Pepito 🍹</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#12303f">
 <style>
@@ -72,7 +72,7 @@
 <body>
 <header>
   <div class="langs" id="langs"></div>
-  <div class="brand"><h1>Mojito Boat</h1><small id="tagline">Cócteles a tu barco, en el mar</small></div>
+  <div class="brand"><h1>Don Pepito</h1><small id="tagline">Cócteles a tu barco, en el mar</small></div>
   <div class="modes">
     <button id="mCliente" class="on" onclick="setMode('cliente')"><span data-t="cliente">Cliente</span></button>
     <button id="mBarco" onclick="setMode('barco')"><span data-t="barco">Barco</span></button>
@@ -340,7 +340,7 @@ function renderQueue(orders){
         <button class="mini done" onclick="setOrder('${o.id}','entregado')">Entregado</button></div></div>`).join('')
     :`<div class="note">No hay pedidos ahora mismo.</div>`;
 }
-// Mapa de flota: el Mojito Boat + todos los barcos en cola, numerados por orden.
+// Mapa de flota: el Don Pepito + todos los barcos en cola, numerados por orden.
 function drawFleet(pend){
   const svg=document.getElementById('fleetsvg'); if(!svg) return;
   const c=document.getElementById('fleetCount'); if(c) c.textContent=pend.length;

@@ -1,7 +1,7 @@
-# Mojito Boat 🍹⛵ — "Uber del cóctel" en el mar
+# Don Pepito 🍹⛵ — "Uber del cóctel" en el mar
 
 PWA para pedir cócteles a un barco que sirve en el mar. El cliente (en su barco o flotando)
-pide desde el móvil; la app **localiza el Mojito Boat**, calcula el **tiempo estimado**
+pide desde el móvil; la app **localiza el Don Pepito**, calcula el **tiempo estimado**
 (distancia + cola) y el barco le lleva el pedido. Brief completo: [brainstorms/mojito-boat.md](brainstorms/mojito-boat.md).
 
 ## Cómo se decidió (grill-me)
@@ -32,7 +32,7 @@ barco lo ve en su cola → entrega ≈ en ese tiempo.
 
 ## Estructura
 ```
-Mojito Boat/
+Don Pepito/
 ├── PROYECTO.md · brainstorms/  (este brief)
 ├── backend/    API en tiempo real (posición del barco + cola de pedidos)
 └── web/        PWA (modo Cliente y modo Barco) + manifest + service worker

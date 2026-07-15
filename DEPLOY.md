@@ -1,4 +1,4 @@
-# Desplegar Mojito Boat en Firebase (HTTPS + tiempo real)
+# Desplegar Don Pepito en Firebase (HTTPS + tiempo real)
 
 La app funciona en **dos modos**: si `web/firebase-config.js` tiene tu config, usa
 **Firebase** (nube, tiempo real, HTTPS); si está vacío, usa el **backend local** (para pruebas

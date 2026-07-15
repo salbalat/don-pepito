@@ -1,4 +1,4 @@
-"""Mojito Boat — API en tiempo real (Fase 1, prototipo).
+"""Don Pepito — API en tiempo real (Fase 1, prototipo).
 
 Estado EN MEMORIA (suficiente para el piloto): posición del barco + cola de pedidos + carta.
 Sirve la PWA (../web) y expone /api/*. Para la nube (Fase 2) se cambia por Firebase/Supabase.
@@ -76,7 +76,7 @@ def _public(o) -> dict:
             "eta_min": _eta_min(o), "queue_pos": _queue_pos(o)}
 
 
-app = FastAPI(title="Mojito Boat API")
+app = FastAPI(title="Don Pepito API")
 
 
 @app.middleware("http")
