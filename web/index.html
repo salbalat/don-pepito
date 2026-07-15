@@ -101,17 +101,21 @@
 
   <!-- ===== BARCO ===== -->
   <section id="bar" class="hidden">
+    <div class="sea" style="height:260px;margin-bottom:16px">
+      <svg viewBox="0 0 340 260" id="fleetsvg"></svg>
+      <div class="seahud"><b id="fleetCount">0</b><span style="display:block">barcos en cola</span></div>
+    </div>
     <div class="card">
-      <h2>⛵ Mi posición (GPS)</h2>
-      <button class="btn go" id="shareBtn" onclick="toggleShare()">📡 Compartir mi GPS en vivo</button>
-      <div class="row" style="margin-top:10px">
+      <h2>Mi posición (GPS)</h2>
+      <button class="btn go" id="shareBtn" onclick="toggleShare()">Compartir mi GPS en vivo</button>
+      <div class="row" style="margin-top:12px">
         <div><label class="note">Velocidad (km/h)</label><input type="number" id="speed" value="12" min="3" max="40"></div>
         <div style="display:flex;align-items:flex-end"><button class="btn s" onclick="pushSpeed()">Guardar</button></div>
       </div>
       <div class="note" id="boatPos">Sin compartir todavía.</div>
     </div>
     <div class="card">
-      <h2>🧾 Cola de pedidos (<span id="qcount">0</span>)</h2>
+      <h2>Cola de pedidos (<span id="qcount">0</span>)</h2>
       <div id="queue"></div>
     </div>
   </section>
@@ -307,14 +311,14 @@ function trackRender(){
 // ---------- BARCO ----------
 function toggleShare(){
   const btn=document.getElementById('shareBtn');
-  if(shareId){ navigator.geolocation.clearWatch(shareId); shareId=null; btn.textContent='📡 Compartir mi GPS en vivo'; btn.classList.remove('p'); return; }
+  if(shareId){ navigator.geolocation.clearWatch(shareId); shareId=null; btn.textContent='Compartir mi GPS en vivo'; btn.classList.remove('p'); return; }
   if(!navigator.geolocation){toast('GPS no disponible');return;}
   shareId=navigator.geolocation.watchPosition(async p=>{
     const pos={lat:p.coords.latitude,lng:p.coords.longitude,speed:+document.getElementById('speed').value||12,updated:Date.now()/1000};
     await saveBoat(pos);
     document.getElementById('boatPos').textContent='📍 Compartiendo: '+pos.lat.toFixed(5)+', '+pos.lng.toFixed(5);
   },e=>toast('No pude leer el GPS'),{enableHighAccuracy:true});
-  btn.textContent='🛑 Dejar de compartir'; btn.classList.add('p');
+  btn.textContent='Dejar de compartir'; btn.classList.add('p');
 }
 async function saveBoat(pos){
   if(useFB()){ const F=FB.fs; await F.setDoc(F.doc(FB.db,'boat','current'),pos); }
@@ -323,17 +327,45 @@ async function saveBoat(pos){
 async function pushSpeed(){ if(!boat){toast('Comparte el GPS primero');return;}
   await saveBoat({lat:boat.lat,lng:boat.lng,speed:+document.getElementById('speed').value||12,updated:Date.now()/1000}); toast('Velocidad guardada'); }
 function renderQueue(orders){
-  const pend=(orders||[]).filter(o=>o.status!=='entregado');
+  const pend=(orders||[]).filter(o=>o.status!=='entregado').sort((a,b)=>(a.created||0)-(b.created||0));
   document.getElementById('qcount').textContent=pend.length;
+  drawFleet(pend);
   document.getElementById('queue').innerHTML=pend.length?pend.map((o,i)=>`
     <div class="qi"><div class="n">${i+1}</div>
       <div class="info"><b>${o.name} · ${eur(o.total)}</b>
         <span>${o.items.map(x=>x.qty+'× '+x.name).join(', ')}</span>
-        <span>${o.eta_min!=null?'⏱️ '+o.eta_min+' min · ':''}${o.status==='en_camino'?'🚤 en camino':'⏳ pendiente'}</span></div>
+        <span>${o.eta_min!=null?o.eta_min+' min · ':''}${o.status==='en_camino'?'en camino':'pendiente'}</span></div>
       <div class="acts">
-        ${o.status==='pendiente'?`<button class="mini" onclick="setOrder('${o.id}','en_camino')">🚤 En camino</button>`:''}
-        <button class="mini done" onclick="setOrder('${o.id}','entregado')">✅ Entregado</button></div></div>`).join('')
+        ${o.status==='pendiente'?`<button class="mini" onclick="setOrder('${o.id}','en_camino')">En camino</button>`:''}
+        <button class="mini done" onclick="setOrder('${o.id}','entregado')">Entregado</button></div></div>`).join('')
     :`<div class="note">No hay pedidos ahora mismo.</div>`;
+}
+// Mapa de flota: el Mojito Boat + todos los barcos en cola, numerados por orden.
+function drawFleet(pend){
+  const svg=document.getElementById('fleetsvg'); if(!svg) return;
+  const c=document.getElementById('fleetCount'); if(c) c.textContent=pend.length;
+  const pts=[]; pend.forEach(o=>{ if(o.lat!=null) pts.push({lat:o.lat,lng:o.lng}); });
+  if(boat) pts.push({lat:boat.lat,lng:boat.lng});
+  let body='';
+  for(let y=44;y<260;y+=34) body+=`<path d="M0 ${y} q 28 -9 56 0 t 56 0 t 56 0 t 56 0 t 56 0 t 56 0" stroke="rgba(255,255,255,.09)" fill="none" stroke-width="2"/>`;
+  if(pts.length){
+    const lats=pts.map(p=>p.lat),lngs=pts.map(p=>p.lng);
+    let minLa=Math.min(...lats),maxLa=Math.max(...lats),minLo=Math.min(...lngs),maxLo=Math.max(...lngs);
+    const pad=Math.max(0.0010,(maxLa-minLa)*0.35,(maxLo-minLo)*0.35);
+    minLa-=pad;maxLa+=pad;minLo-=pad;maxLo+=pad;
+    const X=lo=>36+(lo-minLo)/((maxLo-minLo)||1)*268, Y=la=>216-(la-minLa)/((maxLa-minLa)||1)*180;
+    if(boat) pend.forEach(o=>{ if(o.lat!=null) body+=`<line x1="${X(boat.lng)}" y1="${Y(boat.lat)}" x2="${X(o.lng)}" y2="${Y(o.lat)}" stroke="rgba(230,201,154,.30)" stroke-width="1.2" stroke-dasharray="3 4"/>`; });
+    pend.forEach((o,i)=>{ if(o.lat!=null) body+=numMarker(X(o.lng),Y(o.lat),i+1); });
+    if(boat) body+=marker(X(boat.lng),Y(boat.lat),'boat');
+  } else {
+    body+=`<text x="170" y="130" fill="#a9bcc4" font-size="13" text-anchor="middle">Sin barcos en cola</text>`;
+  }
+  svg.innerHTML=body;
+}
+function numMarker(x,y,n){
+  return `<g><ellipse cx="${x}" cy="${y+9}" rx="9" ry="3" fill="rgba(0,0,0,.28)"/>
+    <circle cx="${x}" cy="${y}" r="11" fill="#12303f" stroke="#f3efe7" stroke-width="1.6"/>
+    <text x="${x}" y="${y+0.5}" font-size="12" font-weight="700" fill="#f3efe7" text-anchor="middle" dominant-baseline="central">${n}</text></g>`;
 }
 async function setOrder(id,status){
   if(useFB()){ const F=FB.fs; await F.updateDoc(F.doc(FB.db,'orders',String(id)),{status}); }
