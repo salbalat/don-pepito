@@ -122,6 +122,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="firebase-config.js"></script>
 <script>
 // ---------- i18n ----------
 const T={
@@ -155,16 +156,51 @@ document.getElementById('langs').innerHTML=['es','en','de'].map(l=>`<button data
 function setLang(l){lang=l;localStorage.setItem('mb_lang',l);applyLang();}
 
 // ---------- estado ----------
-let MENU=[], cart={}, me=null, boat=null, myOrder=null, pollTimer=null, shareId=null;
+const MENU=[
+  {id:"mojito",cat:"cóctel",name:"Mojito",price:8.0,emoji:"🍸"},
+  {id:"mojito-fresa",cat:"cóctel",name:"Mojito de fresa",price:8.5,emoji:"🍓"},
+  {id:"pinacolada",cat:"cóctel",name:"Piña colada",price:9.0,emoji:"🍍"},
+  {id:"gintonic",cat:"cóctel",name:"Gin-tonic",price:9.0,emoji:"🍋"},
+  {id:"sangria",cat:"cóctel",name:"Sangría (copa)",price:6.0,emoji:"🍷"},
+  {id:"cerveza",cat:"refresco",name:"Cerveza",price:4.0,emoji:"🍺"},
+  {id:"refresco",cat:"refresco",name:"Refresco",price:3.0,emoji:"🥤"},
+  {id:"agua",cat:"refresco",name:"Agua",price:2.0,emoji:"💧"},
+  {id:"patatas",cat:"picar",name:"Patatas fritas",price:4.0,emoji:"🍟"},
+  {id:"nachos",cat:"picar",name:"Nachos",price:6.0,emoji:"🧀"},
+];
+let cart={}, me=null, boat=null, _orders=[], myOrder=null, shareId=null;
+let myOrderId=localStorage.getItem('mb_oid')||null;
 const eur=n=>n.toFixed(2).replace('.',',')+' €';
 
-async function loadState(){
-  try{ const s=await (await fetch('/api/state')).json();
-    MENU=s.menu; boat=s.boat&&s.boat.lat!=null?s.boat:null;
-    if(!document.getElementById('menu').children.length) renderMenu();
-    drawMap(); renderQueue(s.orders);
-    if(myOrder){ const o=s.orders.find(x=>x.id===myOrder.id); if(o){myOrder=o;trackRender();} }
-  }catch(_){}
+// --- Firebase (si hay config) o backend local ---
+const FB={cfg:(window.FIREBASE_CONFIG||{}), db:null, fs:null};
+const useFB=()=>!!(FB.cfg&&FB.cfg.projectId);
+
+function computeDerived(){
+  const pend=_orders.filter(o=>o.status!=='entregado').sort((a,b)=>(a.created||0)-(b.created||0));
+  pend.forEach((o,i)=>{ o.queue_pos=i+1;
+    o.eta_min=(boat&&o.lat!=null)? Math.max(1,Math.round(
+      haversine({lat:boat.lat,lng:boat.lng},{lat:o.lat,lng:o.lng})/Math.max(1,(boat.speed||12))*60 + i*3)) : null;
+  });
+  _orders.filter(o=>o.status==='entregado').forEach(o=>{o.queue_pos=0;o.eta_min=null;});
+}
+function applyData(b, orders){
+  boat=(b&&b.lat!=null)?b:null; _orders=orders||[]; computeDerived();
+  drawMap(); renderQueue(_orders);
+  if(myOrderId){ const o=_orders.find(x=>String(x.id)===String(myOrderId)); if(o){myOrder=o;} trackRender(); }
+}
+async function pollLocal(){ try{ const s=await (await fetch('/api/state')).json(); applyData(s.boat, s.orders); }catch(_){} }
+async function bootData(){
+  renderMenu();
+  if(useFB()){
+    try{
+      const A=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+      const F=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      FB.db=F.getFirestore(A.initializeApp(FB.cfg)); FB.fs=F;
+      F.onSnapshot(F.doc(FB.db,'boat','current'), d=>applyData(d.exists()?d.data():null,_orders));
+      F.onSnapshot(F.collection(FB.db,'orders'), s=>{const a=[];s.forEach(x=>a.push({id:x.id,...x.data()}));applyData(boat,a);});
+    }catch(e){ toast('Error Firebase: '+e.message); }
+  } else { pollLocal(); setInterval(pollLocal,4000); }
 }
 
 // ---------- CLIENTE: carta ----------
@@ -224,14 +260,24 @@ function haversine(a,b){const R=6371,r=x=>x*Math.PI/180,dLa=r(b.lat-a.lat),dLo=r
 
 // ---------- CLIENTE: pedir + seguir ----------
 async function placeOrder(){
-  const items=Object.entries(cart).map(([id,qty])=>({id,qty})); if(!items.length){toast(t('empty'));return;}
+  const full=Object.entries(cart).map(([id,qty])=>{const m=MENU.find(x=>x.id===id);return {id,name:m.name,qty,price:m.price,emoji:m.emoji};});
+  if(!full.length){toast(t('empty'));return;}
   if(!me){toast(t('needLoc'));locateMe();return;}
+  const name=(document.getElementById('cname').value||'').trim()||'Pedido';
+  const total=+cartTotal().toFixed(2);
   const b=document.getElementById('orderBtn'); b.disabled=true;
   try{
-    const r=await (await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name:document.getElementById('cname').value,items,lat:me.lat,lng:me.lng})})).json();
-    if(r.ok){ myOrder=r; cart={}; renderMenu(); toast(t('ordered')); trackRender(); }
-    else toast(r.mensaje||'Error');
+    if(useFB()){
+      const F=FB.fs, ref=await F.addDoc(F.collection(FB.db,'orders'),
+        {name,items:full,lat:me.lat,lng:me.lng,status:'pendiente',total,created:Date.now()/1000});
+      myOrderId=ref.id;
+    }else{
+      const r=await (await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name,items:full.map(i=>({id:i.id,qty:i.qty})),lat:me.lat,lng:me.lng})})).json();
+      if(!r.ok){toast(r.mensaje||'Error');b.disabled=false;return;} myOrderId=r.id; myOrder=r;
+    }
+    localStorage.setItem('mb_oid',myOrderId); cart={}; renderMenu(); toast(t('ordered'));
+    if(!useFB()){ trackRender(); pollLocal(); }
   }catch(e){ toast('Sin conexión — reintenta'); }
   b.disabled=false;
 }
@@ -255,14 +301,18 @@ function toggleShare(){
   if(shareId){ navigator.geolocation.clearWatch(shareId); shareId=null; btn.textContent='📡 Compartir mi GPS en vivo'; btn.classList.remove('p'); return; }
   if(!navigator.geolocation){toast('GPS no disponible');return;}
   shareId=navigator.geolocation.watchPosition(async p=>{
-    const pos={lat:p.coords.latitude,lng:p.coords.longitude,speed:+document.getElementById('speed').value||12};
-    await fetch('/api/boat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pos)});
+    const pos={lat:p.coords.latitude,lng:p.coords.longitude,speed:+document.getElementById('speed').value||12,updated:Date.now()/1000};
+    await saveBoat(pos);
     document.getElementById('boatPos').textContent='📍 Compartiendo: '+pos.lat.toFixed(5)+', '+pos.lng.toFixed(5);
   },e=>toast('No pude leer el GPS'),{enableHighAccuracy:true});
   btn.textContent='🛑 Dejar de compartir'; btn.classList.add('p');
 }
+async function saveBoat(pos){
+  if(useFB()){ const F=FB.fs; await F.setDoc(F.doc(FB.db,'boat','current'),pos); }
+  else{ await fetch('/api/boat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pos)}); }
+}
 async function pushSpeed(){ if(!boat){toast('Comparte el GPS primero');return;}
-  await fetch('/api/boat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat:boat.lat,lng:boat.lng,speed:+document.getElementById('speed').value||12})}); toast('Velocidad guardada'); }
+  await saveBoat({lat:boat.lat,lng:boat.lng,speed:+document.getElementById('speed').value||12,updated:Date.now()/1000}); toast('Velocidad guardada'); }
 function renderQueue(orders){
   const pend=(orders||[]).filter(o=>o.status!=='entregado');
   document.getElementById('qcount').textContent=pend.length;
@@ -272,11 +322,14 @@ function renderQueue(orders){
         <span>${o.items.map(x=>x.qty+'× '+x.name).join(', ')}</span>
         <span>${o.eta_min!=null?'⏱️ '+o.eta_min+' min · ':''}${o.status==='en_camino'?'🚤 en camino':'⏳ pendiente'}</span></div>
       <div class="acts">
-        ${o.status==='pendiente'?`<button class="mini" onclick="setOrder(${o.id},'en_camino')">🚤 En camino</button>`:''}
-        <button class="mini done" onclick="setOrder(${o.id},'entregado')">✅ Entregado</button></div></div>`).join('')
+        ${o.status==='pendiente'?`<button class="mini" onclick="setOrder('${o.id}','en_camino')">🚤 En camino</button>`:''}
+        <button class="mini done" onclick="setOrder('${o.id}','entregado')">✅ Entregado</button></div></div>`).join('')
     :`<div class="note">No hay pedidos ahora mismo.</div>`;
 }
-async function setOrder(id,status){ await fetch('/api/order/'+id+'/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})}); loadState(); }
+async function setOrder(id,status){
+  if(useFB()){ const F=FB.fs; await F.updateDoc(F.doc(FB.db,'orders',String(id)),{status}); }
+  else{ await fetch('/api/order/'+id+'/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})}); pollLocal(); }
+}
 
 // ---------- modo / arranque ----------
 function setMode(m){
@@ -290,7 +343,7 @@ function setMode(m){
 }
 let _tt; function toast(x){const e=document.getElementById('toast');e.textContent=x;e.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('show'),2600);}
 setMode(localStorage.getItem('mb_mode')||'cliente');
-applyLang(); loadState(); pollTimer=setInterval(loadState,4000);
+applyLang(); bootData();
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>

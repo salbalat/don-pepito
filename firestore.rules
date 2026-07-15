@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // PILOTO: abierto para probar rápido este verano.
+    // ⚠️ Antes de abrirlo al público de verdad, restringir (auth / validación).
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
