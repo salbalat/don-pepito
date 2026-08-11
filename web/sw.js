@@ -1,5 +1,6 @@
-const C='donpepito-v4', TILES='donpepito-tiles-v1';
-const CDN=['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css','https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'];
+const C='donpepito-v5', TILES='donpepito-tiles-v1';
+const CDN=['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css','https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+  'https://fonts.googleapis.com/css2?family=Pacifico&family=Shantell+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(async c=>{
   await c.addAll(['./','index.html','manifest.json']);
   await Promise.allSettled([c.add('www/'),c.add('www/index.html'),c.add('www/qr-donpepito.png')]);  // web pública (mejor esfuerzo)
@@ -31,5 +32,12 @@ self.addEventListener('fetch',e=>{
       .catch(()=>caches.match(e.request).then(r=>r||caches.match('index.html'))));
     return;
   }
-  e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))); // resto: caché con respaldo de red
+  e.respondWith((async()=>{                                            // resto: caché primero, y lo nuevo se guarda
+    const hit=await caches.match(e.request); if(hit)return hit;
+    const r=await fetch(e.request);
+    if(r.ok&&(u.origin===location.origin||u.hostname==='fonts.googleapis.com'||u.hostname==='fonts.gstatic.com'||u.hostname==='unpkg.com')){
+      const c=await caches.open(C); c.put(e.request,r.clone());
+    }
+    return r;
+  })());
 });
