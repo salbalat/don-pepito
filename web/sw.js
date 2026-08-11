@@ -1,7 +1,8 @@
-const C='donpepito-v3', TILES='donpepito-tiles-v1';
+const C='donpepito-v4', TILES='donpepito-tiles-v1';
 const CDN=['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css','https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(async c=>{
   await c.addAll(['./','index.html','manifest.json']);
+  await Promise.allSettled([c.add('www/'),c.add('www/index.html'),c.add('www/qr-donpepito.png')]);  // web pública (mejor esfuerzo)
   await Promise.allSettled(CDN.map(u=>c.add(u)));                      // Leaflet en caché (mejor esfuerzo)
 }))});
 self.addEventListener('activate',e=>e.waitUntil((async()=>{
