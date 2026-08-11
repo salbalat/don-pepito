@@ -6,6 +6,8 @@
 <title>Don Pepito 🍹</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#12303f">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <style>
   :root{
     --paper:#f4f1ea; --ink:#182a33; --muted:#5f6f78; --line:#e6e1d7; --card:#ffffff;
@@ -32,9 +34,17 @@
   h2{font-family:var(--serif);font-size:17px;margin:0 0 12px;font-weight:600;letter-spacing:.2px}
   /* MAPA */
   .sea{position:relative;border-radius:12px;overflow:hidden;height:230px;box-shadow:var(--shadow);background:linear-gradient(180deg,#1c465c,#12303f)}
-  .sea svg{position:absolute;inset:0;width:100%;height:100%}
-  .seahud{position:absolute;left:16px;bottom:14px;color:#f3efe7}
-  .seahud b{font-family:var(--serif);font-size:27px;font-weight:600}.seahud span{font-size:12px;color:#a9bcc4;letter-spacing:.3px}
+  .sea svg{position:absolute;inset:0;width:100%;height:100%;z-index:2}  /* respaldo sin conexión; se oculta cuando Leaflet arranca */
+  .lmap{position:absolute;inset:0;z-index:1}
+  .lmap.leaflet-container{background:#bcd6e2}
+  .seahud{position:absolute;left:16px;bottom:14px;color:#f3efe7;z-index:650;pointer-events:none;text-shadow:0 1px 4px rgba(10,25,35,.85)}
+  .seahud b{font-family:var(--serif);font-size:27px;font-weight:600}.seahud span{font-size:12px;color:#dce8ee;letter-spacing:.3px}
+  .pin{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.35);border:2px solid #f3efe7;background:var(--navy)}
+  .pin-boat{font-size:18px}
+  .pin-me{background:#f3efe7;border:3px solid var(--accent)}
+  .pin-num{color:#f3efe7;font-weight:700;font-size:13px}
+  .leaflet-control-attribution{font-size:9px;opacity:.8}
+  .leaflet-popup-content{font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:10px 14px}
   .btn{width:100%;border:0;border-radius:10px;padding:14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;letter-spacing:.3px}
   .btn.p{background:var(--accent);color:#fff}
   .btn.s{background:#fff;color:var(--navy);border:1px solid var(--line)}
@@ -95,6 +105,7 @@
   <!-- ===== CLIENTE ===== -->
   <section id="cli">
     <div class="sea card" style="padding:0"><div class="sea" id="map">
+      <div class="lmap" id="lmap"></div>
       <svg viewBox="0 0 300 230" id="mapsvg"></svg>
       <div class="seahud"><b id="distTxt">—</b><br><span id="distSub" data-t="tapLoc">Toca «Localizarme»</span></div>
     </div></div>
@@ -115,6 +126,7 @@
   <!-- ===== BARCO ===== -->
   <section id="bar" class="hidden">
     <div class="sea" style="height:260px;margin-bottom:16px">
+      <div class="lmap" id="lfleet"></div>
       <svg viewBox="0 0 340 260" id="fleetsvg"></svg>
       <div class="seahud"><b id="fleetCount">0</b><span style="display:block">barcos en cola</span></div>
     </div>
@@ -276,12 +288,51 @@ function locateMe(){
   document.getElementById('locBtn').textContent='…';
   navigator.geolocation.getCurrentPosition(p=>{
     me={lat:p.coords.latitude,lng:p.coords.longitude}; document.getElementById('locBtn').textContent='✅ '+t('locate');
+    if(LMAPS.lmap)LMAPS.lmap.userMoved=false;   // recentrar al localizarse
     drawMap();
   },e=>{ document.getElementById('locBtn').textContent=t('locate'); toast(t('needLoc')); },{enableHighAccuracy:true,timeout:10000});
 }
+// ---------- Mapa real del mar (Leaflet: OpenStreetMap + capa náutica OpenSeaMap) ----------
+const LMAPS={};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function mkMap(id){
+  if(typeof L==='undefined')return null;            // sin Leaflet (offline) → respaldo SVG
+  if(LMAPS[id])return LMAPS[id];
+  const el=document.getElementById(id); if(!el)return null;
+  const map=L.map(el,{zoomControl:false});
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+  L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',{maxZoom:18,opacity:.9,attribution:'© OpenSeaMap'}).addTo(map);
+  map.setView([39.57,2.65],9);                      // vista inicial hasta recibir una posición
+  const M={map,layer:L.layerGroup().addTo(map),userMoved:false};
+  map.on('dragstart',()=>{M.userMoved=true;});      // si el usuario mueve el mapa, no re-encuadrar
+  LMAPS[id]=M; return M;
+}
+function fitMap(M,pts){
+  if(!pts.length||M.userMoved)return;
+  if(pts.length===1) M.map.setView([pts[0].lat,pts[0].lng],14);
+  else M.map.fitBounds(L.latLngBounds(pts.map(p=>[p.lat,p.lng])).pad(0.35),{maxZoom:15});
+}
+const pinIcon=(cls,html,s)=>L.divIcon({className:'',html:`<div class="pin ${cls}">${html}</div>`,iconSize:[s,s],iconAnchor:[s/2,s/2]});
 function drawMap(){
+  const dist=(me&&boat)?haversine(me,boat):null;
+  const M=mkMap('lmap');
+  if(M){
+    document.getElementById('mapsvg').style.display='none';
+    M.layer.clearLayers();
+    if(me&&boat) L.polyline([[me.lat,me.lng],[boat.lat,boat.lng]],{color:'#12303f',weight:2.5,dashArray:'6 8',opacity:.85}).addTo(M.layer);
+    if(boat) L.marker([boat.lat,boat.lng],{icon:pinIcon('pin-boat','🍹',34)}).addTo(M.layer).bindPopup('<b>Don Pepito</b> 🍹⛵');
+    if(me) L.marker([me.lat,me.lng],{icon:pinIcon('pin-me','',18)}).addTo(M.layer);
+    fitMap(M,[me,boat].filter(Boolean));
+  } else drawMapSVG();
+  const d=document.getElementById('distTxt'), sub=document.getElementById('distSub');
+  if(dist!=null){ d.textContent=(dist<1?Math.round(dist*1000)+' m':dist.toFixed(1)+' km'); sub.textContent=t('away'); }
+  else if(me&&!boat){ d.textContent='·'; sub.textContent='Esperando al barco…'; }
+  else { d.textContent='—'; sub.textContent=t('tapLoc'); }
+}
+// Respaldo sin conexión: mar dibujado en SVG (como antes)
+function drawMapSVG(){
   const svg=document.getElementById('mapsvg'); const pts=[]; if(me)pts.push(me); if(boat)pts.push(boat);
-  let dist=null, body='';
+  let body='';
   // olas decorativas
   for(let y=40;y<230;y+=34) body+=`<path d="M0 ${y} q 25 -10 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0" stroke="rgba(255,255,255,.15)" fill="none" stroke-width="2"/>`;
   if(pts.length){
@@ -290,16 +341,11 @@ function drawMap(){
     const pad=Math.max(0.0009,(maxLa-minLa)*0.4,(maxLo-minLo)*0.4);
     minLa-=pad;maxLa+=pad;minLo-=pad;maxLo+=pad;
     const X=lo=>40+(lo-minLo)/((maxLo-minLo)||1)*220, Y=la=>190-(la-minLa)/((maxLa-minLa)||1)*160;
-    if(me&&boat){ body+=`<line x1="${X(me.lng)}" y1="${Y(me.lat)}" x2="${X(boat.lng)}" y2="${Y(boat.lat)}" stroke="#fff" stroke-dasharray="4 5" stroke-width="2" opacity="0.8"/>`;
-      dist=haversine(me,boat); }
+    if(me&&boat) body+=`<line x1="${X(me.lng)}" y1="${Y(me.lat)}" x2="${X(boat.lng)}" y2="${Y(boat.lat)}" stroke="#fff" stroke-dasharray="4 5" stroke-width="2" opacity="0.8"/>`;
     if(boat) body+=marker(X(boat.lng),Y(boat.lat),'boat');
     if(me) body+=marker(X(me.lng),Y(me.lat),'me');
   }
   svg.innerHTML=body;
-  const d=document.getElementById('distTxt'), sub=document.getElementById('distSub');
-  if(dist!=null){ d.textContent=(dist<1?Math.round(dist*1000)+' m':dist.toFixed(1)+' km'); sub.textContent=t('away'); }
-  else if(me&&!boat){ d.textContent='·'; sub.textContent='Esperando al barco…'; }
-  else { d.textContent='—'; sub.textContent=t('tapLoc'); }
 }
 function marker(x,y,type){
   if(type==='boat') return `<g>
@@ -406,8 +452,27 @@ function renderQueue(orders){
 }
 // Mapa de flota: el Don Pepito + todos los barcos en cola, numerados por orden.
 function drawFleet(pend){
-  const svg=document.getElementById('fleetsvg'); if(!svg) return;
   const c=document.getElementById('fleetCount'); if(c) c.textContent=pend.length;
+  const M=mkMap('lfleet');
+  if(M){
+    document.getElementById('fleetsvg').style.display='none';
+    M.layer.clearLayers();
+    const pts=[]; pend.forEach(o=>{ if(o.lat!=null) pts.push({lat:o.lat,lng:o.lng}); });
+    if(boat){
+      pts.push({lat:boat.lat,lng:boat.lng});
+      pend.forEach(o=>{ if(o.lat!=null) L.polyline([[boat.lat,boat.lng],[o.lat,o.lng]],{color:'#9a6630',weight:1.5,dashArray:'4 6',opacity:.7}).addTo(M.layer); });
+    }
+    pend.forEach((o,i)=>{ if(o.lat!=null) L.marker([o.lat,o.lng],{icon:pinIcon('pin-num',i+1,26)}).addTo(M.layer)
+      .bindPopup(`<b>#${i+1} ${esc(o.name)}</b> · ${eur(o.total)}<br>${o.items.map(x=>x.qty+'× '+esc(x.name)).join(', ')}${o.eta_min!=null?'<br>'+o.eta_min+' min':''}`); });
+    if(boat) L.marker([boat.lat,boat.lng],{icon:pinIcon('pin-boat','🍹',34)}).addTo(M.layer).bindPopup('<b>Don Pepito</b> 🍹⛵');
+    fitMap(M,pts);
+    return;
+  }
+  drawFleetSVG(pend);
+}
+// Respaldo sin conexión: flota dibujada en SVG (como antes)
+function drawFleetSVG(pend){
+  const svg=document.getElementById('fleetsvg'); if(!svg) return;
   const pts=[]; pend.forEach(o=>{ if(o.lat!=null) pts.push({lat:o.lat,lng:o.lng}); });
   if(boat) pts.push({lat:boat.lat,lng:boat.lng});
   let body='';
@@ -445,6 +510,9 @@ function setMode(m){
   document.getElementById('mCliente').classList.toggle('on',cli);
   document.getElementById('mBarco').classList.toggle('on',!cli);
   localStorage.setItem('mb_mode',m);
+  // el mapa que estaba oculto necesita recalcular su tamaño al mostrarse
+  setTimeout(()=>{ const M=LMAPS[cli?'lmap':'lfleet'];
+    if(M){ M.map.invalidateSize(); if(cli)drawMap(); else renderQueue(_orders); } },60);
 }
 let _tt; function toast(x){const e=document.getElementById('toast');e.textContent=x;e.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('show'),2600);}
 setMode(localStorage.getItem('mb_mode')||'cliente');
