@@ -36,6 +36,22 @@ MENU = [
 ]
 MENU_BY_ID = {m["id"]: m for m in MENU}
 
+# Arroces del día (carta real): ración 18 € · refresco de la ración +2 € (= 20 € con refresco).
+ARROCES = {
+    "arroz-senoret": "Arroz del señoret",
+    "fideua-secreto": "Fideuá de secreto ibérico y pimiento rojo a la llama",
+    "fideua-senoret": "Fideuá del señoret",
+    "arroz-pato": "Arroz de pato y setas",
+    "fideua-negra": "Fideuá negra con gambón y calamar",
+    "arroz-negro": "Arroz negro con gambón y calamar",
+    "fideua-pato": "Fideuá de pato y setas",
+    "paella-valenciana": "Paella Valenciana",
+}
+for _id, _name in ARROCES.items():
+    MENU_BY_ID[_id] = {"id": _id, "cat": "arroz", "name": _name, "price": 18.0, "emoji": "🥘"}
+MENU_BY_ID["racion-refresco"] = {"id": "racion-refresco", "cat": "arroz",
+                                 "name": "Refresco con tu ración (+2 €)", "price": 2.0, "emoji": "🥤"}
+
 # Estado en memoria
 BOAT = {"lat": None, "lng": None, "speed": SPEED_KMH, "updated": 0.0}
 ORDERS: list[dict] = []
@@ -154,6 +170,18 @@ async def get_order(oid: int):
 
 class StatusIn(BaseModel):
     status: str
+
+
+@app.delete("/api/order/{oid}")
+async def cancel_order(oid: int):
+    o = next((x for x in ORDERS if x["id"] == oid), None)
+    if not o:
+        return JSONResponse({"error": "no_existe"}, status_code=404)
+    if o["status"] != "pendiente":
+        return JSONResponse({"error": "en_marcha", "mensaje": "El pedido ya está en marcha."},
+                            status_code=409)
+    ORDERS.remove(o)
+    return {"ok": True}
 
 
 @app.post("/api/order/{oid}/status")
