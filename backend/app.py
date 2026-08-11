@@ -88,7 +88,8 @@ def _queue_pos(order) -> int:
 
 
 def _public(o) -> dict:
-    return {**{k: o[k] for k in ("id", "name", "items", "lat", "lng", "status", "total", "created")},
+    return {**{k: o.get(k) for k in ("id", "name", "items", "lat", "lng", "status", "total",
+                                     "created", "color", "photo")},
             "eta_min": _eta_min(o), "queue_pos": _queue_pos(o)}
 
 
@@ -138,6 +139,8 @@ class OrderIn(BaseModel):
     items: list[OrderItem] = []
     lat: float | None = None
     lng: float | None = None
+    color: str | None = None          # color del barco del cliente (opcional)
+    photo: str | None = None          # foto pequeña del barco en data-URL (opcional)
 
 
 @app.post("/api/order")
@@ -153,9 +156,11 @@ async def create_order(o: OrderIn):
     if not items:
         return JSONResponse({"error": "sin_items", "mensaje": "El pedido está vacío."}, status_code=400)
     _seq["n"] += 1
+    photo = o.photo if (o.photo and len(o.photo) < 40_000) else None
     order = {"id": _seq["n"], "name": (o.name or "").strip() or f"Pedido {_seq['n']}",
              "items": items, "lat": o.lat, "lng": o.lng, "status": "pendiente",
-             "total": round(total, 2), "created": time.time()}
+             "total": round(total, 2), "created": time.time(),
+             "color": o.color, "photo": photo}
     ORDERS.append(order)
     return {"ok": True, **_public(order)}
 

@@ -5,95 +5,110 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Don Pepito 🍹</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#12303f">
+<meta name="theme-color" content="#f8efda">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Shantell+Sans:wght@400;600;700;800&display=swap">
 <style>
+  /* Piel «Don Pepito» — la del menú impreso: papel crema, letras pintadas de colores,
+     separadores punteados y sellos redondos. */
   :root{
-    --paper:#f4f1ea; --ink:#182a33; --muted:#5f6f78; --line:#e6e1d7; --card:#ffffff;
-    --navy:#12303f; --navy2:#1d4559; --accent:#b47b3c; --accent-d:#9a6630;
-    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
-    --shadow:0 1px 2px rgba(20,32,42,.05),0 8px 22px rgba(20,32,42,.08);
+    --paper:#f8efda; --ink:#41392e; --muted:#8a7c66; --line:#eadfc2; --card:#fffdf4;
+    --azul:#3e8fc0; --rojo:#d94a33; --teal:#2b9db3; --morado:#7b4fa6; --verde:#57a154;
+    --ambar:#e39a2d; --royal:#3763b8; --rosa:#d34a72; --banda:#1d6b78;
+    --navy:#1d6b78; --navy2:#2b9db3; --accent:#d94a33; --accent-d:#b93a26;   /* alias de la piel anterior */
+    --script:'Pacifico',cursive; --hand:'Shantell Sans','Comic Sans MS',cursive,sans-serif;
+    --serif:'Shantell Sans','Comic Sans MS',cursive,sans-serif;
+    --shadow:0 1px 2px rgba(88,64,32,.06),0 8px 22px rgba(88,64,32,.10);
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  body{margin:0;font-family:var(--hand);
     background:var(--paper);color:var(--ink);-webkit-text-size-adjust:100%}
-  header{position:sticky;top:0;z-index:5;background:var(--navy);color:#f3efe7;
-    padding:calc(15px + env(safe-area-inset-top)) 18px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+  header{position:sticky;top:0;z-index:5;background:var(--paper);color:var(--ink);
+    padding:calc(15px + env(safe-area-inset-top)) 18px 12px;border-bottom:2px dotted var(--ambar)}
   .brand{display:flex;flex-direction:column;gap:1px}
-  .brand h1{font-family:var(--serif);font-size:24px;margin:0;font-weight:600;letter-spacing:.4px}
-  .brand small{color:#a9bcc4;font-weight:400;font-size:12px;letter-spacing:.3px}
-  .modes{display:flex;margin-top:13px;border:1px solid rgba(255,255,255,.16);border-radius:9px;overflow:hidden}
-  .modes button{flex:1;border:0;background:none;color:#c3d2d9;padding:9px;font:inherit;font-weight:600;cursor:pointer;font-size:14px;letter-spacing:.3px}
-  .modes button.on{background:#f3efe7;color:var(--navy)}
+  .brand h1{font-family:var(--script);font-size:27px;margin:0;font-weight:400;letter-spacing:.5px;color:var(--azul)}
+  .brand h1 em{font-style:normal;color:var(--rojo)}
+  .brand small{color:var(--muted);font-weight:600;font-size:12px;letter-spacing:.3px}
+  .modes{display:flex;margin-top:13px;border:2px solid var(--teal);border-radius:12px;overflow:hidden;background:var(--card)}
+  .modes button{flex:1;border:0;background:none;color:var(--teal);padding:9px;font:inherit;font-weight:800;cursor:pointer;font-size:14px;letter-spacing:.3px}
+  .modes button.on{background:var(--teal);color:#fff}
   .langs{position:absolute;top:calc(15px + env(safe-area-inset-top));right:18px;display:flex;gap:3px}
-  .langs button{border:1px solid rgba(255,255,255,.18);background:none;color:#c3d2d9;border-radius:6px;padding:3px 7px;font:inherit;font-size:11px;font-weight:600;cursor:pointer}
-  .langs button.on{background:#f3efe7;color:var(--navy);border-color:transparent}
+  .langs button{border:1.5px solid var(--line);background:var(--card);color:var(--muted);border-radius:7px;padding:3px 7px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+  .langs button.on{background:var(--rojo);color:#fff;border-color:var(--rojo)}
   main{padding:16px 18px 122px;max-width:640px;margin:0 auto}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
-  h2{font-family:var(--serif);font-size:17px;margin:0 0 12px;font-weight:600;letter-spacing:.2px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+  h2{font-family:var(--hand);font-size:17px;margin:0 0 12px;font-weight:800;letter-spacing:.2px;color:var(--banda)}
   /* MAPA */
-  .sea{position:relative;border-radius:12px;overflow:hidden;height:230px;box-shadow:var(--shadow);background:linear-gradient(180deg,#1c465c,#12303f)}
+  .sea{position:relative;border-radius:14px;overflow:hidden;height:230px;box-shadow:var(--shadow);background:linear-gradient(180deg,#2b9db3,#1d6b78)}
   .sea svg{position:absolute;inset:0;width:100%;height:100%;z-index:2}  /* respaldo sin conexión; se oculta cuando Leaflet arranca */
   .lmap{position:absolute;inset:0;z-index:1}
   .lmap.leaflet-container{background:#bcd6e2}
-  .seahud{position:absolute;left:16px;bottom:14px;color:#f3efe7;z-index:650;pointer-events:none;text-shadow:0 1px 4px rgba(10,25,35,.85)}
-  .seahud b{font-family:var(--serif);font-size:27px;font-weight:600}.seahud span{font-size:12px;color:#dce8ee;letter-spacing:.3px}
-  .pin{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.35);border:2px solid #f3efe7;background:var(--navy)}
+  .seahud{position:absolute;left:16px;bottom:14px;color:#fff;z-index:650;pointer-events:none;text-shadow:0 1px 4px rgba(10,40,48,.85)}
+  .seahud b{font-family:var(--hand);font-size:26px;font-weight:800}.seahud span{font-size:12px;color:#e6f3ef;letter-spacing:.3px}
+  .pin{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.35);border:2px solid #fffdf4;background:var(--banda)}
   .pin-boat{font-size:18px}
-  .pin-me{background:#f3efe7;border:3px solid var(--accent)}
-  .pin-num{color:#f3efe7;font-weight:700;font-size:13px}
+  .pin-me{background:#fffdf4;border:3px solid var(--rojo)}
+  .pin-num{color:#fffdf4;font-weight:700;font-size:13px}
   .leaflet-control-attribution{font-size:9px;opacity:.8}
-  .leaflet-popup-content{font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:10px 14px}
-  .btn{width:100%;border:0;border-radius:10px;padding:14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;letter-spacing:.3px}
-  .btn.p{background:var(--accent);color:#fff}
-  .btn.s{background:#fff;color:var(--navy);border:1px solid var(--line)}
-  .btn.go{background:none;color:var(--navy);border:1.5px solid var(--navy)}
+  .leaflet-popup-content{font:13px/1.4 'Shantell Sans','Comic Sans MS',cursive,sans-serif;margin:10px 14px}
+  .btn{width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.3px}
+  .btn.p{background:var(--rojo);color:#fff;box-shadow:0 3px 0 var(--accent-d)}
+  .btn.s{background:var(--card);color:var(--banda);border:1.5px solid var(--line)}
+  .btn.go{background:var(--card);color:var(--teal);border:2px solid var(--teal)}
   .row{display:flex;gap:12px}.row>*{flex:1}
-  .item{display:flex;align-items:center;gap:14px;padding:12px 2px;border-bottom:1px solid var(--line)}
+  .item{display:flex;align-items:center;gap:14px;padding:12px 2px;border-bottom:2px dotted var(--line)}
   .item:last-child{border-bottom:0}
-  .item .em{font-size:15px;width:20px;text-align:center;filter:grayscale(.2);opacity:.85}
-  .item .nm{flex:1}.item .nm b{display:block;font-size:15px;font-weight:600}.item .nm span{font-size:12px;color:var(--muted)}
+  .item .em{font-size:15px;width:20px;text-align:center}
+  .item .nm{flex:1}.item .nm b{display:block;font-size:15px;font-weight:700;color:var(--rojo)}.item .nm span{font-size:12px;color:var(--muted)}
   .step{display:flex;align-items:center;gap:10px}
-  .step button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:18px;cursor:pointer;color:var(--navy)}
-  .step b{min-width:18px;text-align:center;font-weight:600}
-  .cat{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--accent-d);font-weight:700;margin:18px 2px 4px;border-bottom:1px solid var(--line);padding-bottom:6px}
-  .total{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;font-size:16px;margin:14px 2px 4px}
-  .total span:last-child{font-family:var(--serif);font-size:20px}
-  .eta{display:flex;gap:14px;align-items:center;background:var(--navy);color:#f3efe7;border-radius:12px;padding:16px;margin-bottom:14px}
-  .eta .big{font-family:var(--serif);font-size:34px;font-weight:600;color:#fff;line-height:1}
-  .eta small{color:#a9bcc4}
-  .status{display:inline-block;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
-  .st-pendiente{background:#f2ead9;color:#8a6a2f}.st-en_camino{background:#dde7ec;color:#2c5468}.st-entregado{background:#e2ebe1;color:#3a5f43}
+  .step button{width:32px;height:32px;border-radius:10px;border:1.5px solid var(--teal);background:var(--card);font-size:18px;cursor:pointer;color:var(--teal);font-weight:800}
+  .step b{min-width:18px;text-align:center;font-weight:800}
+  .cat{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--banda);font-weight:800;margin:18px 2px 4px;border-bottom:2.5px solid currentColor;padding-bottom:6px;font-family:var(--hand)}
+  .cat[data-c="arroz"]{color:var(--rojo)} .cat[data-c="cóctel"]{color:var(--morado)}
+  .cat[data-c="refresco"]{color:var(--teal)} .cat[data-c="picar"]{color:var(--verde)}
+  .total{display:flex;justify-content:space-between;align-items:baseline;font-weight:800;font-size:16px;margin:14px 2px 4px}
+  .total span:last-child{font-family:var(--hand);font-size:20px;color:var(--rojo)}
+  .eta{display:flex;gap:14px;align-items:center;background:var(--banda);color:#e6f3ef;border-radius:14px;padding:16px;margin-bottom:14px}
+  .eta .big{font-family:var(--hand);font-size:34px;font-weight:800;color:#fff;line-height:1}
+  .eta small{color:#bcdfe0}
+  .status{display:inline-block;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px}
+  .st-pendiente{background:#f6e3b8;color:#93641c}.st-en_camino{background:#d3ecef;color:#1d6b78}.st-entregado{background:#dcecd8;color:#3c7a39}
   .note{font-size:13px;color:var(--muted);margin-top:8px}
-  .qi{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px}
-  .qi .n{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#f3efe7;display:grid;place-items:center;font-weight:700;font-size:13px}
-  .qi .info{flex:1}.qi .info b{font-size:15px;font-weight:600}.qi .info span{font-size:12px;color:var(--muted);display:block}
+  .qi{display:flex;align-items:center;gap:12px;padding:13px;border:1.5px solid var(--line);border-radius:12px;margin-bottom:10px;background:var(--card)}
+  .qi .n{width:26px;height:26px;border-radius:50%;background:var(--rojo);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+  .qi .info{flex:1}.qi .info b{font-size:15px;font-weight:700}.qi .info span{font-size:12px;color:var(--muted);display:block}
   .qi .acts{display:flex;flex-direction:column;gap:6px}
-  .qi .acts button{border:1px solid var(--navy);border-radius:8px;padding:7px 11px;font:inherit;font-weight:600;font-size:12px;cursor:pointer}
-  .mini{background:none;color:var(--navy)}.mini.done{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .qi .acts button{border:1.5px solid var(--teal);border-radius:9px;padding:7px 11px;font:inherit;font-weight:800;font-size:12px;cursor:pointer}
+  .mini{background:none;color:var(--teal)}.mini.done{background:var(--verde);color:#fff;border-color:var(--verde)}
   .hidden{display:none}
   .pill{position:fixed;left:0;right:0;bottom:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--paper) 68%,transparent);max-width:640px;margin:0 auto}
-  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:92px;background:var(--navy);color:#f3efe7;padding:11px 16px;border-radius:8px;font-size:14px;opacity:0;transition:.2s;z-index:30;box-shadow:var(--shadow);max-width:90%}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:92px;background:var(--banda);color:#fff;padding:11px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.2s;z-index:30;box-shadow:var(--shadow);max-width:90%}
   .toast.show{opacity:1}
-  input[type=text],input[type=number],input[type=tel]{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;font:inherit;background:#fff;color:var(--ink)}
-  .installbtn{width:100%;margin-top:12px;background:rgba(255,255,255,.1);color:#f3efe7;border:1px solid rgba(255,255,255,.28);border-radius:10px;padding:10px;font:inherit;font-weight:600;font-size:13px;cursor:pointer}
-  .installbtn:hover{background:rgba(255,255,255,.18)}
-  .sheet{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:60;align-items:flex-end;justify-content:center}
+  input[type=text],input[type=number],input[type=tel]{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:10px;font:inherit;background:var(--card);color:var(--ink)}
+  .installbtn{width:100%;margin-top:12px;background:var(--card);color:var(--banda);border:2px dashed var(--ambar);border-radius:12px;padding:10px;font:inherit;font-weight:800;font-size:13px;cursor:pointer}
+  .installbtn:hover{background:#fdf6e3}
+  .sheet{display:none;position:fixed;inset:0;background:rgba(60,40,20,.5);z-index:60;align-items:flex-end;justify-content:center}
   .sheet.show{display:flex}
   .sheetbox{background:var(--paper);width:100%;max-width:640px;border-radius:18px 18px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.25)}
   .sheethead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-  .sheethead b{font-family:var(--serif);font-size:18px}
+  .sheethead b{font-family:var(--hand);font-size:18px;font-weight:800;color:var(--banda)}
   .sheethead button{background:none;border:0;font-size:18px;color:var(--muted);cursor:pointer}
   .isec{margin-bottom:14px}
-  .isec>b{display:block;margin-bottom:8px;font-size:12px;color:var(--accent-d);text-transform:uppercase;letter-spacing:.7px}
+  .isec>b{display:block;margin-bottom:8px;font-size:12px;color:var(--rojo);text-transform:uppercase;letter-spacing:.7px}
   .isec .btn{margin-bottom:8px;display:block;text-align:center;text-decoration:none}
+  .swatches{display:flex;gap:9px;margin-top:8px;flex-wrap:wrap}
+  .sw{width:32px;height:32px;border-radius:50%;border:2.5px solid rgba(0,0,0,.08);cursor:pointer;padding:0}
+  .sw.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink);transform:scale(1.05)}
+  .boatphoto{width:52px;height:52px;border-radius:10px;object-fit:cover;border:2px solid var(--line);flex:0 0 auto}
+  .qphoto{width:44px;height:44px;border-radius:10px;object-fit:cover;border:1.5px solid var(--line);flex:0 0 auto}
 </style>
 </head>
 <body>
 <header>
   <div class="langs" id="langs"></div>
-  <div class="brand"><h1>Don Pepito</h1><small id="tagline">Cócteles a tu barco, en el mar</small></div>
+  <div class="brand"><h1>Don <em>Pepito</em></h1><small id="tagline">Cócteles a tu barco, en el mar</small></div>
   <div class="modes">
     <button id="mCliente" class="on" onclick="setMode('cliente')"><span data-t="cliente">Cliente</span></button>
     <button id="mBarco" onclick="setMode('barco')"><span data-t="barco">Barco</span></button>
@@ -120,7 +135,18 @@
       <div class="note" data-t="paynote">💶 Se paga al recibir, en el barco.</div>
       <div class="note"><a href="www/" style="color:var(--accent-d);font-weight:600;text-decoration:none">📅 Ver la carta de arroces de la semana →</a></div>
     </div>
-    <div style="margin-bottom:12px"><input type="text" id="cname" placeholder="Tu nombre / matrícula del barco" data-tp="yourname"></div>
+    <div class="card" id="myboatCard">
+      <h2 data-t="myboat">Mi barco</h2>
+      <input type="text" id="cname" placeholder="Tu nombre / matrícula del barco" data-tp="yourname" oninput="saveProfileName()">
+      <div class="note" data-t="colorq">Color del barco (opcional): así te encuentran antes.</div>
+      <div class="swatches" id="swatches"></div>
+      <div style="display:flex;gap:12px;margin-top:12px;align-items:center">
+        <button class="btn s" style="flex:1" onclick="document.getElementById('photoIn').click()" data-t="photo">📷 Foto del barco (opcional)</button>
+        <img id="photoPrev" class="boatphoto hidden" alt="">
+      </div>
+      <input type="file" id="photoIn" accept="image/*" style="display:none" onchange="setPhoto(this)">
+      <div class="note" id="photoDelRow" style="display:none"><a href="#" onclick="delPhoto();return false" style="color:var(--rojo)" data-t="photodel">Quitar la foto</a></div>
+    </div>
     <button class="btn" id="waBtn" onclick="orderWhatsApp()" style="width:100%;background:#25D366;color:#04310f;margin-bottom:14px">💬 Pedir por WhatsApp</button>
   </section>
 
@@ -187,19 +213,25 @@ const T={
       away:"a tu posición",min:"min",queuePos:"en la cola",ordered:"¡Pedido enviado!",onway:"En camino",
       pending:"En preparación",delivered:"¡Entregado! 🍹",tagline:"Cócteles a tu barco, en el mar",
       needLoc:"Necesito tu ubicación para calcular el tiempo.",empty:"Añade algo a tu pedido.",
-      cancel:"Cancelar pedido",canceled:"Pedido cancelado."},
+      cancel:"Cancelar pedido",canceled:"Pedido cancelado.",
+      myboat:"Mi barco",colorq:"Color del barco (opcional): así te encuentran antes.",
+      photo:"📷 Foto del barco (opcional)",photodel:"Quitar la foto"},
   en:{cliente:"Customer",barco:"Boat",menu:"Menu",total:"Total",order:"Order",locate:"📍 Locate me",
       tapLoc:"Tap “Locate me”",paynote:"💶 Pay on delivery, at the boat.",yourname:"Your name / boat",
       away:"to your spot",min:"min",queuePos:"in the queue",ordered:"Order sent!",onway:"On the way",
       pending:"Preparing",delivered:"Delivered! 🍹",tagline:"Cocktails to your boat, at sea",
       needLoc:"I need your location to estimate the time.",empty:"Add something to your order.",
-      cancel:"Cancel order",canceled:"Order canceled."},
+      cancel:"Cancel order",canceled:"Order canceled.",
+      myboat:"My boat",colorq:"Boat colour (optional): helps us spot you sooner.",
+      photo:"📷 Boat photo (optional)",photodel:"Remove photo"},
   de:{cliente:"Kunde",barco:"Boot",menu:"Karte",total:"Gesamt",order:"Bestellen",locate:"📍 Orten",
       tapLoc:"„Orten“ tippen",paynote:"💶 Zahlung bei Lieferung am Boot.",yourname:"Ihr Name / Boot",
       away:"zu deinem Platz",min:"Min",queuePos:"in der Schlange",ordered:"Bestellung gesendet!",onway:"Unterwegs",
       pending:"Wird zubereitet",delivered:"Geliefert! 🍹",tagline:"Cocktails zu deinem Boot, auf See",
       needLoc:"Ich brauche deinen Standort für die Zeitschätzung.",empty:"Füge etwas hinzu.",
-      cancel:"Bestellung stornieren",canceled:"Bestellung storniert."},
+      cancel:"Bestellung stornieren",canceled:"Bestellung storniert.",
+      myboat:"Mein Boot",colorq:"Bootsfarbe (optional): so finden wir dich schneller.",
+      photo:"📷 Bootsfoto (optional)",photodel:"Foto entfernen"},
 };
 let lang=localStorage.getItem('mb_lang')||'es';
 function t(k){return (T[lang]&&T[lang][k])||T.es[k]||k}
@@ -285,7 +317,7 @@ function renderMenu(){
   let html='';
   Object.keys(cats).forEach(c=>{
     const items=MENU.filter(m=>m.cat===c); if(!items.length)return;
-    html+=`<div class="cat">${cats[c]}</div>`;
+    html+=`<div class="cat" data-c="${c}">${cats[c]}</div>`;
     items.forEach(m=>{ const q=cart[m.id]||0;
       html+=`<div class="item"><div class="em">${m.emoji}</div>
         <div class="nm"><b>${m.name}</b><span>${eur(m.price)}</span></div>
@@ -298,6 +330,39 @@ function chg(id,d){ cart[id]=Math.max(0,(cart[id]||0)+d); if(!cart[id])delete ca
   const el=document.getElementById('q-'+id); if(el)el.textContent=cart[id]||0; updateTotal(); }
 function cartTotal(){ return Object.entries(cart).reduce((s,[id,q])=>{const m=MENU.find(x=>x.id===id);return s+(m?m.price*q:0)},0); }
 function updateTotal(){ const tt=eur(cartTotal()); document.getElementById('total').textContent=tt; document.getElementById('orderTotal').textContent=tt; }
+
+// ---------- CLIENTE: perfil «Mi barco» (nombre + color + foto, opcionales, guardados en el móvil) ----------
+const BOAT_COLORS=[["#d94a33","Rojo"],["#3e8fc0","Azul"],["#2b9db3","Turquesa"],["#7b4fa6","Morado"],
+  ["#57a154","Verde"],["#e39a2d","Naranja"],["#d34a72","Rosa"],["#41392e","Marrón"]];
+let myColor=localStorage.getItem('mb_color')||'', myPhoto=localStorage.getItem('mb_photo')||'';
+function colorName(hex){const c=BOAT_COLORS.find(x=>x[0]===hex);return c?c[1]:''}
+function renderSwatches(){
+  const el=document.getElementById('swatches'); if(!el)return;
+  el.innerHTML=BOAT_COLORS.map(([h,n])=>
+    `<button class="sw${myColor===h?' on':''}" style="background:${h}" onclick="setColor('${h}')" title="${n}" aria-label="${n}"></button>`).join('');
+}
+function setColor(h){ myColor=(myColor===h)?'':h;
+  if(myColor)localStorage.setItem('mb_color',myColor); else localStorage.removeItem('mb_color'); renderSwatches(); }
+function saveProfileName(){ localStorage.setItem('mb_name',document.getElementById('cname').value||''); }
+function setPhoto(inp){
+  const f=inp.files&&inp.files[0]; if(!f)return;
+  const img=new Image();
+  img.onload=()=>{
+    const s=Math.min(1,96/Math.max(img.width,img.height));
+    const cv=document.createElement('canvas'); cv.width=Math.max(1,Math.round(img.width*s)); cv.height=Math.max(1,Math.round(img.height*s));
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    myPhoto=cv.toDataURL('image/jpeg',.7);
+    try{ localStorage.setItem('mb_photo',myPhoto); }catch(_){}
+    URL.revokeObjectURL(img.src); refreshPhotoUI();
+  };
+  img.src=URL.createObjectURL(f); inp.value='';
+}
+function delPhoto(){ myPhoto=''; localStorage.removeItem('mb_photo'); refreshPhotoUI(); }
+function refreshPhotoUI(){
+  const p=document.getElementById('photoPrev'), r=document.getElementById('photoDelRow'); if(!p)return;
+  if(myPhoto){ p.src=myPhoto; p.classList.remove('hidden'); r.style.display='block'; }
+  else { p.classList.add('hidden'); r.style.display='none'; }
+}
 
 // ---------- CLIENTE: localización + mapa ----------
 function locateMe(){
@@ -329,7 +394,7 @@ function fitMap(M,pts){
   if(pts.length===1) M.map.setView([pts[0].lat,pts[0].lng],14);
   else M.map.fitBounds(L.latLngBounds(pts.map(p=>[p.lat,p.lng])).pad(0.35),{maxZoom:15});
 }
-const pinIcon=(cls,html,s)=>L.divIcon({className:'',html:`<div class="pin ${cls}">${html}</div>`,iconSize:[s,s],iconAnchor:[s/2,s/2]});
+const pinIcon=(cls,html,s,bg)=>L.divIcon({className:'',html:`<div class="pin ${cls}"${bg?` style="background:${esc(bg)}"`:''}>${html}</div>`,iconSize:[s,s],iconAnchor:[s/2,s/2]});
 function drawMap(){
   const dist=(me&&boat)?haversine(me,boat):null;
   const M=mkMap('lmap');
@@ -387,11 +452,13 @@ async function placeOrder(){
   try{
     if(useFB()){
       const F=FB.fs, ref=await F.addDoc(F.collection(FB.db,'orders'),
-        {name,items:full,lat:me.lat,lng:me.lng,status:'pendiente',total,created:Date.now()/1000});
+        {name,items:full,lat:me.lat,lng:me.lng,status:'pendiente',total,created:Date.now()/1000,
+         color:myColor||null,photo:myPhoto||null});
       myOrderId=ref.id;
     }else{
       const r=await (await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({name,items:full.map(i=>({id:i.id,qty:i.qty})),lat:me.lat,lng:me.lng})})).json();
+        body:JSON.stringify({name,items:full.map(i=>({id:i.id,qty:i.qty})),lat:me.lat,lng:me.lng,
+          color:myColor||null,photo:myPhoto||null})})).json();
       if(!r.ok){toast(r.mensaje||'Error');b.disabled=false;return;} myOrderId=r.id; myOrder=r;
     }
     localStorage.setItem('mb_oid',myOrderId); cart={}; renderMenu(); toast(t('ordered'));
@@ -468,6 +535,7 @@ function orderWhatsApp(){
   const nom=(document.getElementById('cname').value||'').trim();
   let msg='¡Hola Don Pepito! Quiero pedir:\n'+lines.join('\n')+'\nTotal: '+eur(cartTotal());
   if(nom)msg+='\nNombre/barco: '+nom;
+  if(myColor)msg+='\nColor del barco: '+colorName(myColor);
   if(me)msg+='\nMi ubicación: https://maps.google.com/?q='+me.lat.toFixed(5)+','+me.lng.toFixed(5);
   else msg+='\n(pulsa «Localizarme» en la app para enviar mi posición)';
   window.open('https://wa.me/'+waNumber+'?text='+encodeURIComponent(msg),'_blank');
@@ -503,7 +571,8 @@ function renderQueue(orders){
   alertNewOrders(pend);
   drawFleet(pend);
   document.getElementById('queue').innerHTML=pend.length?pend.map((o,i)=>`
-    <div class="qi"><div class="n">${i+1}</div>
+    <div class="qi"${o.color?` style="border-left:6px solid ${esc(o.color)}"`:''}><div class="n"${o.color?` style="background:${esc(o.color)}"`:''}>${i+1}</div>
+      ${o.photo?`<img class="qphoto" src="${esc(o.photo)}" alt="">`:''}
       <div class="info"><b>${o.name} · ${eur(o.total)}</b>
         <span>${o.items.map(x=>x.qty+'× '+x.name).join(', ')}</span>
         <span>${o.eta_min!=null?o.eta_min+' min · ':''}${o.status==='en_camino'?'en camino':'pendiente'}</span></div>
@@ -524,8 +593,8 @@ function drawFleet(pend){
       pts.push({lat:boat.lat,lng:boat.lng});
       pend.forEach(o=>{ if(o.lat!=null) L.polyline([[boat.lat,boat.lng],[o.lat,o.lng]],{color:'#9a6630',weight:1.5,dashArray:'4 6',opacity:.7}).addTo(M.layer); });
     }
-    pend.forEach((o,i)=>{ if(o.lat!=null) L.marker([o.lat,o.lng],{icon:pinIcon('pin-num',i+1,26)}).addTo(M.layer)
-      .bindPopup(`<b>#${i+1} ${esc(o.name)}</b> · ${eur(o.total)}<br>${o.items.map(x=>x.qty+'× '+esc(x.name)).join(', ')}${o.eta_min!=null?'<br>'+o.eta_min+' min':''}`); });
+    pend.forEach((o,i)=>{ if(o.lat!=null) L.marker([o.lat,o.lng],{icon:pinIcon('pin-num',i+1,26,o.color)}).addTo(M.layer)
+      .bindPopup(`<b>#${i+1} ${esc(o.name)}</b> · ${eur(o.total)}<br>${o.items.map(x=>x.qty+'× '+esc(x.name)).join(', ')}${o.eta_min!=null?'<br>'+o.eta_min+' min':''}${o.photo?`<br><img src="${esc(o.photo)}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;margin-top:6px">`:''}`); });
     if(boat) L.marker([boat.lat,boat.lng],{icon:pinIcon('pin-boat','🍹',34)}).addTo(M.layer).bindPopup('<b>Don Pepito</b> 🍹⛵');
     fitMap(M,pts);
     return;
@@ -546,17 +615,17 @@ function drawFleetSVG(pend){
     minLa-=pad;maxLa+=pad;minLo-=pad;maxLo+=pad;
     const X=lo=>36+(lo-minLo)/((maxLo-minLo)||1)*268, Y=la=>216-(la-minLa)/((maxLa-minLa)||1)*180;
     if(boat) pend.forEach(o=>{ if(o.lat!=null) body+=`<line x1="${X(boat.lng)}" y1="${Y(boat.lat)}" x2="${X(o.lng)}" y2="${Y(o.lat)}" stroke="rgba(230,201,154,.30)" stroke-width="1.2" stroke-dasharray="3 4"/>`; });
-    pend.forEach((o,i)=>{ if(o.lat!=null) body+=numMarker(X(o.lng),Y(o.lat),i+1); });
+    pend.forEach((o,i)=>{ if(o.lat!=null) body+=numMarker(X(o.lng),Y(o.lat),i+1,o.color); });
     if(boat) body+=marker(X(boat.lng),Y(boat.lat),'boat');
   } else {
     body+=`<text x="170" y="130" fill="#a9bcc4" font-size="13" text-anchor="middle">Sin barcos en cola</text>`;
   }
   svg.innerHTML=body;
 }
-function numMarker(x,y,n){
+function numMarker(x,y,n,color){
   return `<g><ellipse cx="${x}" cy="${y+9}" rx="9" ry="3" fill="rgba(0,0,0,.28)"/>
-    <circle cx="${x}" cy="${y}" r="11" fill="#12303f" stroke="#f3efe7" stroke-width="1.6"/>
-    <text x="${x}" y="${y+0.5}" font-size="12" font-weight="700" fill="#f3efe7" text-anchor="middle" dominant-baseline="central">${n}</text></g>`;
+    <circle cx="${x}" cy="${y}" r="11" fill="${esc(color||'#1d6b78')}" stroke="#fffdf4" stroke-width="1.6"/>
+    <text x="${x}" y="${y+0.5}" font-size="12" font-weight="700" fill="#fffdf4" text-anchor="middle" dominant-baseline="central">${n}</text></g>`;
 }
 async function setOrder(id,status){
   if(useFB()){ const F=FB.fs; await F.updateDoc(F.doc(FB.db,'orders',String(id)),{status}); }
@@ -578,6 +647,8 @@ function setMode(m){
 }
 let _tt; function toast(x){const e=document.getElementById('toast');e.textContent=x;e.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('show'),2600);}
 setMode(localStorage.getItem('mb_mode')||'cliente');
+document.getElementById('cname').value=localStorage.getItem('mb_name')||'';
+renderSwatches(); refreshPhotoUI();
 applyLang(); bootData();
 // ---------- Instalar / descargar la app ----------
 let deferredPrompt=null;
