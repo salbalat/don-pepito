@@ -1,12 +1,17 @@
 {
   "name": "Don Pepito",
   "short_name": "Don Pepito",
-  "description": "Cócteles a tu barco, en el mar",
+  "description": "Arroces y cócteles a tu barco, en el mar",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#0a7ea4",
-  "theme_color": "#0a7ea4",
+  "background_color": "#f8efda",
+  "theme_color": "#f8efda",
   "icons": [
-    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
   ]
 }

@@ -9,107 +9,126 @@
 <link rel="icon" href="../icons/icon.svg">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Shantell+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap">
 <style>
+  /* Piel «Don Pepito» — la del menú impreso: papel crema, letras pintadas de colores,
+     separadores punteados y sellos redondos de precio. */
   :root{
-    --paper:#f4f1ea; --ink:#182a33; --muted:#5f6f78; --line:#e6e1d7; --card:#ffffff;
-    --navy:#12303f; --navy2:#1d4559; --accent:#b47b3c; --accent-d:#9a6630;
-    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
-    --shadow:0 1px 2px rgba(20,32,42,.05),0 8px 22px rgba(20,32,42,.08);
+    --paper:#f8efda; --ink:#41392e; --muted:#8a7c66; --line:#eadfc2; --card:#fffdf4;
+    --azul:#3e8fc0; --rojo:#d94a33; --teal:#2b9db3; --morado:#7b4fa6; --verde:#57a154;
+    --ambar:#e39a2d; --royal:#3763b8; --rosa:#d34a72; --banda:#1d6b78;
+    --script:'Pacifico',cursive; --hand:'Shantell Sans','Comic Sans MS',cursive,sans-serif;
+    --shadow:0 1px 2px rgba(88,64,32,.06),0 8px 22px rgba(88,64,32,.10);
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  body{margin:0;font-family:var(--hand);
     background:var(--paper);color:var(--ink);-webkit-text-size-adjust:100%}
   .wrap{max-width:760px;margin:0 auto;padding:0 20px}
-  /* HERO */
-  .hero{background:linear-gradient(180deg,var(--navy2),var(--navy));color:#f3efe7;
-    padding:calc(26px + env(safe-area-inset-top)) 0 0;position:relative;overflow:hidden}
-  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:34px}
-  .topbar b{font-family:var(--serif);font-size:19px;letter-spacing:.4px;font-weight:600}
+  /* franja multicolor como el borde del menú impreso */
+  .stripe{height:7px;background:linear-gradient(90deg,
+    var(--teal) 0 14%,var(--rojo) 14% 28%,var(--ambar) 28% 42%,var(--morado) 42% 56%,
+    var(--verde) 56% 70%,var(--royal) 70% 84%,var(--rosa) 84% 100%)}
+  /* HERO (papel crema, como la cabecera del menú) */
+  .hero{background:var(--paper);color:var(--ink);
+    padding:calc(26px + env(safe-area-inset-top)) 0 0;position:relative;overflow:hidden;
+    border-bottom:3px dotted var(--ambar)}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
+  .topbar b{font-family:var(--script);font-size:22px;letter-spacing:.5px;font-weight:400;color:var(--azul)}
+  .topbar b em{font-style:normal;color:var(--rojo)}
   .langs{display:flex;gap:4px}
-  .langs button{border:1px solid rgba(255,255,255,.22);background:none;color:#c3d2d9;border-radius:6px;
-    padding:4px 9px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
-  .langs button.on{background:#f3efe7;color:var(--navy);border-color:transparent}
-  .hero h1{font-family:var(--serif);font-weight:600;font-size:clamp(32px,6.6vw,52px);line-height:1.08;margin:0 0 14px;letter-spacing:.3px}
-  .hero p.lead{font-size:clamp(15px,2.6vw,18px);color:#c3d2d9;max-width:34em;margin:0 0 26px;line-height:1.55}
+  .langs button{border:1.5px solid var(--line);background:var(--card);color:var(--muted);border-radius:7px;
+    padding:4px 9px;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+  .langs button.on{background:var(--rojo);color:#fff;border-color:var(--rojo)}
+  .heroLogo{font-family:var(--script);font-weight:400;font-size:clamp(44px,10vw,76px);line-height:1.05;margin:0 0 6px;color:var(--azul)}
+  .heroLogo em{font-style:normal;color:var(--rojo)}
+  .hero h1{font-family:var(--hand);font-weight:800;font-size:clamp(22px,4.6vw,32px);line-height:1.2;margin:0 0 14px;color:var(--banda);text-wrap:balance}
+  .hero p.lead{font-size:clamp(15px,2.6vw,17px);color:var(--muted);max-width:34em;margin:0 0 26px;line-height:1.6}
   .cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-  .btn{display:inline-block;border:0;border-radius:10px;padding:15px 22px;font:inherit;font-weight:700;
+  .btn{display:inline-block;border:0;border-radius:12px;padding:15px 22px;font:inherit;font-weight:800;
     font-size:15px;cursor:pointer;text-decoration:none;letter-spacing:.3px;text-align:center}
-  .btn.p{background:var(--accent);color:#fff}
-  .btn.w{background:#25D366;color:#04310f}
-  .btn.o{background:none;color:#f3efe7;border:1.5px solid rgba(255,255,255,.5)}
-  .paynote{font-size:13px;color:#a9bcc4;margin:0 0 30px}
-  .waves{display:block;width:100%;height:56px;margin-top:8px}
+  .btn.p{background:var(--rojo);color:#fff;box-shadow:0 3px 0 #b93a26}
+  .btn.w{background:#25D366;color:#04310f;box-shadow:0 3px 0 #1a9c49}
+  .btn.o{background:var(--card);color:var(--teal);border:2px solid var(--teal)}
+  .paynote{font-size:13px;color:var(--muted);margin:0 0 30px}
+  .waves{display:none}
   /* SECCIONES */
   section{padding:44px 0 6px}
-  .kicker{font-size:12px;text-transform:uppercase;letter-spacing:1.6px;color:var(--accent-d);font-weight:700;margin:0 0 6px}
-  h2{font-family:var(--serif);font-size:clamp(24px,4.6vw,32px);margin:0 0 20px;font-weight:600;letter-spacing:.2px}
+  .kicker{font-size:12px;text-transform:uppercase;letter-spacing:1.6px;color:var(--rojo);font-weight:800;margin:0 0 6px}
+  h2{font-family:var(--hand);font-size:clamp(23px,4.6vw,30px);margin:0 0 20px;font-weight:800;letter-spacing:.2px;color:var(--banda);text-wrap:balance}
   .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:16px}
-  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:18px}
-  .step .n{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#f3efe7;display:grid;
-    place-items:center;font-weight:700;font-size:14px;margin-bottom:12px}
-  .step b{display:block;font-size:16px;margin-bottom:6px;font-weight:600}
-  .step span{font-size:14px;color:var(--muted);line-height:1.5}
-  /* ARROCES DE LA SEMANA */
-  .badges{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 18px}
-  .badge{border-radius:12px;padding:14px 20px;text-align:center;box-shadow:var(--shadow)}
-  .badge b{font-family:var(--serif);font-size:26px;display:block;line-height:1.1}
-  .badge span{font-size:12px;letter-spacing:.4px}
-  .badge.b1{background:var(--navy);color:#f3efe7}
-  .badge.b2{background:var(--accent);color:#fff}
+  .step{background:var(--card);border:1.5px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:18px}
+  .step .n{width:30px;height:30px;border-radius:50%;color:#fff;display:grid;
+    place-items:center;font-weight:800;font-size:14px;margin-bottom:12px}
+  .step:nth-child(1) .n{background:var(--teal)} .step:nth-child(2) .n{background:var(--morado)} .step:nth-child(3) .n{background:var(--verde)}
+  .step b{display:block;font-size:16px;margin-bottom:6px;font-weight:700;color:var(--rojo)}
+  .step span{font-size:14px;color:var(--muted);line-height:1.55}
+  /* ARROCES DE LA SEMANA — sellos redondos como el menú */
+  .badges{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 22px;align-items:center}
+  .badge{width:118px;height:118px;border-radius:50%;display:flex;flex-direction:column;justify-content:center;
+    text-align:center;box-shadow:var(--shadow);border:3px dashed rgba(255,255,255,.55)}
+  .badge b{font-family:var(--hand);font-size:30px;display:block;line-height:1.05;font-weight:800}
+  .badge span{font-size:12px;letter-spacing:.4px;font-weight:700}
+  .badge.b1{background:var(--teal);color:#fff;transform:rotate(-5deg)}
+  .badge.b2{background:var(--rojo);color:#fff;transform:rotate(4deg)}
   .week{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-  .day{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:16px;position:relative}
-  .day.today{border:2px solid var(--accent)}
-  .day .hoy{position:absolute;top:-10px;right:12px;background:var(--accent);color:#fff;font-size:11px;
-    font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.6px;text-transform:uppercase}
-  .day h3{font-family:var(--serif);font-size:16px;margin:0 0 10px;font-weight:600;color:var(--accent-d);
-    border-bottom:1px solid var(--line);padding-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+  .day{background:var(--card);border:1.5px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px;position:relative}
+  .day.today{border:2.5px solid var(--rojo)}
+  .day .hoy{position:absolute;top:-11px;right:12px;background:var(--rojo);color:#fff;font-size:11px;
+    font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.6px;text-transform:uppercase}
+  .day h3{font-family:var(--hand);font-size:17px;margin:0 0 10px;font-weight:800;
+    border-bottom:3px solid currentColor;padding-bottom:7px;text-transform:uppercase;letter-spacing:1px}
   .day .plato{margin-bottom:10px}
-  .day .plato b{display:block;font-size:14.5px;font-weight:600;line-height:1.35}
+  .day .plato b{display:block;font-size:14.5px;font-weight:700;line-height:1.35;color:var(--rojo)}
   .day .plato span{font-size:12.5px;color:var(--muted);font-style:italic}
   .day .alg{font-size:11px;color:var(--muted);margin-top:8px;letter-spacing:.3px}
   .weeknote{font-size:13px;color:var(--muted);margin:16px 2px 0;line-height:1.6}
-  .caldos{margin-top:18px;background:var(--navy);color:#dce8ee;border-radius:12px;padding:14px 18px;
-    font-size:13.5px;text-align:center;box-shadow:var(--shadow)}
+  .caldos{margin-top:18px;background:var(--banda);color:#e6f3ef;border-radius:14px;padding:14px 18px;
+    font-size:13.5px;text-align:center;box-shadow:var(--shadow);font-weight:600}
   /* MAPA ZONA */
   .mapbox{position:relative;border-radius:14px;overflow:hidden;height:320px;box-shadow:var(--shadow);
-    background:linear-gradient(180deg,#1c465c,#12303f)}
+    background:linear-gradient(180deg,#2b9db3,#1d6b78)}
   .mapbox .lmap{position:absolute;inset:0}
   .mapbox .lmap.leaflet-container{background:#bcd6e2}
-  .mapoff{position:absolute;inset:0;display:grid;place-items:center;color:#c3d2d9;font-size:14px;
+  .mapoff{position:absolute;inset:0;display:grid;place-items:center;color:#e6f3ef;font-size:14px;
     text-align:center;padding:20px;z-index:2}
-  .pin{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.35);border:2px solid #f3efe7;background:var(--navy)}
+  .pin{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.35);border:2px solid #fffdf4;background:var(--banda)}
   .pin-boat{font-size:18px}
   .leaflet-control-attribution{font-size:9px;opacity:.8}
   /* CARTA BEBIDAS */
-  .carta{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:6px 22px 18px}
-  .cat{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--accent-d);font-weight:700;
-    margin:22px 0 4px;border-bottom:1px solid var(--line);padding-bottom:8px}
-  .dish{display:flex;align-items:baseline;gap:10px;padding:11px 0;border-bottom:1px dashed var(--line);font-size:15px}
+  .carta{background:var(--card);border:1.5px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:6px 22px 18px}
+  .cat{font-size:13px;text-transform:uppercase;letter-spacing:1.4px;font-weight:800;
+    margin:22px 0 4px;border-bottom:3px solid currentColor;padding-bottom:8px;font-family:var(--hand)}
+  .cat[data-c="coctel"]{color:var(--morado)} .cat[data-c="refresco"]{color:var(--teal)} .cat[data-c="picar"]{color:var(--verde)}
+  .dish{display:flex;align-items:baseline;gap:10px;padding:11px 0;border-bottom:2px dotted var(--line);font-size:15px}
   .dish:last-child{border-bottom:0}
   .dish .em{width:22px;text-align:center}
-  .dish .nm{font-weight:600}
-  .dish .dots{flex:1;border-bottom:1px dotted #c9c2b4;transform:translateY(-4px)}
-  .dish .pr{font-family:var(--serif);font-weight:600;font-size:16px;white-space:nowrap}
+  .dish .nm{font-weight:700;color:var(--rojo)}
+  .dish .dots{flex:1;border-bottom:2px dotted #d9c9a4;transform:translateY(-4px)}
+  .dish .pr{font-family:var(--hand);font-weight:800;font-size:16px;white-space:nowrap}
   .cartanote{font-size:13px;color:var(--muted);margin:14px 2px 0}
   /* QR / APP */
-  .appbox{display:flex;gap:22px;align-items:center;flex-wrap:wrap;background:var(--navy);color:#f3efe7;
+  .appbox{display:flex;gap:22px;align-items:center;flex-wrap:wrap;background:var(--banda);color:#e6f3ef;
     border-radius:14px;padding:24px;box-shadow:var(--shadow)}
-  .appbox img{width:150px;height:150px;border-radius:10px;background:#fff;padding:8px;image-rendering:pixelated}
+  .appbox img{width:150px;height:150px;border-radius:12px;background:#fff;padding:8px;image-rendering:pixelated}
   .appbox .tx{flex:1;min-width:220px}
-  .appbox .tx b{font-family:var(--serif);font-size:20px;display:block;margin-bottom:8px;font-weight:600}
-  .appbox .tx p{margin:0 0 16px;color:#c3d2d9;font-size:14px;line-height:1.55}
+  .appbox .tx b{font-family:var(--hand);font-size:20px;display:block;margin-bottom:8px;font-weight:800;color:#fff}
+  .appbox .tx p{margin:0 0 16px;color:#cfe7e4;font-size:14px;line-height:1.55}
+  .appbox .btn.o{background:none;color:#fff;border-color:rgba(255,255,255,.65)}
   footer{padding:40px 0 calc(34px + env(safe-area-inset-bottom));color:var(--muted);font-size:13px;line-height:1.7}
-  footer b{color:var(--ink);font-family:var(--serif);font-weight:600}
+  footer b{color:var(--azul);font-family:var(--script);font-weight:400;font-size:15px}
 </style>
 </head>
 <body>
 
+<div class="stripe"></div>
 <div class="hero">
   <div class="wrap">
     <div class="topbar">
-      <b>Don Pepito 🍹</b>
+      <b>Don <em>Pepito</em> 🍹</b>
       <div class="langs" id="langs"></div>
     </div>
+    <p class="heroLogo">Don <em>Pepito</em></p>
     <h1 data-t="h1">Arroces y cócteles a tu barco, en el mar</h1>
     <p class="lead" data-t="lead">Estés fondeado, navegando o flotando en una cala: pide desde el móvil,
       el Don Pepito te localiza y te lleva tu pedido con el tiempo estimado en pantalla.</p>
@@ -295,9 +314,10 @@ function render(){
   });
   // semana de arroces
   const today=new Date().getDay();
+  const DAYCOLOR={1:'var(--teal)',2:'var(--morado)',3:'var(--verde)',4:'var(--ambar)',5:'var(--royal)',6:'var(--rosa)',0:'var(--verde)'};
   document.getElementById('week').innerHTML=SEMANA.map(w=>`
     <div class="day${w.d===today?' today':''}">${w.d===today?`<span class="hoy">${T[lang].hoy}</span>`:''}
-      <h3>${DIAS[lang][w.d]}</h3>
+      <h3 style="color:${DAYCOLOR[w.d]}">${DIAS[lang][w.d]}</h3>
       ${w.items.map(id=>`<div class="plato"><b>🥘 ${PLATOS[id].es}</b>${lang!=='es'?`<span>${PLATOS[id][lang]}</span>`:''}</div>`).join('')}
       <div class="alg">${T[lang].alg}: ${w.al}</div>
     </div>`).join('');
@@ -305,7 +325,7 @@ function render(){
   const cats=T[lang].cats; let html='';
   Object.keys(cats).forEach(c=>{
     const items=MENU.filter(m=>m.cat===c); if(!items.length)return;
-    html+=`<div class="cat">${cats[c]}</div>`;
+    html+=`<div class="cat" data-c="${c}">${cats[c]}</div>`;
     items.forEach(m=>{ html+=`<div class="dish"><span class="em">${m.emoji}</span><span class="nm">${m.name[lang]||m.name.es}</span><span class="dots"></span><span class="pr">${eur(m.price)}</span></div>`; });
   });
   document.getElementById('menu').innerHTML=html;
