@@ -215,7 +215,7 @@
       <div class="note">Solo quien tenga el código puede entrar en el modo Barco. «Bloquear» vuelve a pedirlo la próxima vez.</div>
     </div>
   </section>
-  <div class="note" style="text-align:center;opacity:.55;font-size:11px;letter-spacing:.5px">v12ago-3</div>
+  <div class="note" style="text-align:center;opacity:.55;font-size:11px;letter-spacing:.5px">donpepito-javea.web.app · v12ago-4</div>
 </main>
 
 <div class="pill" id="pill">
@@ -286,7 +286,7 @@ const T={
       needLoc:"Necesito tu ubicación para calcular el tiempo.",empty:"Añade algo a tu pedido.",
       cancel:"Cancelar pedido",canceled:"Pedido cancelado.",
       myboat:"Mi barco",colorq:"Color del barco (opcional): así te encuentran antes.",
-      photo:"📷 Foto del barco (opcional)",photodel:"Quitar la foto",install:"📲 Instalar / descargar la app"},
+      photo:"📷 Foto del barco (opcional)",photodel:"Quitar la foto",install:"📲 Instalar / descargar la app",shareapp:"📲 Pásale la app a otro barco — QR"},
   en:{cliente:"Customer",barco:"Boat",menu:"Menu",total:"Total",order:"Order",locate:"📍 Locate me",
       tapLoc:"Tap “Locate me”",paynote:"💶 Pay on delivery, at the boat.",yourname:"Your name / boat",
       away:"to your spot",min:"min",queuePos:"in the queue",ordered:"Order sent!",onway:"On the way",
@@ -294,7 +294,7 @@ const T={
       needLoc:"I need your location to estimate the time.",empty:"Add something to your order.",
       cancel:"Cancel order",canceled:"Order canceled.",
       myboat:"My boat",colorq:"Boat colour (optional): helps us spot you sooner.",
-      photo:"📷 Boat photo (optional)",photodel:"Remove photo",install:"📲 Install / get the app"},
+      photo:"📷 Boat photo (optional)",photodel:"Remove photo",install:"📲 Install / get the app",shareapp:"📲 Share the app — show the QR"},
   de:{cliente:"Kunde",barco:"Boot",menu:"Karte",total:"Gesamt",order:"Bestellen",locate:"📍 Orten",
       tapLoc:"„Orten“ tippen",paynote:"💶 Zahlung bei Lieferung am Boot.",yourname:"Ihr Name / Boot",
       away:"zu deinem Platz",min:"Min",queuePos:"in der Schlange",ordered:"Bestellung gesendet!",onway:"Unterwegs",
@@ -302,7 +302,7 @@ const T={
       needLoc:"Ich brauche deinen Standort für die Zeitschätzung.",empty:"Füge etwas hinzu.",
       cancel:"Bestellung stornieren",canceled:"Bestellung storniert.",
       myboat:"Mein Boot",colorq:"Bootsfarbe (optional): so finden wir dich schneller.",
-      photo:"📷 Bootsfoto (optional)",photodel:"Foto entfernen",install:"📲 App installieren / laden"},
+      photo:"📷 Bootsfoto (optional)",photodel:"Foto entfernen",install:"📲 App installieren / laden",shareapp:"📲 App weitergeben — QR zeigen"},
   nl:{cliente:"Klant",barco:"Boot",menu:"Kaart",total:"Totaal",order:"Bestellen",locate:"📍 Vind mij",
       tapLoc:"Tik op ‘Vind mij’",paynote:"💶 Betalen bij levering, aan de boot.",yourname:"Je naam / boot",
       away:"naar jouw plek",min:"min",queuePos:"in de rij",ordered:"Bestelling verzonden!",onway:"Onderweg",
@@ -310,7 +310,7 @@ const T={
       needLoc:"Ik heb je locatie nodig om de tijd te schatten.",empty:"Voeg iets toe aan je bestelling.",
       cancel:"Bestelling annuleren",canceled:"Bestelling geannuleerd.",
       myboat:"Mijn boot",colorq:"Kleur van je boot (optioneel): zo vinden we je sneller.",
-      photo:"📷 Foto van je boot (optioneel)",photodel:"Foto verwijderen",install:"📲 Installeer / download de app"},
+      photo:"📷 Foto van je boot (optioneel)",photodel:"Foto verwijderen",install:"📲 Installeer / download de app",shareapp:"📲 Deel de app — toon de QR"},
 };
 let lang=localStorage.getItem('mb_lang')||'es';
 function t(k){return (T[lang]&&T[lang][k])||T.es[k]||k}
@@ -319,7 +319,7 @@ function applyLang(){
   document.querySelectorAll('[data-tp]').forEach(e=>e.placeholder=t(e.dataset.tp));
   document.getElementById('cname').placeholder=t('yourname');
   document.getElementById('tagline').textContent=t('tagline');
-  const ib=document.getElementById('installBtn'); if(ib)ib.textContent=t('install');
+  const ib=document.getElementById('installBtn'); if(ib)ib.textContent=isStandalone()?t('shareapp'):t('install');
   document.querySelectorAll('#langs button').forEach(b=>b.classList.toggle('on',b.dataset.l===lang));
   renderMenu(); if(myOrder) trackRender();
 }
@@ -886,7 +886,7 @@ async function pwaInstall(){
   if(deferredPrompt){ deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; closeInstall(); }
   else andPrep();
 }
-if(isStandalone()){ const b=document.getElementById('installBtn'); if(b)b.style.display='none'; }
+if(isStandalone()){ const b=document.getElementById('installBtn'); if(b)b.onclick=showQR; }  // instalada → el botón pasa a enseñar el QR
 // el botón de la APK solo aparece si el archivo existe de verdad (empieza por "PK")
 fetch('Don-Pepito.apk',{headers:{'Range':'bytes=0-3'}}).then(r=>r.ok?r.text():'').then(t=>{
   if(t.startsWith('PK')){ document.getElementById('apkBtnApp').classList.remove('hidden');
