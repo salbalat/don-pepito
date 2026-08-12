@@ -857,7 +857,7 @@ async function changePin(){
 let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt=e; });
 const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent);
-const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;}
 function openInstall(){
   document.getElementById('inst_ios').style.display=isIOS()?'block':'none';
   document.getElementById('inst_android').style.display=isIOS()?'none':'block';
