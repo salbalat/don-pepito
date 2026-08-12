@@ -849,6 +849,8 @@ fetch('Don-Pepito.apk',{headers:{'Range':'bytes=0-3'}}).then(r=>r.ok?r.text():''
   if(t.startsWith('PK')){ document.getElementById('apkBtnApp').classList.remove('hidden');
     document.getElementById('apkNote').classList.remove('hidden'); }
 }).catch(()=>{});
+// Si se llega desde el QR (?i=1), abrir directamente la guía de instalación
+if(new URLSearchParams(location.search).has('i')&&!isStandalone()) setTimeout(openInstall,600);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
