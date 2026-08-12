@@ -1,4 +1,4 @@
-const C='donpepito-v9', TILES='donpepito-tiles-v1';
+const C='donpepito-v10', TILES='donpepito-tiles-v1';
 const CDN=['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css','https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
   'https://fonts.googleapis.com/css2?family=Pacifico&family=Shantell+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(async c=>{
@@ -28,8 +28,9 @@ self.addEventListener('fetch',e=>{
     return;
   }
   if(e.request.mode==='navigate'){                                     // index/navegación: RED primero
+    const fallback=u.pathname.includes('/www')?'www/index.html':'index.html';  // la web y la app no se mezclan
     e.respondWith(fetch(e.request).then(r=>{const cp=r.clone();caches.open(C).then(c=>c.put(e.request,cp));return r})
-      .catch(()=>caches.match(e.request).then(r=>r||caches.match('index.html'))));
+      .catch(()=>caches.match(e.request).then(r=>r||caches.match(fallback))));
     return;
   }
   e.respondWith((async()=>{                                            // resto: caché primero, y lo nuevo se guarda
