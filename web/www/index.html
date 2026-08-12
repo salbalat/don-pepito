@@ -166,6 +166,23 @@
   .ins{margin:0 0 18px;padding-left:22px}
   .ins li{margin-bottom:10px;font-size:15px;line-height:1.5}
   .sheetbox .btn{display:block;margin-top:10px}
+  /* EL TIEMPO */
+  .s-tiempo{background:var(--papel)}
+  .wxbox{display:grid;gap:16px}
+  .wxnow{display:flex;gap:28px;align-items:center;background:var(--carton);border:1.5px solid var(--line);
+    border-radius:18px;box-shadow:var(--shadow);padding:20px 26px;flex-wrap:wrap}
+  .wxbig{display:flex;align-items:center;gap:14px}
+  .wxbig span{font-size:54px;line-height:1}
+  .wxbig b{font-family:var(--hand);font-size:54px;font-weight:800;color:var(--marO);line-height:1}
+  .wxdet{display:flex;flex-direction:column;gap:7px;font-size:15px}
+  .wxdet b{color:var(--marO)}
+  .wxdays{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px}
+  .wxday{background:var(--carton);border:1.5px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+    padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:4px}
+  .wxday b{font-size:12.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--hibisco)}
+  .wxday .wi{font-size:26px}
+  .wxday .tt2{font-weight:800;font-size:13.5px;color:var(--marO)}
+  .wxday small{color:var(--muted);font-size:11.5px}
 </style>
 </head>
 <body>
@@ -177,6 +194,7 @@
     <a href="#arroces" data-t="navarroces">Arroces</a>
     <a href="#carta" data-t="navcarta">Bebidas</a>
     <a href="#zona" data-t="navmapa">Dónde está</a>
+    <a href="#tiempo" data-t="navtiempo">El tiempo</a>
   </div>
   <div class="langs" id="langs"></div>
 </nav>
@@ -254,6 +272,26 @@
       <div class="mapoff" id="mapoff" data-t="zoff">🍹⛵ El barco no está en marcha ahora mismo.<br>Abre la app para verlo en vivo cuando esté sirviendo.</div>
     </div>
     <p class="cartanote" data-t="znote">Carta náutica real (OpenSeaMap). Cuando el barco comparte su GPS, lo ves aquí moverse en vivo.</p>
+  </div>
+</section>
+
+<section id="tiempo" class="s-tiempo">
+  <div class="wrap">
+    <p class="kicker" data-t="tk">El tiempo</p>
+    <h2 data-t="tt">El tiempo en Jávea: sol y mar</h2>
+    <div id="wxbox" class="wxbox hidden">
+      <div class="wxnow">
+        <div class="wxbig"><span id="wxicon">☀️</span><b id="wxtemp">--º</b></div>
+        <div class="wxdet">
+          <span>💨 <b id="wxwind">--</b> km/h <span id="wxdir"></span></span>
+          <span>🌊 <b id="wxwave">--</b> m <span data-t="tolas">de ola</span></span>
+          <span>🌡️ <b id="wxsea">--º</b> <span data-t="tagua">el agua</span></span>
+        </div>
+      </div>
+      <div class="wxdays" id="wxdays"></div>
+    </div>
+    <p class="cartanote hidden" id="wxoff" data-t="toff">Ahora mismo no puedo leer la previsión. Prueba en un rato.</p>
+    <p class="cartanote" data-t="tnote">Previsión de Open-Meteo para la costa de Jávea: orientativa — en el mar, manda el mar.</p>
   </div>
 </section>
 
@@ -396,6 +434,7 @@ const T={
     qrx:"Se instala como una app normal (icono y pantalla completa), sin tienda ni descargas. En iPhone: Compartir → «Añadir a pantalla de inicio».",
     foot1:"Servicio a barcos y bañistas · temporada de verano.",foot2:"Consumo responsable. No servimos alcohol a menores de 18 años.",
     aniv:"15º aniversario",aniv2:"15º aniversario",navapp:"La app",navarroces:"Arroces",navcarta:"Bebidas",navmapa:"Dónde está",dlk:"La app",dlt:"Descárgate Don Pepito en el móvil",dlx:"Pide desde el agua en dos toques: mapa del barco en vivo, la carta completa y tu pedido con tiempo estimado. Gratis, sin registros ni tarjetas.",get:"Descárgala en",get2:"Descárgala en",iost:"Instalar en iPhone",ios1:"Abre donpepito-2607151158.web.app en Safari.",ios2:"Toca el botón Compartir (el cuadrado con la flecha).",ios3:"Elige «Añadir a pantalla de inicio» y confirma: ya tienes la app con su icono 🍹.",andt:"Instalar en Android",and1:"Abre donpepito-2607151158.web.app en Chrome.",and2:"Toca el menú ⋮ de arriba a la derecha.",and3:"Elige «Instalar aplicación» (o «Añadir a pantalla principal») y confirma.",apk:"⬇️ Descargar APK directa",
+    navtiempo:"El tiempo",tk:"El tiempo",tt:"El tiempo en Jávea: sol y mar",tolas:"de ola",tagua:"el agua",toff:"Ahora mismo no puedo leer la previsión. Prueba en un rato.",tnote:"Previsión de Open-Meteo para la costa de Jávea: orientativa — en el mar, manda el mar.",
     cats:{mojito:"Mojitos",coctel:"Cócteles",sinalcohol:"Cócteles sin alcohol",combinado:"Combinados",smoothie:"Smoothies de fruta fresca",batido:"Batidos",granizado:"Granizados",refresco:"Refrescos"}},
   en:{h1:"Rice dishes & cocktails to your boat, at sea",lead:"Anchored, sailing or floating in a cove: order from your phone, Don Pepito finds you and brings your order with a live ETA on screen.",
     openapp:"🍹 Open the app & order",openapp2:"Open the app →",wa:"💬 Order via WhatsApp",
@@ -417,6 +456,7 @@ const T={
     qrx:"Installs like a normal app (icon and full screen), no store or downloads. On iPhone: Share → “Add to Home Screen”.",
     foot1:"Serving boats and swimmers · summer season.",foot2:"Drink responsibly. No alcohol served under 18.",
     aniv:"15th anniversary",aniv2:"15th anniversary",navapp:"The app",navarroces:"Rice menu",navcarta:"Drinks",navmapa:"Find the boat",dlk:"The app",dlt:"Get Don Pepito on your phone",dlx:"Order from the water in two taps: live boat map, the full menu and your order with a live ETA. Free, no sign-ups, no cards.",get:"Get it for",get2:"Get it for",iost:"Install on iPhone",ios1:"Open donpepito-2607151158.web.app in Safari.",ios2:"Tap the Share button (the square with the arrow).",ios3:"Choose \u201cAdd to Home Screen\u201d and confirm \u2014 the app appears with its icon 🍹.",andt:"Install on Android",and1:"Open donpepito-2607151158.web.app in Chrome.",and2:"Tap the ⋮ menu, top right.",and3:"Choose \u201cInstall app\u201d (or \u201cAdd to Home screen\u201d) and confirm.",apk:"⬇️ Direct APK download",
+    navtiempo:"Weather",tk:"The weather",tt:"Jávea weather: sun and sea",tolas:"waves",tagua:"sea temp",toff:"Can\u2019t load the forecast right now. Try again in a while.",tnote:"Open-Meteo forecast for the Jávea coast — a guide only: at sea, the sea rules.",
     cats:{mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alcohol-free cocktails",combinado:"Spirits & mixers",smoothie:"Fresh fruit smoothies",batido:"Milkshakes",granizado:"Slushies",refresco:"Soft drinks"}},
   de:{h1:"Reisgerichte & Cocktails zu deinem Boot, auf See",lead:"Ob vor Anker, unter Segel oder in einer Bucht treibend: Bestell per Handy — Don Pepito findet dich und bringt deine Bestellung, mit Live-Zeitschätzung.",
     openapp:"🍹 App öffnen & bestellen",openapp2:"App öffnen →",wa:"💬 Per WhatsApp bestellen",
@@ -438,6 +478,7 @@ const T={
     qrx:"Installiert sich wie eine normale App (Icon und Vollbild), ohne Store. Auf dem iPhone: Teilen → „Zum Home-Bildschirm“.",
     foot1:"Service für Boote und Badegäste · Sommersaison.",foot2:"Bitte verantwortungsvoll genießen. Kein Alkohol unter 18.",
     aniv:"15. Jubiläum",aniv2:"15. Jubiläum",navapp:"Die App",navarroces:"Reiskarte",navcarta:"Getränke",navmapa:"Wo ist das Boot",dlk:"Die App",dlt:"Hol dir Don Pepito aufs Handy",dlx:"Bestell vom Wasser aus in zwei Fingertipps: Live-Karte des Boots, die komplette Karte und deine Bestellung mit Zeitschätzung. Gratis, ohne Konto und Karte.",get:"Laden für",get2:"Laden für",iost:"Auf dem iPhone installieren",ios1:"Öffne donpepito-2607151158.web.app in Safari.",ios2:"Tippe auf Teilen (Quadrat mit Pfeil).",ios3:"Wähle „Zum Home-Bildschirm“ und bestätige – fertig, App mit Icon 🍹.",andt:"Auf Android installieren",and1:"Öffne donpepito-2607151158.web.app in Chrome.",and2:"Tippe oben rechts auf das ⋮-Menü.",and3:"Wähle „App installieren“ (oder „Zum Startbildschirm“) und bestätige.",apk:"⬇️ APK direkt laden",
+    navtiempo:"Wetter",tk:"Das Wetter",tt:"Wetter in Jávea: Sonne und Meer",tolas:"Wellen",tagua:"Wasser",toff:"Die Vorhersage lässt sich gerade nicht laden. Versuch es später.",tnote:"Open-Meteo-Vorhersage für die Küste von Jávea — nur zur Orientierung: auf See bestimmt das Meer.",
     cats:{mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alkoholfreie Cocktails",combinado:"Longdrinks",smoothie:"Frische Frucht-Smoothies",batido:"Milchshakes",granizado:"Slush-Eis",refresco:"Softdrinks"}},
 };
 let lang=localStorage.getItem('mb_lang')||(navigator.language||'es').slice(0,2);
@@ -507,6 +548,40 @@ function showBoat(b){
     poll(); setInterval(poll,5000);
   }
 })();
+
+// ---------- el tiempo en Jávea (Open-Meteo: previsión + estado del mar) ----------
+const WMO={0:"☀️",1:"🌤️",2:"⛅",3:"☁️",45:"🌫️",48:"🌫️",51:"🌦️",53:"🌦️",55:"🌧️",61:"🌦️",63:"🌧️",65:"🌧️",66:"🌧️",67:"🌧️",71:"🌨️",73:"🌨️",75:"❄️",77:"❄️",80:"🌦️",81:"🌧️",82:"⛈️",85:"🌨️",86:"🌨️",95:"⛈️",96:"⛈️",99:"⛈️"};
+const wemo=c=>WMO[c]||"🌤️";
+const DIRV={es:["N","NE","E","SE","S","SO","O","NO"],en:["N","NE","E","SE","S","SW","W","NW"],de:["N","NO","O","SO","S","SW","W","NW"]};
+async function loadWeather(){
+  try{
+    const [w,m]=await Promise.all([
+      fetch('https://api.open-meteo.com/v1/forecast?latitude=38.79&longitude=0.18&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=5&timezone=Europe%2FMadrid').then(r=>r.json()),
+      fetch('https://marine-api.open-meteo.com/v1/marine?latitude=38.80&longitude=0.25&current=sea_surface_temperature,wave_height&daily=wave_height_max&forecast_days=5&timezone=Europe%2FMadrid').then(r=>r.json()).catch(()=>null)
+    ]);
+    if(!w||!w.current) throw 0;
+    document.getElementById('wxicon').textContent=wemo(w.current.weather_code);
+    document.getElementById('wxtemp').textContent=Math.round(w.current.temperature_2m)+'º';
+    document.getElementById('wxwind').textContent=Math.round(w.current.wind_speed_10m);
+    document.getElementById('wxdir').textContent=(DIRV[lang]||DIRV.es)[Math.round((((w.current.wind_direction_10m%360)+360)%360)/45)%8];
+    if(m&&m.current&&m.current.wave_height!=null){
+      document.getElementById('wxwave').textContent=m.current.wave_height.toFixed(1).replace('.',',');
+      document.getElementById('wxsea').textContent=Math.round(m.current.sea_surface_temperature)+'º';
+    }
+    document.getElementById('wxdays').innerHTML=w.daily.time.map((t,i)=>{
+      const d=new Date(t+'T12:00:00');
+      const wave=(m&&m.daily&&m.daily.wave_height_max)?m.daily.wave_height_max[i]:null;
+      return `<div class="wxday"><b>${i===0?T[lang].hoy:DIAS[lang][d.getDay()].slice(0,3)}</b>
+        <span class="wi">${wemo(w.daily.weather_code[i])}</span>
+        <span class="tt2">${Math.round(w.daily.temperature_2m_max[i])}º / ${Math.round(w.daily.temperature_2m_min[i])}º</span>
+        ${wave!=null?`<small>🌊 ${wave.toFixed(1).replace('.',',')} m</small>`:''}</div>`;
+    }).join('');
+    document.getElementById('wxbox').classList.remove('hidden');
+    document.getElementById('wxoff').classList.add('hidden');
+  }catch(_){ if(document.getElementById('wxbox').classList.contains('hidden')) document.getElementById('wxoff').classList.remove('hidden'); }
+}
+loadWeather();
+const _setLang=setLang; setLang=l=>{_setLang(l);loadWeather();};
 
 // ---------- descarga de la app: hojas de instrucciones + APK directa si existe ----------
 function openSheet(id){document.getElementById(id).classList.add('show')}
