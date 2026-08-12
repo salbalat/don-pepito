@@ -106,6 +106,14 @@
   .sw.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink);transform:scale(1.05)}
   .boatphoto{width:52px;height:52px;border-radius:10px;object-fit:cover;border:2px solid var(--line);flex:0 0 auto}
   .qphoto{width:44px;height:44px;border-radius:10px;object-fit:cover;border:1.5px solid var(--line);flex:0 0 auto}
+  .istep{display:flex;gap:13px;align-items:flex-start;margin-bottom:13px}
+  .istep .ico{font-size:26px;width:46px;height:46px;background:#fdf6e3;border:1.5px solid var(--line);border-radius:12px;display:grid;place-items:center;flex:0 0 auto}
+  .istep b{display:block;font-size:15px;margin-bottom:2px}
+  .istep span{font-size:12.5px;color:var(--muted);line-height:1.4}
+  .sharrow{position:fixed;bottom:4px;left:50%;font-size:36px;z-index:99;color:var(--rojo);
+    text-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none;animation:bnc 1s infinite}
+  @keyframes bnc{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,9px)}}
+  @media (prefers-reduced-motion: reduce){.sharrow{animation:none;transform:translateX(-50%)}}
 </style>
 </head>
 <body>
@@ -181,6 +189,14 @@
       <h2>Cola de pedidos (<span id="qcount">0</span>)</h2>
       <div id="queue"></div>
     </div>
+    <div class="card">
+      <h2>🔒 Acceso del patrón</h2>
+      <div class="row">
+        <button class="btn s" onclick="changePin()">Cambiar código</button>
+        <button class="btn go" onclick="lockBarco()">Bloquear</button>
+      </div>
+      <div class="note">Solo quien tenga el código puede entrar en el modo Barco. «Bloquear» vuelve a pedirlo la próxima vez.</div>
+    </div>
   </section>
 </main>
 
@@ -201,8 +217,11 @@
       <div class="note">Alternativa: baja el archivo e instálalo a mano (Android pedirá permitir «instalar apps de esta fuente»).</div>
     </div>
     <div class="isec" id="inst_ios" style="display:none">
-      <b>iPhone</b>
-      <div class="note">Pulsa <b>Compartir</b> (icono ⬆️ abajo) y luego <b>«Añadir a pantalla de inicio»</b>. Quedará como una app más, sin tienda ni descargas.</div>
+      <b>iPhone — 3 toques</b>
+      <div class="istep"><span class="ico">⬆️</span><div><b>1 · Toca «Compartir»</b><span>El cuadrado con la flecha, abajo en el centro de Safari.</span></div></div>
+      <div class="istep"><span class="ico">➕</span><div><b>2 · «Añadir a pantalla de inicio»</b><span>Baja un poco en la lista hasta verlo, y tócalo.</span></div></div>
+      <div class="istep"><span class="ico">🍹</span><div><b>3 · Toca «Añadir»</b><span>Ya está: la app con su icono, a pantalla completa.</span></div></div>
+      <div class="note">¿Estás en otro navegador? Abre <b>donpepito-javea.web.app</b> en Safari primero.</div>
     </div>
     <div class="isec">
       <b>Compártela con un QR</b>
@@ -214,6 +233,17 @@
   </div>
 </div>
 
+<div class="sheet" id="pinModal" onclick="if(event.target===this)closePin()">
+  <div class="sheetbox">
+    <div class="sheethead"><b>🔒 Modo Barco</b><button onclick="closePin()">✕</button></div>
+    <div class="note" style="margin:0 0 12px">Introduce el código del patrón para entrar.</div>
+    <input type="tel" id="pinIn" inputmode="numeric" maxlength="6" placeholder="······" autocomplete="off"
+      style="text-align:center;font-size:24px;letter-spacing:8px;font-weight:800" onkeydown="if(event.key==='Enter')tryPin()">
+    <div class="note" id="pinErr" style="display:none;color:var(--rojo);font-weight:700">Código incorrecto</div>
+    <button class="btn p" style="margin-top:12px" onclick="tryPin()">Entrar</button>
+  </div>
+</div>
+<div class="sharrow hidden" id="sharrow">⬇️</div>
 <script src="firebase-config.js"></script>
 <script>
 // ---------- i18n ----------
@@ -353,7 +383,9 @@ async function bootData(){
       FB.db=F.getFirestore(A.initializeApp(FB.cfg)); FB.fs=F;
       F.onSnapshot(F.doc(FB.db,'boat','current'), d=>applyData(d.exists()?d.data():null,_orders));
       F.onSnapshot(F.collection(FB.db,'orders'), s=>{const a=[];s.forEach(x=>a.push({id:x.id,...x.data()}));applyData(boat,a);});
-      F.onSnapshot(F.doc(FB.db,'config','current'), d=>{ if(d.exists()&&d.data().whatsapp){ waNumber=String(d.data().whatsapp); refreshWaUI(); } });
+      F.onSnapshot(F.doc(FB.db,'config','current'), d=>{ if(!d.exists())return; const c=d.data();
+        if(c.whatsapp){ waNumber=String(c.whatsapp); refreshWaUI(); }
+        if(c.pin){ bossPin=String(c.pin); localStorage.setItem('mb_pin',bossPin); } });
     }catch(e){ toast('Error Firebase: '+e.message); }
   } else { pollLocal(); setInterval(pollLocal,4000); }
   refreshWaUI();
@@ -575,7 +607,7 @@ async function saveWa(){
   const d=normWa(document.getElementById('waNum').value);
   if(d.length<9){ toast('Número no válido'); return; }
   waNumber=d; localStorage.setItem('mb_wa',d);
-  try{ if(useFB()){ const F=FB.fs; await F.setDoc(F.doc(FB.db,'config','current'),{whatsapp:d}); } }catch(e){}
+  try{ if(useFB()){ const F=FB.fs; await F.setDoc(F.doc(FB.db,'config','current'),{whatsapp:d},{merge:true}); } }catch(e){}
   document.getElementById('waNum').value='+'+d; toast('WhatsApp guardado ✓');
 }
 function orderWhatsApp(){
@@ -684,6 +716,7 @@ async function setOrder(id,status){
 
 // ---------- modo / arranque ----------
 function setMode(m){
+  if(m==='barco'&&localStorage.getItem('mb_unlocked')!=='1'){ askPin(); m='cliente'; }  // modo Barco solo con código
   const cli=m==='cliente';
   document.getElementById('cli').classList.toggle('hidden',!cli);
   document.getElementById('bar').classList.toggle('hidden',cli);
@@ -700,6 +733,30 @@ setMode(localStorage.getItem('mb_mode')||'cliente');
 document.getElementById('cname').value=localStorage.getItem('mb_name')||'';
 renderSwatches(); refreshPhotoUI();
 applyLang(); bootData();
+// ---------- código de acceso al modo Barco (código inicial: 1515 — cámbialo en «Acceso del patrón») ----------
+const PIN_DEFAULT='1515';
+let bossPin=localStorage.getItem('mb_pin')||PIN_DEFAULT;
+function askPin(){ const m=document.getElementById('pinModal'); if(!m)return; m.classList.add('show');
+  document.getElementById('pinErr').style.display='none'; document.getElementById('pinIn').value='';
+  setTimeout(()=>document.getElementById('pinIn').focus(),60); }
+function closePin(){ document.getElementById('pinModal').classList.remove('show'); }
+function tryPin(){
+  const v=document.getElementById('pinIn').value.trim();
+  if(v===bossPin){ localStorage.setItem('mb_unlocked','1'); closePin(); setMode('barco'); toast('Bienvenido, patrón ⚓'); }
+  else { document.getElementById('pinErr').style.display='block'; document.getElementById('pinIn').value='';
+    if(navigator.vibrate)navigator.vibrate(120); }
+}
+function lockBarco(){ localStorage.removeItem('mb_unlocked'); setMode('cliente'); toast('Modo Barco bloqueado 🔒'); }
+async function changePin(){
+  const cur=prompt('Código actual:'); if(cur===null)return;
+  if(cur.trim()!==bossPin){ toast('Código actual incorrecto'); return; }
+  const nue=(prompt('Código nuevo (4 a 6 números):')||'').trim();
+  if(!/^\d{4,6}$/.test(nue)){ toast('Tiene que ser de 4 a 6 números'); return; }
+  bossPin=nue; localStorage.setItem('mb_pin',nue);
+  try{ if(useFB()){ const F=FB.fs; await F.setDoc(F.doc(FB.db,'config','current'),{pin:nue},{merge:true}); } }catch(_){}
+  toast('Código cambiado ✓');
+}
+
 // ---------- Instalar / descargar la app ----------
 let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt=e; });
@@ -709,8 +766,10 @@ function openInstall(){
   document.getElementById('inst_ios').style.display=isIOS()?'block':'none';
   document.getElementById('inst_android').style.display=isIOS()?'none':'block';
   document.getElementById('installModal').classList.add('show');
+  document.getElementById('sharrow').classList.toggle('hidden',!isIOS()||isStandalone());  // flecha al botón Compartir de Safari
 }
-function closeInstall(){ document.getElementById('installModal').classList.remove('show'); }
+function closeInstall(){ document.getElementById('installModal').classList.remove('show');
+  document.getElementById('sharrow').classList.add('hidden'); }
 async function pwaInstall(){
   if(deferredPrompt){ deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; closeInstall(); }
   else { toast('Abre el menú ⋮ del navegador y elige «Instalar app» / «Añadir a inicio».'); }
