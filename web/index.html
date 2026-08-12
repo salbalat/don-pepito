@@ -66,8 +66,11 @@
   .step button{width:32px;height:32px;border-radius:10px;border:1.5px solid var(--teal);background:var(--card);font-size:18px;cursor:pointer;color:var(--teal);font-weight:800}
   .step b{min-width:18px;text-align:center;font-weight:800}
   .cat{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--banda);font-weight:800;margin:18px 2px 4px;border-bottom:2.5px solid currentColor;padding-bottom:6px;font-family:var(--hand)}
-  .cat[data-c="arroz"]{color:var(--rojo)} .cat[data-c="cóctel"]{color:var(--morado)}
-  .cat[data-c="refresco"]{color:var(--teal)} .cat[data-c="picar"]{color:var(--verde)}
+  .cat[data-c="arroz"]{color:var(--rojo)} .cat[data-c="mojito"]{color:var(--verde)}
+  .cat[data-c="coctel"]{color:var(--morado)} .cat[data-c="sinalcohol"]{color:var(--teal)}
+  .cat[data-c="combinado"]{color:var(--royal)} .cat[data-c="smoothie"]{color:var(--rosa)}
+  .cat[data-c="batido"]{color:var(--ambar)} .cat[data-c="granizado"]{color:var(--azul)}
+  .cat[data-c="refresco"]{color:var(--teal)}
   .total{display:flex;justify-content:space-between;align-items:baseline;font-weight:800;font-size:16px;margin:14px 2px 4px}
   .total span:last-child{font-family:var(--hand);font-size:20px;color:var(--rojo)}
   .eta{display:flex;gap:14px;align-items:center;background:var(--banda);color:#e6f3ef;border-radius:14px;padding:16px;margin-bottom:14px}
@@ -247,17 +250,55 @@ document.getElementById('langs').innerHTML=['es','en','de'].map(l=>`<button data
 function setLang(l){lang=l;localStorage.setItem('mb_lang',l);applyLang();}
 
 // ---------- estado ----------
+// Carta real Don Pepito Jávea (15º aniversario) — guardada en docs/carta/
 const MENU=[
-  {id:"mojito",cat:"cóctel",name:"Mojito",price:8.0,emoji:"🍸"},
-  {id:"mojito-fresa",cat:"cóctel",name:"Mojito de fresa",price:8.5,emoji:"🍓"},
-  {id:"pinacolada",cat:"cóctel",name:"Piña colada",price:9.0,emoji:"🍍"},
-  {id:"gintonic",cat:"cóctel",name:"Gin-tonic",price:9.0,emoji:"🍋"},
-  {id:"sangria",cat:"cóctel",name:"Sangría (copa)",price:6.0,emoji:"🍷"},
-  {id:"cerveza",cat:"refresco",name:"Cerveza",price:4.0,emoji:"🍺"},
+  // Mojitos — 12,5 €
+  {id:"moj-clasico",cat:"mojito",name:"Mojito clásico",price:12.5,emoji:"🌿"},
+  {id:"moj-coco",cat:"mojito",name:"Mojito coco",price:12.5,emoji:"🥥"},
+  {id:"moj-fresa",cat:"mojito",name:"Mojito fresa",price:12.5,emoji:"🍓"},
+  {id:"moj-pasion",cat:"mojito",name:"Mojito de la pasión",price:12.5,emoji:"🌺"},
+  {id:"moj-mango",cat:"mojito",name:"Mojito mango",price:12.5,emoji:"🥭"},
+  // Cócteles — 12,5 €
+  {id:"caipirinha",cat:"coctel",name:"Caipirinha",price:12.5,emoji:"🍸",d:"Cachaça, lima, gaseosa, azúcar moreno"},
+  {id:"caipiroska",cat:"coctel",name:"Caipiroska",price:12.5,emoji:"🍸",d:"Vodka, lima, gaseosa, azúcar moreno"},
+  {id:"margarita",cat:"coctel",name:"Margarita",price:12.5,emoji:"🍹",d:"Tequila, cointreau, zumo de limón, azúcar moreno"},
+  {id:"sexontheboat",cat:"coctel",name:"Sex on the Boat",price:12.5,emoji:"🍹",d:"Vodka, cointreau, zumo de naranja y fresa"},
+  {id:"daiquiri",cat:"coctel",name:"Daiquiri de fruta",price:12.5,emoji:"🍹",d:"Ron blanco, fruta natural"},
+  {id:"fresa-colada",cat:"coctel",name:"Fresa colada",price:12.5,emoji:"🍓",d:"Ron blanco, zumo de fresa, coco batido"},
+  {id:"pina-colada",cat:"coctel",name:"Piña colada",price:12.5,emoji:"🍍",d:"Ron blanco, zumo de piña, coco batido"},
+  {id:"maitai",cat:"coctel",name:"Mai Tai",price:12.5,emoji:"🍹",d:"Ron blanco y negro, naranja, piña, limón y granadina"},
+  {id:"javea-sunrise",cat:"coctel",name:"Javea Sunrise",price:12.5,emoji:"🌅",d:"Tequila, zumo de naranja y granadina"},
+  // Cócteles sin alcohol — 10 €
+  {id:"moj-virgen",cat:"sinalcohol",name:"Mojito virgen",price:10.0,emoji:"🌿",d:"Lima, azúcar moreno, hierbabuena, gaseosa"},
+  {id:"pinacolada-virgen",cat:"sinalcohol",name:"Piña colada virgen",price:10.0,emoji:"🍍",d:"Zumo de piña, coco batido"},
+  {id:"caipirinha-virgen",cat:"sinalcohol",name:"Caipirinha virgen",price:10.0,emoji:"🍋",d:"Lima, gaseosa, azúcar moreno"},
+  {id:"fresacolada-virgen",cat:"sinalcohol",name:"Fresa colada virgen",price:10.0,emoji:"🍓",d:"Zumo de fresa, coco batido"},
+  // Combinados — 12,5 €
+  {id:"ron",cat:"combinado",name:"Ron",price:12.5,emoji:"🥃",d:"Flor de caña + refresco"},
+  {id:"whisky",cat:"combinado",name:"Whisky",price:12.5,emoji:"🥃",d:"Johnnie Walker + refresco"},
+  {id:"vodka",cat:"combinado",name:"Vodka",price:12.5,emoji:"🥃",d:"Absolut + refresco"},
+  {id:"gintonic",cat:"combinado",name:"Gin tonic",price:12.5,emoji:"🍸",d:"Ginebra + tónica"},
+  {id:"gin-sylex",cat:"combinado",name:"Gin premium Sylex",price:12.5,emoji:"🍸"},
+  // Smoothies de fruta fresca — 10 €
+  {id:"granadella",cat:"smoothie",name:"Granadella",price:10.0,emoji:"🍓",d:"Fresa, plátano y naranja"},
+  {id:"sardinera",cat:"smoothie",name:"Sardinera",price:10.0,emoji:"🍉",d:"Sandía, naranja y hierbabuena"},
+  {id:"cala-blanca",cat:"smoothie",name:"Cala Blanca",price:10.0,emoji:"🍍",d:"Piña, naranja y fresa"},
+  {id:"san-martin",cat:"smoothie",name:"San Martín",price:10.0,emoji:"🍉",d:"Sandía y plátano"},
+  {id:"portichol",cat:"smoothie",name:"Portichol",price:10.0,emoji:"🍊",d:"Naranja y plátano"},
+  {id:"fruta-extra",cat:"smoothie",name:"Fruta extra",price:1.0,emoji:"➕"},
+  // Batidos — 10 €
+  {id:"bat-choco",cat:"batido",name:"Batido de chocolate",price:10.0,emoji:"🍫"},
+  {id:"bat-oreo",cat:"batido",name:"Batido de Oreo",price:10.0,emoji:"🍪"},
+  {id:"bat-fresa-platano",cat:"batido",name:"Batido de fresa y plátano",price:10.0,emoji:"🍓"},
+  {id:"bat-platano-choco",cat:"batido",name:"Batido de plátano y chocolate",price:10.0,emoji:"🍌"},
+  // Granizados
+  {id:"gra-limon",cat:"granizado",name:"Granizado de limón",price:8.5,emoji:"🍋"},
+  {id:"gra-naranja",cat:"granizado",name:"Granizado de naranja",price:8.5,emoji:"🍊"},
+  {id:"gra-cafe",cat:"granizado",name:"Granizado de café",price:8.5,emoji:"☕"},
+  {id:"gra-cafe-licor",cat:"granizado",name:"Granizado de café con licor",price:10.0,emoji:"☕"},
+  // Refrescos
   {id:"refresco",cat:"refresco",name:"Refresco",price:3.0,emoji:"🥤"},
-  {id:"agua",cat:"refresco",name:"Agua",price:2.0,emoji:"💧"},
-  {id:"patatas",cat:"picar",name:"Patatas fritas",price:4.0,emoji:"🍟"},
-  {id:"nachos",cat:"picar",name:"Nachos",price:6.0,emoji:"🧀"},
+  {id:"agua",cat:"refresco",name:"Agua",price:3.0,emoji:"💧"},
 ];
 // Arroces del día (carta real): ración 18 € · con refresco 20 €. Las opciones cambian cada día.
 const ARROCES={
@@ -313,14 +354,16 @@ async function bootData(){
 
 // ---------- CLIENTE: carta ----------
 function renderMenu(){
-  const cats={arroz:"🥘 Arroz del día — ración 18 € · con refresco 20 €","cóctel":"Cócteles",refresco:"Refrescos",picar:"Para picar"};
+  const cats={arroz:"🥘 Arroz del día — ración 18 € · con refresco 20 €",
+    mojito:"Mojitos",coctel:"Cócteles",sinalcohol:"Cócteles sin alcohol",combinado:"Combinados",
+    smoothie:"Smoothies de fruta fresca",batido:"Batidos",granizado:"Granizados",refresco:"Refrescos y agua"};
   let html='';
   Object.keys(cats).forEach(c=>{
     const items=MENU.filter(m=>m.cat===c); if(!items.length)return;
     html+=`<div class="cat" data-c="${c}">${cats[c]}</div>`;
     items.forEach(m=>{ const q=cart[m.id]||0;
       html+=`<div class="item"><div class="em">${m.emoji}</div>
-        <div class="nm"><b>${m.name}</b><span>${eur(m.price)}</span></div>
+        <div class="nm"><b>${m.name}</b><span>${m.d?m.d+' · ':''}${eur(m.price)}</span></div>
         <div class="step"><button onclick="chg('${m.id}',-1)">−</button><b id="q-${m.id}">${q}</b><button onclick="chg('${m.id}',1)">+</button></div></div>`;
     });
   });

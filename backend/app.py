@@ -21,18 +21,55 @@ WEB = Path(__file__).resolve().parent.parent / "web"
 SPEED_KMH = 12.0          # velocidad de crucero del barco (ajustable)
 SERVICE_MIN = 3           # minutos de servicio por pedido en cola (por delante)
 
-# --- Carta (cócteles + refrescos + algo de picar) ---
+# --- Carta real Don Pepito Jávea (15º aniversario) — original en docs/carta/ ---
 MENU = [
-    {"id": "mojito", "cat": "cóctel", "name": "Mojito", "price": 8.0, "emoji": "🍸"},
-    {"id": "mojito-fresa", "cat": "cóctel", "name": "Mojito de fresa", "price": 8.5, "emoji": "🍓"},
-    {"id": "pinacolada", "cat": "cóctel", "name": "Piña colada", "price": 9.0, "emoji": "🍍"},
-    {"id": "gintonic", "cat": "cóctel", "name": "Gin-tonic", "price": 9.0, "emoji": "🍋"},
-    {"id": "sangria", "cat": "cóctel", "name": "Sangría (copa)", "price": 6.0, "emoji": "🍷"},
-    {"id": "cerveza", "cat": "refresco", "name": "Cerveza", "price": 4.0, "emoji": "🍺"},
+    # Mojitos — 12,5 €
+    {"id": "moj-clasico", "cat": "mojito", "name": "Mojito clásico", "price": 12.5, "emoji": "🌿"},
+    {"id": "moj-coco", "cat": "mojito", "name": "Mojito coco", "price": 12.5, "emoji": "🥥"},
+    {"id": "moj-fresa", "cat": "mojito", "name": "Mojito fresa", "price": 12.5, "emoji": "🍓"},
+    {"id": "moj-pasion", "cat": "mojito", "name": "Mojito de la pasión", "price": 12.5, "emoji": "🌺"},
+    {"id": "moj-mango", "cat": "mojito", "name": "Mojito mango", "price": 12.5, "emoji": "🥭"},
+    # Cócteles — 12,5 €
+    {"id": "caipirinha", "cat": "coctel", "name": "Caipirinha", "price": 12.5, "emoji": "🍸"},
+    {"id": "caipiroska", "cat": "coctel", "name": "Caipiroska", "price": 12.5, "emoji": "🍸"},
+    {"id": "margarita", "cat": "coctel", "name": "Margarita", "price": 12.5, "emoji": "🍹"},
+    {"id": "sexontheboat", "cat": "coctel", "name": "Sex on the Boat", "price": 12.5, "emoji": "🍹"},
+    {"id": "daiquiri", "cat": "coctel", "name": "Daiquiri de fruta", "price": 12.5, "emoji": "🍹"},
+    {"id": "fresa-colada", "cat": "coctel", "name": "Fresa colada", "price": 12.5, "emoji": "🍓"},
+    {"id": "pina-colada", "cat": "coctel", "name": "Piña colada", "price": 12.5, "emoji": "🍍"},
+    {"id": "maitai", "cat": "coctel", "name": "Mai Tai", "price": 12.5, "emoji": "🍹"},
+    {"id": "javea-sunrise", "cat": "coctel", "name": "Javea Sunrise", "price": 12.5, "emoji": "🌅"},
+    # Cócteles sin alcohol — 10 €
+    {"id": "moj-virgen", "cat": "sinalcohol", "name": "Mojito virgen", "price": 10.0, "emoji": "🌿"},
+    {"id": "pinacolada-virgen", "cat": "sinalcohol", "name": "Piña colada virgen", "price": 10.0, "emoji": "🍍"},
+    {"id": "caipirinha-virgen", "cat": "sinalcohol", "name": "Caipirinha virgen", "price": 10.0, "emoji": "🍋"},
+    {"id": "fresacolada-virgen", "cat": "sinalcohol", "name": "Fresa colada virgen", "price": 10.0, "emoji": "🍓"},
+    # Combinados — 12,5 €
+    {"id": "ron", "cat": "combinado", "name": "Ron", "price": 12.5, "emoji": "🥃"},
+    {"id": "whisky", "cat": "combinado", "name": "Whisky", "price": 12.5, "emoji": "🥃"},
+    {"id": "vodka", "cat": "combinado", "name": "Vodka", "price": 12.5, "emoji": "🥃"},
+    {"id": "gintonic", "cat": "combinado", "name": "Gin tonic", "price": 12.5, "emoji": "🍸"},
+    {"id": "gin-sylex", "cat": "combinado", "name": "Gin premium Sylex", "price": 12.5, "emoji": "🍸"},
+    # Smoothies de fruta fresca — 10 €
+    {"id": "granadella", "cat": "smoothie", "name": "Granadella", "price": 10.0, "emoji": "🍓"},
+    {"id": "sardinera", "cat": "smoothie", "name": "Sardinera", "price": 10.0, "emoji": "🍉"},
+    {"id": "cala-blanca", "cat": "smoothie", "name": "Cala Blanca", "price": 10.0, "emoji": "🍍"},
+    {"id": "san-martin", "cat": "smoothie", "name": "San Martín", "price": 10.0, "emoji": "🍉"},
+    {"id": "portichol", "cat": "smoothie", "name": "Portichol", "price": 10.0, "emoji": "🍊"},
+    {"id": "fruta-extra", "cat": "smoothie", "name": "Fruta extra", "price": 1.0, "emoji": "➕"},
+    # Batidos — 10 €
+    {"id": "bat-choco", "cat": "batido", "name": "Batido de chocolate", "price": 10.0, "emoji": "🍫"},
+    {"id": "bat-oreo", "cat": "batido", "name": "Batido de Oreo", "price": 10.0, "emoji": "🍪"},
+    {"id": "bat-fresa-platano", "cat": "batido", "name": "Batido de fresa y plátano", "price": 10.0, "emoji": "🍓"},
+    {"id": "bat-platano-choco", "cat": "batido", "name": "Batido de plátano y chocolate", "price": 10.0, "emoji": "🍌"},
+    # Granizados
+    {"id": "gra-limon", "cat": "granizado", "name": "Granizado de limón", "price": 8.5, "emoji": "🍋"},
+    {"id": "gra-naranja", "cat": "granizado", "name": "Granizado de naranja", "price": 8.5, "emoji": "🍊"},
+    {"id": "gra-cafe", "cat": "granizado", "name": "Granizado de café", "price": 8.5, "emoji": "☕"},
+    {"id": "gra-cafe-licor", "cat": "granizado", "name": "Granizado de café con licor", "price": 10.0, "emoji": "☕"},
+    # Refrescos
     {"id": "refresco", "cat": "refresco", "name": "Refresco", "price": 3.0, "emoji": "🥤"},
-    {"id": "agua", "cat": "refresco", "name": "Agua", "price": 2.0, "emoji": "💧"},
-    {"id": "patatas", "cat": "picar", "name": "Patatas fritas", "price": 4.0, "emoji": "🍟"},
-    {"id": "nachos", "cat": "picar", "name": "Nachos", "price": 6.0, "emoji": "🧀"},
+    {"id": "agua", "cat": "refresco", "name": "Agua", "price": 3.0, "emoji": "💧"},
 ]
 MENU_BY_ID = {m["id"]: m for m in MENU}
 
