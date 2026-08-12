@@ -203,6 +203,11 @@
       <div id="queue"></div>
     </div>
     <div class="card">
+      <h2>📒 Caja de hoy (<span id="cajaN">0</span>)</h2>
+      <div class="total" style="margin:0 2px 10px"><span>Total entregado</span><span id="cajaTot">0,00 €</span></div>
+      <div id="cajaList" class="note">Aún no hay entregas hoy.</div>
+    </div>
+    <div class="card">
       <h2>📲 Pásale la app a un cliente</h2>
       <div class="row">
         <button class="btn p" onclick="showQR()">Enseñar QR en grande</button>
@@ -219,7 +224,7 @@
       <div class="note">Solo quien tenga el código puede entrar en el modo Barco. «Bloquear» vuelve a pedirlo la próxima vez.</div>
     </div>
   </section>
-  <div class="note" style="text-align:center;opacity:.55;font-size:11px;letter-spacing:.5px">donpepito-javea.web.app · v12ago-7</div>
+  <div class="note" style="text-align:center;opacity:.55;font-size:11px;letter-spacing:.5px">donpepito-javea.web.app · v12ago-8</div>
 </main>
 
 <div class="pill" id="pill">
@@ -470,10 +475,10 @@ function computeDerived(){
 }
 function applyData(b, orders){
   boat=(b&&b.lat!=null)?b:null; _orders=orders||[]; computeDerived();
-  drawMap(); renderQueue(_orders);
+  drawMap(); renderQueue(_orders); renderCaja(_orders);
   if(myOrderId){ const o=_orders.find(x=>String(x.id)===String(myOrderId)); if(o){myOrder=o;} trackRender(); }
 }
-async function pollLocal(){ try{ const s=await (await fetch('/api/state')).json(); applyData(s.boat, s.orders); }catch(_){} }
+async function pollLocal(){ try{ const s=await (await fetch('/api/state')).json(); trackPts=s.track||[]; applyData(s.boat, s.orders); }catch(_){} }
 async function bootData(){
   renderMenu();
   if(useFB()){
@@ -483,6 +488,8 @@ async function bootData(){
       FB.db=F.getFirestore(A.initializeApp(FB.cfg)); FB.fs=F;
       F.onSnapshot(F.doc(FB.db,'boat','current'), d=>applyData(d.exists()?d.data():null,_orders));
       F.onSnapshot(F.collection(FB.db,'orders'), s=>{const a=[];s.forEach(x=>a.push({id:x.id,...x.data()}));applyData(boat,a);});
+      F.onSnapshot(F.doc(FB.db,'track',dayKey()), d=>{ trackPts=(d.exists()&&d.data().pts)||[];
+        if(!document.getElementById('bar').classList.contains('hidden')) renderQueue(_orders); });
       F.onSnapshot(F.doc(FB.db,'config','current'), d=>{ if(!d.exists())return; const c=d.data();
         if(c.whatsapp){ waNumber=String(c.whatsapp); refreshWaUI(); }
         if(c.pin){ bossPin=String(c.pin); localStorage.setItem('mb_pin',bossPin); } });
@@ -699,7 +706,15 @@ function toggleShare(){
   btn.textContent='Dejar de compartir'; btn.classList.add('p');
 }
 async function saveBoat(pos){
-  if(useFB()){ const F=FB.fs; await F.setDoc(F.doc(FB.db,'boat','current'),pos); }
+  if(useFB()){ const F=FB.fs; await F.setDoc(F.doc(FB.db,'boat','current'),pos);
+    try{  // recorrido del día: un punto si se ha movido >25 m o ha pasado >1 min
+      const now=pos.updated||Date.now()/1000;
+      if(!_lastTrk||haversine(_lastTrk,pos)>0.025||now-(_lastTrk.t||0)>60){
+        _lastTrk={lat:pos.lat,lng:pos.lng,t:now};
+        await F.setDoc(F.doc(FB.db,'track',dayKey()),{pts:F.arrayUnion({lat:pos.lat,lng:pos.lng,t:now})},{merge:true});
+      }
+    }catch(_){}
+  }
   else{ await fetch('/api/boat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pos)}); }
 }
 async function pushSpeed(){ if(!boat){toast('Comparte el GPS primero');return;}
@@ -768,6 +783,24 @@ function renderQueue(orders){
         <button class="mini done" onclick="setOrder('${o.id}','entregado')">Entregado</button></div></div>`).join('')
     :`<div class="note">No hay pedidos ahora mismo.</div>`;
 }
+// Caja de hoy: pedidos entregados del día, con hora y total (todo sale de los pedidos ya guardados).
+function renderCaja(orders){
+  const el=document.getElementById('cajaList'); if(!el)return;
+  const d0=new Date(); d0.setHours(0,0,0,0); const t0=d0.getTime()/1000;
+  const hoy=(orders||[]).filter(o=>(o.created||0)>=t0);
+  const ent=hoy.filter(o=>o.status==='entregado');
+  document.getElementById('cajaN').textContent=ent.length+' de '+hoy.length;
+  document.getElementById('cajaTot').textContent=eur(ent.reduce((s2,o)=>s2+(o.total||0),0));
+  el.innerHTML=ent.length?ent.slice().sort((a,b)=>(b.created||0)-(a.created||0)).map(o=>{
+    const h=new Date((o.created||0)*1000);
+    return ('0'+h.getHours()).slice(-2)+':'+('0'+h.getMinutes()).slice(-2)+' · '+esc(o.name)+' · '+eur(o.total||0);
+  }).join('<br>'):'Aún no hay entregas hoy.';
+}
+
+// Recorrido del barco de hoy (se guarda al compartir GPS; se pinta en el mapa de flota).
+const dayKey=()=>{const d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);};
+let trackPts=[], _lastTrk=null;
+
 // Mapa de flota: el Don Pepito + todos los barcos en cola, numerados por orden.
 function drawFleet(pend){
   const c=document.getElementById('fleetCount'); if(c) c.textContent=pend.length;
@@ -775,6 +808,7 @@ function drawFleet(pend){
   if(M){
     document.getElementById('fleetsvg').style.display='none';
     M.layer.clearLayers();
+    if(trackPts.length>1) L.polyline(trackPts.map(p=>[p.lat,p.lng]),{color:'#2b9db3',weight:3,opacity:.85}).addTo(M.layer);  // recorrido de hoy
     const pts=[]; pend.forEach(o=>{ if(o.lat!=null) pts.push({lat:o.lat,lng:o.lng}); });
     if(boat){
       pts.push({lat:boat.lat,lng:boat.lng});

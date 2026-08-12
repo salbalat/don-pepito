@@ -148,7 +148,7 @@ async def menu():
 @app.get("/api/state")
 async def state():
     """Todo lo que necesita el cliente y el barco: posición del barco + cola."""
-    return {"boat": BOAT, "orders": [_public(o) for o in ORDERS], "menu": MENU,
+    return {"boat": BOAT, "orders": [_public(o) for o in ORDERS], "menu": MENU, "track": TRACK,
             "pending": len(_pending())}
 
 
@@ -158,11 +158,35 @@ class BoatIn(BaseModel):
     speed: float | None = None
 
 
+TRACK: list[dict] = []          # recorrido del barco de hoy (modo local)
+
+
+def _persist_dia() -> None:
+    """Guarda pedidos y recorrido del día en backend/registro/AAAA-MM-DD.json (mejor esfuerzo)."""
+    try:
+        import json as _j
+        from datetime import date as _date
+        from pathlib import Path as _P
+        d = _P(__file__).parent / "registro"
+        d.mkdir(exist_ok=True)
+        (d / f"{_date.today().isoformat()}.json").write_text(
+            _j.dumps({"pedidos": ORDERS, "recorrido": TRACK}, ensure_ascii=False, indent=1),
+            encoding="utf-8")
+    except Exception:
+        pass
+
+
 @app.post("/api/boat")
 async def set_boat(b: BoatIn):
     BOAT.update(lat=b.lat, lng=b.lng, updated=time.time())
     if b.speed:
         BOAT["speed"] = b.speed
+    # recorrido del día: un punto si se ha movido o ha pasado >1 min
+    last = TRACK[-1] if TRACK else None
+    if b.lat is not None and (not last or abs(b.lat - last["lat"]) + abs(b.lng - last["lng"]) > 0.0003
+                              or time.time() - last["t"] > 60):
+        TRACK.append({"lat": b.lat, "lng": b.lng, "t": time.time()})
+        _persist_dia()
     return {"ok": True, "boat": BOAT}
 
 
@@ -199,6 +223,7 @@ async def create_order(o: OrderIn):
              "total": round(total, 2), "created": time.time(),
              "color": o.color, "photo": photo}
     ORDERS.append(order)
+    _persist_dia()
     return {"ok": True, **_public(order)}
 
 
