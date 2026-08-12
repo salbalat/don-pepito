@@ -121,6 +121,10 @@
   .qrfull b{font-size:21px;color:var(--banda);font-weight:800}
   .qrfull span{color:var(--muted);font-size:14px}
   .sharrow.top{top:4px;bottom:auto;left:auto;right:10px;animation-name:bnct}
+  .sharrowtip{position:fixed;left:50%;transform:translateX(-50%);bottom:58px;background:#41392e;color:#fff;
+    padding:9px 15px;border-radius:999px;font-size:13.5px;font-weight:800;z-index:99;
+    box-shadow:0 4px 14px rgba(0,0,0,.35);max-width:88vw;text-align:center}
+  .sharrowtip.top{bottom:auto;top:56px;left:auto;right:8px;transform:none}
   @keyframes bnct{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
   @media (prefers-reduced-motion: reduce){.sharrow{animation:none;transform:translateX(-50%)}.sharrow.top{transform:none}}
 </style>
@@ -215,7 +219,7 @@
       <div class="note">Solo quien tenga el código puede entrar en el modo Barco. «Bloquear» vuelve a pedirlo la próxima vez.</div>
     </div>
   </section>
-  <div class="note" style="text-align:center;opacity:.55;font-size:11px;letter-spacing:.5px">donpepito-javea.web.app · v12ago-6</div>
+  <div class="note" style="text-align:center;opacity:.55;font-size:11px;letter-spacing:.5px">donpepito-javea.web.app · v12ago-7</div>
 </main>
 
 <div class="pill" id="pill">
@@ -279,6 +283,7 @@
   </div>
 </div>
 <div class="sharrow hidden" id="sharrow">⬇️</div>
+<div class="sharrowtip hidden" id="sharrowTip" onclick="toast(this.textContent)"></div>
 <script src="firebase-config.js"></script>
 <script>
 // ---------- i18n ----------
@@ -290,7 +295,7 @@ const T={
       needLoc:"Necesito tu ubicación para calcular el tiempo.",empty:"Añade algo a tu pedido.",
       cancel:"Cancelar pedido",canceled:"Pedido cancelado.",
       myboat:"Mi barco",colorq:"Color del barco (opcional): así te encuentran antes.",
-      photo:"📷 Foto del barco (opcional)",photodel:"Quitar la foto",install:"📲 Instalar / descargar la app",shareapp:"📲 Pásale la app a otro barco — QR"},
+      photo:"📷 Foto del barco (opcional)",photodel:"Quitar la foto",tapdown:"👇 Toca ese botón de ahí abajo — es de Safari, no de la app",tapup:"☝️ Toca ese botón de ahí arriba — es del navegador",install:"📲 Instalar / descargar la app",shareapp:"📲 Pásale la app a otro barco — QR"},
   en:{cliente:"Customer",barco:"Boat",menu:"Menu",total:"Total",order:"Order",locate:"📍 Locate me",
       tapLoc:"Tap “Locate me”",paynote:"💶 Pay on delivery, at the boat.",yourname:"Your name / boat",
       away:"to your spot",min:"min",queuePos:"in the queue",ordered:"Order sent!",onway:"On the way",
@@ -298,7 +303,7 @@ const T={
       needLoc:"I need your location to estimate the time.",empty:"Add something to your order.",
       cancel:"Cancel order",canceled:"Order canceled.",
       myboat:"My boat",colorq:"Boat colour (optional): helps us spot you sooner.",
-      photo:"📷 Boat photo (optional)",photodel:"Remove photo",install:"📲 Install / get the app",shareapp:"📲 Share the app — show the QR"},
+      photo:"📷 Boat photo (optional)",photodel:"Remove photo",tapdown:"👇 Tap that button down there — it belongs to Safari, not the app",tapup:"☝️ Tap that button up there — it belongs to the browser",install:"📲 Install / get the app",shareapp:"📲 Share the app — show the QR"},
   de:{cliente:"Kunde",barco:"Boot",menu:"Karte",total:"Gesamt",order:"Bestellen",locate:"📍 Orten",
       tapLoc:"„Orten“ tippen",paynote:"💶 Zahlung bei Lieferung am Boot.",yourname:"Ihr Name / Boot",
       away:"zu deinem Platz",min:"Min",queuePos:"in der Schlange",ordered:"Bestellung gesendet!",onway:"Unterwegs",
@@ -306,7 +311,7 @@ const T={
       needLoc:"Ich brauche deinen Standort für die Zeitschätzung.",empty:"Füge etwas hinzu.",
       cancel:"Bestellung stornieren",canceled:"Bestellung storniert.",
       myboat:"Mein Boot",colorq:"Bootsfarbe (optional): so finden wir dich schneller.",
-      photo:"📷 Bootsfoto (optional)",photodel:"Foto entfernen",install:"📲 App installieren / laden",shareapp:"📲 App weitergeben — QR zeigen"},
+      photo:"📷 Bootsfoto (optional)",photodel:"Foto entfernen",tapdown:"👇 Tippe auf den Knopf da unten — der gehört zu Safari, nicht zur App",tapup:"☝️ Tippe auf den Knopf da oben — der gehört zum Browser",install:"📲 App installieren / laden",shareapp:"📲 App weitergeben — QR zeigen"},
   nl:{cliente:"Klant",barco:"Boot",menu:"Kaart",total:"Totaal",order:"Bestellen",locate:"📍 Vind mij",
       tapLoc:"Tik op ‘Vind mij’",paynote:"💶 Betalen bij levering, aan de boot.",yourname:"Je naam / boot",
       away:"naar jouw plek",min:"min",queuePos:"in de rij",ordered:"Bestelling verzonden!",onway:"Onderweg",
@@ -314,7 +319,7 @@ const T={
       needLoc:"Ik heb je locatie nodig om de tijd te schatten.",empty:"Voeg iets toe aan je bestelling.",
       cancel:"Bestelling annuleren",canceled:"Bestelling geannuleerd.",
       myboat:"Mijn boot",colorq:"Kleur van je boot (optioneel): zo vinden we je sneller.",
-      photo:"📷 Foto van je boot (optioneel)",photodel:"Foto verwijderen",install:"📲 Installeer / download de app",shareapp:"📲 Deel de app — toon de QR"},
+      photo:"📷 Foto van je boot (optioneel)",photodel:"Foto verwijderen",tapdown:"👇 Tik op die knop daar beneden — die is van Safari, niet van de app",tapup:"☝️ Tik op die knop daar boven — die is van de browser",install:"📲 Installeer / download de app",shareapp:"📲 Deel de app — toon de QR"},
 };
 let lang=localStorage.getItem('mb_lang')||'es';
 function t(k){return (T[lang]&&T[lang][k])||T.es[k]||k}
@@ -867,8 +872,11 @@ function openInstall(){
   document.getElementById('inst_android').style.display=isIOS()?'none':'block';
   document.getElementById('installModal').classList.add('show');
   const arr=document.getElementById('sharrow'), chr=/crios/i.test(navigator.userAgent);
+  const tip=document.getElementById('sharrowTip');
   arr.classList.toggle('hidden',!isIOS()||isStandalone());          // flecha al botón Compartir
   arr.classList.toggle('top',chr); arr.textContent=chr?'⬆️':'⬇️';   // Safari: abajo · Chrome iPhone: arriba dcha
+  tip.classList.toggle('hidden',!isIOS()||isStandalone());          // letrero: ese botón es del navegador
+  tip.classList.toggle('top',chr); tip.textContent=chr?t('tapup'):t('tapdown');
   if(!isIOS()&&!isStandalone()) andPrep();                          // Android: dejar clarísimo cómo instalar
 }
 function andPrep(){
@@ -880,12 +888,15 @@ function andPrep(){
     w.style.display='none'; man.style.display='block';              // no la ofrece → pasos a mano + flecha al menú ⋮
     const arr=document.getElementById('sharrow');
     arr.textContent='⬆️'; arr.classList.add('top'); arr.classList.remove('hidden');
+    const tip=document.getElementById('sharrowTip');
+    tip.textContent=t('tapup'); tip.classList.add('top'); tip.classList.remove('hidden');
   },2200);
 }
 window.addEventListener('beforeinstallprompt',()=>{ if(document.getElementById('installModal').classList.contains('show')&&!isIOS()) andPrep(); });
 window.addEventListener('appinstalled',()=>{ closeInstall(); toast('¡Instalada! Busca el icono 🍹 en tu pantalla.'); });
 function closeInstall(){ document.getElementById('installModal').classList.remove('show');
-  document.getElementById('sharrow').classList.add('hidden'); }
+  document.getElementById('sharrow').classList.add('hidden');
+  document.getElementById('sharrowTip').classList.add('hidden'); }
 async function pwaInstall(){
   if(deferredPrompt){ deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; closeInstall(); }
   else andPrep();
