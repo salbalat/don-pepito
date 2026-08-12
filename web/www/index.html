@@ -4,157 +4,226 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Don Pepito 🍹 — Arroces y cócteles a tu barco, en el mar</title>
-<meta name="description" content="Arroces del día, cócteles, refrescos y algo de picar servidos en tu barco o donde estés flotando: el Don Pepito te localiza y te lo lleva. Se paga al recibir.">
-<meta name="theme-color" content="#12303f">
+<meta name="description" content="Arroces del día, mojitos, cócteles, smoothies, batidos y granizados servidos en tu barco o donde estés flotando: el Don Pepito te localiza y te lo lleva. Se paga al recibir.">
+<meta name="theme-color" content="#f8efda">
 <link rel="icon" href="../icons/icon.svg">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Shantell+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap">
 <style>
-  /* Piel «Don Pepito» — la del menú impreso: papel crema, letras pintadas de colores,
-     separadores punteados y sellos redondos de precio. */
+  /* Web Don Pepito — diseño de página propio, con la identidad del menú impreso:
+     turquesa tropical, papel crema, hibisco y rotulación pintada. */
   :root{
-    --paper:#f8efda; --ink:#41392e; --muted:#8a7c66; --line:#eadfc2; --card:#fffdf4;
-    --azul:#3e8fc0; --rojo:#d94a33; --teal:#2b9db3; --morado:#7b4fa6; --verde:#57a154;
-    --ambar:#e39a2d; --royal:#3763b8; --rosa:#d34a72; --banda:#1d6b78;
+    --mar:#25b0a7; --marO:#0e7a74; --marN:#0b5a54; --papel:#faf3e0; --crema:#f6ecd2;
+    --carton:#fffdf6; --tinta:#4d3922; --marron:#5a3b1f; --muted:#8b7b60; --line:#e9dcbb;
+    --hibisco:#e2543a; --naranja:#f0a03c; --hoja:#3e8f4e; --rosa:#e77e8e;
+    --teal:#2b9db3; --morado:#7b4fa6; --verde:#57a154; --ambar:#e39a2d; --royal:#3763b8; --azul:#3e8fc0;
     --script:'Pacifico',cursive; --hand:'Shantell Sans','Comic Sans MS',cursive,sans-serif;
-    --shadow:0 1px 2px rgba(88,64,32,.06),0 8px 22px rgba(88,64,32,.10);
+    --shadow:0 1px 2px rgba(88,64,32,.06),0 10px 26px rgba(88,64,32,.10);
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:var(--hand);
-    background:var(--paper);color:var(--ink);-webkit-text-size-adjust:100%}
-  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
-  /* franja multicolor como el borde del menú impreso */
-  .stripe{height:7px;background:linear-gradient(90deg,
-    var(--teal) 0 14%,var(--rojo) 14% 28%,var(--ambar) 28% 42%,var(--morado) 42% 56%,
-    var(--verde) 56% 70%,var(--royal) 70% 84%,var(--rosa) 84% 100%)}
-  /* HERO (papel crema, como la cabecera del menú) */
-  .hero{background:var(--paper);color:var(--ink);
-    padding:calc(26px + env(safe-area-inset-top)) 0 0;position:relative;overflow:hidden;
-    border-bottom:3px dotted var(--ambar)}
-  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
-  .topbar b{font-family:var(--script);font-size:22px;letter-spacing:.5px;font-weight:400;color:var(--azul)}
-  .topbar b em{font-style:normal;color:var(--rojo)}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:var(--hand);background:var(--papel);color:var(--tinta);-webkit-text-size-adjust:100%}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 22px}
+  .hidden{display:none!important}
+  /* NAV */
+  #topnav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;
+    padding:10px 18px;background:rgba(250,243,224,.93);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line)}
+  .nlogo{font-family:var(--script);font-size:20px;color:var(--marron);text-decoration:none;white-space:nowrap}
+  .nlogo em{font-style:normal;color:var(--hibisco)}
+  .nlinks{display:flex;gap:16px;overflow-x:auto;flex:1;scrollbar-width:none}
+  .nlinks::-webkit-scrollbar{display:none}
+  .nlinks a{color:#6b5638;text-decoration:none;font-weight:700;font-size:13.5px;white-space:nowrap;padding:4px 0}
+  .nlinks a:hover{color:var(--hibisco)}
   .langs{display:flex;gap:4px}
-  .langs button{border:1.5px solid var(--line);background:var(--card);color:var(--muted);border-radius:7px;
+  .langs button{border:1.5px solid var(--line);background:var(--carton);color:var(--muted);border-radius:7px;
     padding:4px 9px;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
-  .langs button.on{background:var(--rojo);color:#fff;border-color:var(--rojo)}
-  .heroLogo{font-family:var(--script);font-weight:400;font-size:clamp(44px,10vw,76px);line-height:1.05;margin:0 0 6px;color:var(--azul)}
-  .heroLogo em{font-style:normal;color:var(--rojo)}
-  .hero h1{font-family:var(--hand);font-weight:800;font-size:clamp(22px,4.6vw,32px);line-height:1.2;margin:0 0 14px;color:var(--banda);text-wrap:balance}
-  .hero p.lead{font-size:clamp(15px,2.6vw,17px);color:var(--muted);max-width:34em;margin:0 0 26px;line-height:1.6}
-  .cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-  .btn{display:inline-block;border:0;border-radius:12px;padding:15px 22px;font:inherit;font-weight:800;
-    font-size:15px;cursor:pointer;text-decoration:none;letter-spacing:.3px;text-align:center}
-  .btn.p{background:var(--rojo);color:#fff;box-shadow:0 3px 0 #b93a26}
-  .btn.w{background:#25D366;color:#04310f;box-shadow:0 3px 0 #1a9c49}
-  .btn.o{background:var(--card);color:var(--teal);border:2px solid var(--teal)}
-  .paynote{font-size:13px;color:var(--muted);margin:0 0 30px}
-  .waves{display:none}
+  .langs button.on{background:var(--hibisco);color:#fff;border-color:var(--hibisco)}
+  /* HERO */
+  .hero{position:relative;background:linear-gradient(175deg,#2cb9af,#17958d 62%,#118a83);color:#fff;
+    padding:calc(46px + env(safe-area-inset-top)) 0 0;overflow:hidden}
+  .hero::before,.hero::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none}
+  .hero::before{width:520px;height:520px;top:-220px;right:-140px}
+  .hero::after{width:380px;height:380px;bottom:-140px;left:-120px}
+  .herogrid{display:grid;gap:36px;position:relative;padding-bottom:74px}
+  @media(min-width:880px){.herogrid{grid-template-columns:1.08fr .92fr;align-items:center}}
+  .brandline{font-family:var(--script);font-size:clamp(17px,2.4vw,22px);color:#ffe9b8;margin:0 0 10px}
+  .hero h1{font-family:var(--hand);font-weight:800;font-size:clamp(30px,5.2vw,54px);line-height:1.12;
+    margin:0 0 16px;color:#fff;text-wrap:balance;text-shadow:0 2px 14px rgba(0,50,46,.25)}
+  .hero .lead{font-size:clamp(15px,2.4vw,18px);color:#d9f2ee;max-width:34em;margin:0 0 26px;line-height:1.6}
+  .cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .btn{display:inline-block;border:0;border-radius:14px;padding:15px 24px;font:inherit;font-weight:800;
+    font-size:15.5px;cursor:pointer;text-decoration:none;letter-spacing:.3px;text-align:center}
+  .btn.p{background:var(--hibisco);color:#fff;box-shadow:0 4px 0 #b93a26}
+  .btn.w{background:#25D366;color:#04310f;box-shadow:0 4px 0 #1a9c49}
+  .btn.s{background:var(--carton);color:var(--marO);border:2px solid var(--marO)}
+  .paynote{font-size:13.5px;color:#bfe6e1;margin:0}
+  .heropanel{position:relative;justify-self:center}
+  .heropanel img{display:block;width:min(400px,86vw);border-radius:22px;transform:rotate(1.6deg);
+    border:6px solid rgba(255,255,255,.6);box-shadow:0 26px 60px rgba(0,42,39,.4)}
+  .waves{display:block;width:100%;height:64px;margin-top:-64px;position:relative;z-index:2}
   /* SECCIONES */
-  section{padding:44px 0 6px}
-  .kicker{font-size:12px;text-transform:uppercase;letter-spacing:1.6px;color:var(--rojo);font-weight:800;margin:0 0 6px}
-  h2{font-family:var(--hand);font-size:clamp(23px,4.6vw,30px);margin:0 0 20px;font-weight:800;letter-spacing:.2px;color:var(--banda);text-wrap:balance}
-  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:16px}
-  .step{background:var(--card);border:1.5px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:18px}
-  .step .n{width:30px;height:30px;border-radius:50%;color:#fff;display:grid;
-    place-items:center;font-weight:800;font-size:14px;margin-bottom:12px}
-  .step:nth-child(1) .n{background:var(--teal)} .step:nth-child(2) .n{background:var(--morado)} .step:nth-child(3) .n{background:var(--verde)}
-  .step b{display:block;font-size:16px;margin-bottom:6px;font-weight:700;color:var(--rojo)}
-  .step span{font-size:14px;color:var(--muted);line-height:1.55}
-  /* ARROCES DE LA SEMANA — sellos redondos como el menú */
-  .badges{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 22px;align-items:center}
-  .badge{width:118px;height:118px;border-radius:50%;display:flex;flex-direction:column;justify-content:center;
+  section{padding:58px 0 34px}
+  .kicker{font-size:12.5px;text-transform:uppercase;letter-spacing:1.8px;color:var(--hibisco);font-weight:800;margin:0 0 6px}
+  h2{font-family:var(--hand);font-size:clamp(24px,4.4vw,36px);margin:0 0 18px;font-weight:800;color:var(--marO);text-wrap:balance}
+  .sx{font-size:15.5px;color:var(--muted);line-height:1.6;max-width:36em;margin:0 0 22px}
+  /* LA APP (descarga) */
+  .s-app{background:var(--papel)}
+  .appgrid{display:grid;gap:38px;align-items:center}
+  @media(min-width:820px){.appgrid{grid-template-columns:.8fr 1.2fr}}
+  .phonewrap{display:flex;justify-content:center}
+  .phone{width:min(272px,72vw);border:9px solid #2f2317;border-radius:42px;overflow:hidden;background:#000;
+    box-shadow:0 24px 50px rgba(70,50,20,.28);position:relative}
+  .phone::before{content:"";position:absolute;top:9px;left:50%;transform:translateX(-50%);
+    width:34%;height:16px;background:#2f2317;border-radius:0 0 12px 12px;z-index:2}
+  .phone img{display:block;width:100%}
+  .stores{display:flex;gap:12px;flex-wrap:wrap;margin:4px 0 22px}
+  .store{display:flex;align-items:center;gap:12px;background:#241b11;color:#fff;border-radius:16px;
+    padding:11px 20px;text-decoration:none;min-width:200px;box-shadow:var(--shadow)}
+  .store:hover{background:#332619}
+  .store .sic{font-size:27px;line-height:1}
+  .store small{display:block;font-size:11px;opacity:.75;letter-spacing:.4px}
+  .store b{font-size:19px;font-weight:800;font-family:var(--hand)}
+  .qrrow{display:flex;gap:16px;align-items:center}
+  .qrrow .qrimg{width:86px;height:86px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:6px;image-rendering:pixelated}
+  .qrrow b{font-size:15px}
+  .alink{color:var(--marO);font-weight:800;text-decoration:none}
+  .alink:hover{color:var(--hibisco)}
+  /* ARROCES */
+  .s-arroz{background:var(--crema);border-top:3px dotted var(--naranja);border-bottom:3px dotted var(--naranja)}
+  .badges{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 24px;align-items:center}
+  .badge{width:120px;height:120px;border-radius:50%;display:flex;flex-direction:column;justify-content:center;
     text-align:center;box-shadow:var(--shadow);border:3px dashed rgba(255,255,255,.55)}
-  .badge b{font-family:var(--hand);font-size:30px;display:block;line-height:1.05;font-weight:800}
+  .badge b{font-family:var(--hand);font-size:31px;line-height:1.05;font-weight:800}
   .badge span{font-size:12px;letter-spacing:.4px;font-weight:700}
-  .badge.b1{background:var(--teal);color:#fff;transform:rotate(-5deg)}
-  .badge.b2{background:var(--rojo);color:#fff;transform:rotate(4deg)}
-  .week{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-  .day{background:var(--card);border:1.5px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px;position:relative}
-  .day.today{border:2.5px solid var(--rojo)}
-  .day .hoy{position:absolute;top:-11px;right:12px;background:var(--rojo);color:#fff;font-size:11px;
+  .badge.b1{background:var(--mar);color:#fff;transform:rotate(-5deg)}
+  .badge.b2{background:var(--hibisco);color:#fff;transform:rotate(4deg)}
+  .week{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .day{background:var(--carton);border:1.5px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px;position:relative}
+  .day.today{border:2.5px solid var(--hibisco)}
+  .day .hoy{position:absolute;top:-11px;right:12px;background:var(--hibisco);color:#fff;font-size:11px;
     font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.6px;text-transform:uppercase}
   .day h3{font-family:var(--hand);font-size:17px;margin:0 0 10px;font-weight:800;
     border-bottom:3px solid currentColor;padding-bottom:7px;text-transform:uppercase;letter-spacing:1px}
   .day .plato{margin-bottom:10px}
-  .day .plato b{display:block;font-size:14.5px;font-weight:700;line-height:1.35;color:var(--rojo)}
+  .day .plato b{display:block;font-size:14.5px;font-weight:700;line-height:1.35;color:var(--hibisco)}
   .day .plato span{font-size:12.5px;color:var(--muted);font-style:italic}
   .day .alg{font-size:11px;color:var(--muted);margin-top:8px;letter-spacing:.3px}
   .weeknote{font-size:13px;color:var(--muted);margin:16px 2px 0;line-height:1.6}
-  .caldos{margin-top:18px;background:var(--banda);color:#e6f3ef;border-radius:14px;padding:14px 18px;
+  .caldos{margin-top:20px;background:var(--marN);color:#dff0ec;border-radius:16px;padding:15px 20px;
     font-size:13.5px;text-align:center;box-shadow:var(--shadow);font-weight:600}
-  /* MAPA ZONA */
-  .mapbox{position:relative;border-radius:14px;overflow:hidden;height:320px;box-shadow:var(--shadow);
-    background:linear-gradient(180deg,#2b9db3,#1d6b78)}
+  /* BEBIDAS */
+  .s-carta{background:var(--papel)}
+  .cartagrid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));align-items:start}
+  .catcard{background:var(--carton);border:1.5px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:16px 20px 8px}
+  .cathead{display:flex;align-items:center;gap:12px;padding-bottom:10px;border-bottom:3px solid var(--cc,#999);margin-bottom:4px}
+  .cathead .cmed{width:42px;height:42px;border-radius:50%;background:var(--cc,#999);display:grid;place-items:center;
+    font-size:21px;flex:0 0 auto;border:2.5px dashed rgba(255,255,255,.6)}
+  .cathead b{color:var(--cc,#666);text-transform:uppercase;letter-spacing:1.1px;font-size:14px;font-weight:800}
+  .dish{display:flex;align-items:baseline;gap:10px;padding:11px 0;border-bottom:2px dotted var(--line);font-size:15px}
+  .dish:last-child{border-bottom:0}
+  .dish .em{width:22px;text-align:center}
+  .dish .nm{font-weight:700;color:var(--tinta)}
+  .dish .nm small{display:block;font-weight:400;color:var(--muted);font-size:12px;font-style:italic;line-height:1.35}
+  .dish .dots{flex:1;border-bottom:2px dotted #d9c9a4;transform:translateY(-4px);min-width:14px}
+  .dish .pr{font-family:var(--hand);font-weight:800;font-size:16px;white-space:nowrap;color:var(--marO)}
+  .cartanote{font-size:13px;color:var(--muted);margin:14px 2px 0}
+  /* MAPA */
+  .s-zona{background:var(--crema);border-top:3px dotted var(--naranja)}
+  .mapbox{position:relative;border-radius:18px;overflow:hidden;height:340px;box-shadow:var(--shadow);
+    background:linear-gradient(180deg,#2ab3aa,#0e7a74)}
   .mapbox .lmap{position:absolute;inset:0}
   .mapbox .lmap.leaflet-container{background:#bcd6e2}
   .mapoff{position:absolute;inset:0;display:grid;place-items:center;color:#e6f3ef;font-size:14px;
     text-align:center;padding:20px;z-index:2}
-  .pin{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.35);border:2px solid #fffdf4;background:var(--banda)}
+  .pin{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.35);border:2px solid #fffdf4;background:var(--marN)}
   .pin-boat{font-size:18px}
   .leaflet-control-attribution{font-size:9px;opacity:.8}
-  /* CARTA BEBIDAS */
-  .carta{background:var(--card);border:1.5px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:6px 22px 18px}
-  .cat{font-size:13px;text-transform:uppercase;letter-spacing:1.4px;font-weight:800;
-    margin:22px 0 4px;border-bottom:3px solid currentColor;padding-bottom:8px;font-family:var(--hand)}
-  .cat[data-c="coctel"]{color:var(--morado)} .cat[data-c="refresco"]{color:var(--teal)} .cat[data-c="picar"]{color:var(--verde)}
-  .dish{display:flex;align-items:baseline;gap:10px;padding:11px 0;border-bottom:2px dotted var(--line);font-size:15px}
-  .dish:last-child{border-bottom:0}
-  .dish .em{width:22px;text-align:center}
-  .dish .nm{font-weight:700;color:var(--rojo)}
-  .dish .dots{flex:1;border-bottom:2px dotted #d9c9a4;transform:translateY(-4px)}
-  .dish .pr{font-family:var(--hand);font-weight:800;font-size:16px;white-space:nowrap}
-  .cartanote{font-size:13px;color:var(--muted);margin:14px 2px 0}
-  /* QR / APP */
-  .appbox{display:flex;gap:22px;align-items:center;flex-wrap:wrap;background:var(--banda);color:#e6f3ef;
-    border-radius:14px;padding:24px;box-shadow:var(--shadow)}
-  .appbox img{width:150px;height:150px;border-radius:12px;background:#fff;padding:8px;image-rendering:pixelated}
-  .appbox .tx{flex:1;min-width:220px}
-  .appbox .tx b{font-family:var(--hand);font-size:20px;display:block;margin-bottom:8px;font-weight:800;color:#fff}
-  .appbox .tx p{margin:0 0 16px;color:#cfe7e4;font-size:14px;line-height:1.55}
-  .appbox .btn.o{background:none;color:#fff;border-color:rgba(255,255,255,.65)}
-  footer{padding:40px 0 calc(34px + env(safe-area-inset-bottom));color:var(--muted);font-size:13px;line-height:1.7}
-  footer b{color:var(--azul);font-family:var(--script);font-weight:400;font-size:15px}
+  /* CÓMO FUNCIONA */
+  .s-how{background:var(--papel)}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .step{background:var(--carton);border:1.5px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}
+  .step .n{width:32px;height:32px;border-radius:50%;color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;margin-bottom:12px}
+  .step:nth-child(1) .n{background:var(--mar)} .step:nth-child(2) .n{background:var(--morado)} .step:nth-child(3) .n{background:var(--hoja)}
+  .step b{display:block;font-size:16px;margin-bottom:6px;font-weight:700;color:var(--hibisco)}
+  .step span{font-size:14px;color:var(--muted);line-height:1.55}
+  /* PIE */
+  footer{background:var(--marN);color:#cfe9e5;padding:46px 0 calc(56px + env(safe-area-inset-bottom));
+    text-align:center;font-size:13.5px;line-height:1.8;margin-top:54px}
+  .flogo{font-family:var(--script);font-size:28px;margin:0 0 4px;color:#ffe9b8}
+  .flogo em{font-style:normal;color:#ffb3a0}
+  /* HOJAS DE INSTALACIÓN */
+  .sheet{display:none;position:fixed;inset:0;background:rgba(50,32,14,.55);z-index:90;align-items:flex-end;justify-content:center}
+  .sheet.show{display:flex}
+  .sheetbox{background:var(--papel);width:100%;max-width:560px;border-radius:20px 20px 0 0;
+    padding:22px 22px calc(28px + env(safe-area-inset-bottom));box-shadow:0 -10px 34px rgba(0,0,0,.3)}
+  @media(min-width:640px){.sheet{align-items:center}.sheetbox{border-radius:20px}}
+  .sheethead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .sheethead b{font-family:var(--hand);font-size:18px;font-weight:800;color:var(--marO)}
+  .sheethead button{background:none;border:0;font-size:19px;color:var(--muted);cursor:pointer}
+  .ins{margin:0 0 18px;padding-left:22px}
+  .ins li{margin-bottom:10px;font-size:15px;line-height:1.5}
+  .sheetbox .btn{display:block;margin-top:10px}
 </style>
 </head>
 <body>
 
-<div class="stripe"></div>
-<div class="hero">
-  <div class="wrap">
-    <div class="topbar">
-      <b>Don <em>Pepito</em> 🍹</b>
-      <div class="langs" id="langs"></div>
-    </div>
-    <p class="heroLogo">Don <em>Pepito</em></p>
-    <h1 data-t="h1">Arroces y cócteles a tu barco, en el mar</h1>
-    <p class="lead" data-t="lead">Estés fondeado, navegando o flotando en una cala: pide desde el móvil,
-      el Don Pepito te localiza y te lleva tu pedido con el tiempo estimado en pantalla.</p>
-    <div class="cta">
-      <a class="btn p" href="../" data-t="openapp">🍹 Abrir la app y pedir</a>
-      <a class="btn w" href="https://wa.me/34604805968" target="_blank" rel="noopener" data-t="wa">💬 Pedir por WhatsApp</a>
-    </div>
-    <p class="paynote" data-t="paynote">💶 Se paga al recibir, en el barco. Sin registros ni tarjetas.</p>
+<nav id="topnav">
+  <a class="nlogo" href="#top">Don <em>Pepito</em> 🍹</a>
+  <div class="nlinks">
+    <a href="#app" data-t="navapp">La app</a>
+    <a href="#arroces" data-t="navarroces">Arroces</a>
+    <a href="#carta" data-t="navcarta">Bebidas</a>
+    <a href="#zona" data-t="navmapa">Dónde está</a>
   </div>
-  <svg class="waves" viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0,30 C240,55 480,5 720,30 C960,55 1200,5 1440,30 L1440,56 L0,56 Z" fill="#f4f1ea"/>
-  </svg>
-</div>
+  <div class="langs" id="langs"></div>
+</nav>
 
-<div class="wrap">
-  <section>
-    <p class="kicker" data-t="howk">Cómo funciona</p>
-    <h2 data-t="howt">Tan fácil como pedir un taxi</h2>
-    <div class="steps">
-      <div class="step"><div class="n">1</div><b data-t="s1t">Localízate</b><span data-t="s1x">Abre la app y toca «Localizarme»: verás dónde está el Don Pepito y a qué distancia.</span></div>
-      <div class="step"><div class="n">2</div><b data-t="s2t">Elige de la carta</b><span data-t="s2x">Arroz del día, cócteles, refrescos y algo de picar. Pide en la app o por WhatsApp.</span></div>
-      <div class="step"><div class="n">3</div><b data-t="s3t">Te lo llevamos</b><span data-t="s3x">Ves el tiempo estimado y tu turno en la cola. Pagas al recibirlo, en mano.</span></div>
+<header class="hero" id="top">
+  <div class="wrap herogrid">
+    <div>
+      <p class="brandline">Don Pepito · Jávea · <span data-t="aniv">15º aniversario</span></p>
+      <h1 data-t="h1">Arroces y cócteles a tu barco, en el mar</h1>
+      <p class="lead" data-t="lead">Estés fondeado, navegando o flotando en una cala: pide desde el móvil,
+        el Don Pepito te localiza y te lleva tu pedido con el tiempo estimado en pantalla.</p>
+      <div class="cta">
+        <a class="btn p" href="../" data-t="openapp">🍹 Abrir la app y pedir</a>
+        <a class="btn w" href="https://wa.me/34604805968" target="_blank" rel="noopener" data-t="wa">💬 Pedir por WhatsApp</a>
+      </div>
+      <p class="paynote" data-t="paynote">💶 Se paga al recibir, en el barco. Sin registros ni tarjetas.</p>
     </div>
-  </section>
+    <div class="heropanel"><img src="brand-panel.jpg" alt="Don Pepito Jávea — 15º aniversario"></div>
+  </div>
+  <svg class="waves" viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,38 C240,68 480,8 720,38 C960,68 1200,8 1440,38 L1440,70 L0,70 Z" fill="#faf3e0"/>
+  </svg>
+</header>
 
-  <section id="arroces">
+<main>
+<section id="app" class="s-app">
+  <div class="wrap appgrid">
+    <div class="phonewrap"><div class="phone"><img src="app-captura.png" alt="La app de Don Pepito" loading="lazy"></div></div>
+    <div>
+      <p class="kicker" data-t="dlk">La app</p>
+      <h2 data-t="dlt">Descárgate Don Pepito en el móvil</h2>
+      <p class="sx" data-t="dlx">Pide desde el agua en dos toques: mapa del barco en vivo, la carta completa y tu pedido con tiempo estimado. Gratis, sin registros ni tarjetas.</p>
+      <div class="stores">
+        <a class="store" href="#" onclick="openSheet('shIos');return false"><span class="sic"></span><span><small data-t="get">Descárgala en</small><b>iPhone</b></span></a>
+        <a class="store" href="#" onclick="openSheet('shAnd');return false"><span class="sic">🤖</span><span><small data-t="get2">Descárgala en</small><b>Android</b></span></a>
+      </div>
+      <div class="qrrow">
+        <img src="qr-donpepito.png" alt="QR Don Pepito" class="qrimg">
+        <div><b data-t="qrt">Escanea el QR y pide desde el agua</b><br>
+          <a class="alink" href="../" data-t="openapp2">Abrir la app →</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="arroces" class="s-arroz">
+  <div class="wrap">
     <p class="kicker" data-t="wk">La carta de la semana</p>
     <h2 data-t="wt">Arroces y fideuás, cada día distintos</h2>
     <div class="badges">
@@ -164,9 +233,20 @@
     <div class="week" id="week"></div>
     <p class="weeknote" data-t="wnote">Si pides por ración, las opciones cambian cada día. Alérgenos indicados en cada día.</p>
     <div class="caldos" data-t="caldos">🫒 Todos nuestros caldos se elaboran de forma natural y con productos de proximidad.</div>
-  </section>
+  </div>
+</section>
 
-  <section id="zona">
+<section id="carta" class="s-carta">
+  <div class="wrap">
+    <p class="kicker" data-t="cartak">Bebidas</p>
+    <h2 data-t="cartat">Cócteles hechos al momento, servidos en el agua</h2>
+    <div class="cartagrid" id="menu"></div>
+    <p class="cartanote" data-t="cartanote">Precios con todo incluido. La carta puede variar según el día y la despensa del barco.</p>
+  </div>
+</section>
+
+<section id="zona" class="s-zona">
+  <div class="wrap">
     <p class="kicker" data-t="zk">La zona</p>
     <h2 data-t="zt">¿Dónde está el Don Pepito?</h2>
     <div class="mapbox">
@@ -174,33 +254,49 @@
       <div class="mapoff" id="mapoff" data-t="zoff">🍹⛵ El barco no está en marcha ahora mismo.<br>Abre la app para verlo en vivo cuando esté sirviendo.</div>
     </div>
     <p class="cartanote" data-t="znote">Carta náutica real (OpenSeaMap). Cuando el barco comparte su GPS, lo ves aquí moverse en vivo.</p>
-  </section>
+  </div>
+</section>
 
-  <section id="carta">
-    <p class="kicker" data-t="cartak">Bebidas y picoteo</p>
-    <h2 data-t="cartat">Cócteles hechos al momento, servidos en el agua</h2>
-    <div class="carta" id="menu"></div>
-    <p class="cartanote" data-t="cartanote">Precios con todo incluido. La carta puede variar según el día y la despensa del barco.</p>
-  </section>
-
-  <section>
-    <p class="kicker" data-t="appk">La app</p>
-    <h2 data-t="appt">Llévate Don Pepito en el móvil</h2>
-    <div class="appbox">
-      <img src="qr-donpepito.png" alt="QR Don Pepito">
-      <div class="tx">
-        <b data-t="qrt">Escanea el QR y pide desde el agua</b>
-        <p data-t="qrx">Se instala como una app normal (icono y pantalla completa), sin tienda ni descargas. En iPhone: Compartir → «Añadir a pantalla de inicio».</p>
-        <a class="btn o" href="../" data-t="openapp2" style="border-color:rgba(255,255,255,.5)">Abrir la app →</a>
-      </div>
+<section class="s-how">
+  <div class="wrap">
+    <p class="kicker" data-t="howk">Cómo funciona</p>
+    <h2 data-t="howt">Tan fácil como pedir un taxi</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><b data-t="s1t">Localízate</b><span data-t="s1x">Abre la app y toca «Localizarme»: verás dónde está el Don Pepito y a qué distancia.</span></div>
+      <div class="step"><div class="n">2</div><b data-t="s2t">Elige de la carta</b><span data-t="s2x">Arroz del día, mojitos, cócteles, smoothies, batidos y granizados. Pide en la app o por WhatsApp.</span></div>
+      <div class="step"><div class="n">3</div><b data-t="s3t">Te lo llevamos</b><span data-t="s3x">Ves el tiempo estimado y tu turno en la cola. Pagas al recibirlo, en mano.</span></div>
     </div>
-  </section>
+  </div>
+</section>
+</main>
 
-  <footer>
-    <b>Don Pepito 🍹⛵</b><br>
-    <span data-t="foot1">Servicio a barcos y bañistas · temporada de verano.</span><br>
-    <span data-t="foot2">Consumo responsable. No servimos alcohol a menores de 18 años.</span>
-  </footer>
+<footer>
+  <div class="wrap">
+    <p class="flogo">Don <em>Pepito</em> 🍹⛵</p>
+    <p>Jávea · <span data-t="aniv2">15º aniversario</span></p>
+    <p><span data-t="foot1">Servicio a barcos y bañistas · temporada de verano.</span><br>
+       <span data-t="foot2">Consumo responsable. No servimos alcohol a menores de 18 años.</span></p>
+  </div>
+</footer>
+
+<div class="sheet" id="shIos" onclick="if(event.target===this)closeSheet('shIos')">
+  <div class="sheetbox">
+    <div class="sheethead"><b data-t="iost">Instalar en iPhone</b><button onclick="closeSheet('shIos')" aria-label="Cerrar">✕</button></div>
+    <ol class="ins"><li data-t="ios1">Abre donpepito-2607151158.web.app en Safari.</li>
+      <li data-t="ios2">Toca el botón Compartir (el cuadrado con la flecha).</li>
+      <li data-t="ios3">Elige «Añadir a pantalla de inicio» y confirma: ya tienes la app con su icono 🍹.</li></ol>
+    <a class="btn p" href="../" data-t="openapp2">Abrir la app →</a>
+  </div>
+</div>
+<div class="sheet" id="shAnd" onclick="if(event.target===this)closeSheet('shAnd')">
+  <div class="sheetbox">
+    <div class="sheethead"><b data-t="andt">Instalar en Android</b><button onclick="closeSheet('shAnd')" aria-label="Cerrar">✕</button></div>
+    <ol class="ins"><li data-t="and1">Abre donpepito-2607151158.web.app en Chrome.</li>
+      <li data-t="and2">Toca el menú ⋮ de arriba a la derecha.</li>
+      <li data-t="and3">Elige «Instalar aplicación» (o «Añadir a pantalla principal») y confirma.</li></ol>
+    <a class="btn s hidden" id="apkLink" href="../Don-Pepito.apk" data-t="apk">⬇️ Descargar APK directa</a>
+    <a class="btn p" href="../" data-t="openapp2">Abrir la app →</a>
+  </div>
 </div>
 
 <script src="../firebase-config.js"></script>
@@ -228,17 +324,56 @@ const SEMANA=[
 const DIAS={es:["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"],
   en:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
   de:["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"]};
+// Carta real Don Pepito Jávea (15º aniversario) — original en docs/carta/
+const N=s=>({es:s,en:s,de:s});
 const MENU=[
-  {cat:"coctel",name:{es:"Mojito",en:"Mojito",de:"Mojito"},price:8.0,emoji:"🍸"},
-  {cat:"coctel",name:{es:"Mojito de fresa",en:"Strawberry mojito",de:"Erdbeer-Mojito"},price:8.5,emoji:"🍓"},
-  {cat:"coctel",name:{es:"Piña colada",en:"Piña colada",de:"Piña Colada"},price:9.0,emoji:"🍍"},
-  {cat:"coctel",name:{es:"Gin-tonic",en:"Gin & tonic",de:"Gin Tonic"},price:9.0,emoji:"🍋"},
-  {cat:"coctel",name:{es:"Sangría (copa)",en:"Sangria (glass)",de:"Sangria (Glas)"},price:6.0,emoji:"🍷"},
-  {cat:"refresco",name:{es:"Cerveza",en:"Beer",de:"Bier"},price:4.0,emoji:"🍺"},
+  // Mojitos — 12,5 €
+  {cat:"mojito",name:N("Mojito clásico"),price:12.5,emoji:"🌿"},
+  {cat:"mojito",name:N("Mojito coco"),price:12.5,emoji:"🥥"},
+  {cat:"mojito",name:N("Mojito fresa"),price:12.5,emoji:"🍓"},
+  {cat:"mojito",name:N("Mojito de la pasión"),price:12.5,emoji:"🌺"},
+  {cat:"mojito",name:N("Mojito mango"),price:12.5,emoji:"🥭"},
+  // Cócteles — 12,5 €
+  {cat:"coctel",name:N("Caipirinha"),price:12.5,emoji:"🍸",d:{es:"Cachaça, lima, gaseosa, azúcar moreno",en:"Cachaça, lime, soda, brown sugar",de:"Cachaça, Limette, Soda, brauner Zucker"}},
+  {cat:"coctel",name:N("Caipiroska"),price:12.5,emoji:"🍸",d:{es:"Vodka, lima, gaseosa, azúcar moreno",en:"Vodka, lime, soda, brown sugar",de:"Wodka, Limette, Soda, brauner Zucker"}},
+  {cat:"coctel",name:N("Margarita"),price:12.5,emoji:"🍹",d:{es:"Tequila, cointreau, zumo de limón, azúcar moreno",en:"Tequila, cointreau, lemon juice, brown sugar",de:"Tequila, Cointreau, Zitronensaft, brauner Zucker"}},
+  {cat:"coctel",name:N("Sex on the Boat"),price:12.5,emoji:"🍹",d:{es:"Vodka, cointreau, zumo de naranja y fresa",en:"Vodka, cointreau, orange and strawberry juice",de:"Wodka, Cointreau, Orangen- und Erdbeersaft"}},
+  {cat:"coctel",name:N("Daiquiri de fruta"),price:12.5,emoji:"🍹",d:{es:"Ron blanco, fruta natural",en:"White rum, fresh fruit juice",de:"Weißer Rum, frische Frucht"}},
+  {cat:"coctel",name:N("Fresa colada"),price:12.5,emoji:"🍓",d:{es:"Ron blanco, zumo de fresa, coco batido",en:"White rum, strawberry juice, coconut cream",de:"Weißer Rum, Erdbeersaft, Kokoscreme"}},
+  {cat:"coctel",name:N("Piña colada"),price:12.5,emoji:"🍍",d:{es:"Ron blanco, zumo de piña, coco batido",en:"White rum, pineapple juice, coconut cream",de:"Weißer Rum, Ananassaft, Kokoscreme"}},
+  {cat:"coctel",name:N("Mai Tai"),price:12.5,emoji:"🍹",d:{es:"Ron blanco y negro, naranja, piña, limón y granadina",en:"White and dark rum, orange, pineapple, lemon, grenadine",de:"Weißer und dunkler Rum, Orange, Ananas, Zitrone, Grenadine"}},
+  {cat:"coctel",name:N("Javea Sunrise"),price:12.5,emoji:"🌅",d:{es:"Tequila, zumo de naranja y granadina",en:"Tequila, orange juice and grenadine",de:"Tequila, Orangensaft und Grenadine"}},
+  // Cócteles sin alcohol — 10 €
+  {cat:"sinalcohol",name:N("Mojito virgen"),price:10.0,emoji:"🌿",d:{es:"Lima, azúcar moreno, hierbabuena, gaseosa",en:"Lime, brown sugar, mint, soda",de:"Limette, brauner Zucker, Minze, Soda"}},
+  {cat:"sinalcohol",name:N("Piña colada virgen"),price:10.0,emoji:"🍍",d:{es:"Zumo de piña, coco batido",en:"Pineapple juice, coconut cream",de:"Ananassaft, Kokoscreme"}},
+  {cat:"sinalcohol",name:N("Caipirinha virgen"),price:10.0,emoji:"🍋",d:{es:"Lima, gaseosa, azúcar moreno",en:"Lime, soda, brown sugar",de:"Limette, Soda, brauner Zucker"}},
+  {cat:"sinalcohol",name:N("Fresa colada virgen"),price:10.0,emoji:"🍓",d:{es:"Zumo de fresa, coco batido",en:"Strawberry juice and coconut cream",de:"Erdbeersaft, Kokoscreme"}},
+  // Combinados — 12,5 €
+  {cat:"combinado",name:{es:"Ron",en:"Rum",de:"Rum"},price:12.5,emoji:"🥃",d:{es:"Flor de caña + refresco",en:"Flor de caña + soft drink",de:"Flor de caña + Softdrink"}},
+  {cat:"combinado",name:N("Whisky"),price:12.5,emoji:"🥃",d:{es:"Johnnie Walker + refresco",en:"Johnnie Walker + soft drink",de:"Johnnie Walker + Softdrink"}},
+  {cat:"combinado",name:{es:"Vodka",en:"Vodka",de:"Wodka"},price:12.5,emoji:"🥃",d:{es:"Absolut + refresco",en:"Absolut + soft drink",de:"Absolut + Softdrink"}},
+  {cat:"combinado",name:N("Gin tonic"),price:12.5,emoji:"🍸",d:{es:"Ginebra + tónica",en:"Gin + tonic",de:"Gin + Tonic"}},
+  {cat:"combinado",name:N("Gin premium Sylex"),price:12.5,emoji:"🍸"},
+  // Smoothies de fruta fresca — 10 €
+  {cat:"smoothie",name:N("Granadella"),price:10.0,emoji:"🍓",d:{es:"Fresa, plátano y naranja",en:"Strawberry, banana and orange",de:"Erdbeere, Banane und Orange"}},
+  {cat:"smoothie",name:N("Sardinera"),price:10.0,emoji:"🍉",d:{es:"Sandía, naranja y hierbabuena",en:"Watermelon, orange and mint",de:"Wassermelone, Orange und Minze"}},
+  {cat:"smoothie",name:N("Cala Blanca"),price:10.0,emoji:"🍍",d:{es:"Piña, naranja y fresa",en:"Pineapple, orange and strawberry",de:"Ananas, Orange und Erdbeere"}},
+  {cat:"smoothie",name:N("San Martín"),price:10.0,emoji:"🍉",d:{es:"Sandía y plátano",en:"Watermelon and banana",de:"Wassermelone und Banane"}},
+  {cat:"smoothie",name:N("Portichol"),price:10.0,emoji:"🍊",d:{es:"Naranja y plátano",en:"Orange and banana",de:"Orange und Banane"}},
+  {cat:"smoothie",name:{es:"Fruta extra",en:"Extra fruit",de:"Extra Frucht"},price:1.0,emoji:"➕"},
+  // Batidos — 10 €
+  {cat:"batido",name:{es:"Batido de chocolate",en:"Chocolate milkshake",de:"Schoko-Milchshake"},price:10.0,emoji:"🍫"},
+  {cat:"batido",name:{es:"Batido de Oreo",en:"Oreo milkshake",de:"Oreo-Milchshake"},price:10.0,emoji:"🍪"},
+  {cat:"batido",name:{es:"Batido de fresa y plátano",en:"Strawberry and banana milkshake",de:"Erdbeer-Bananen-Milchshake"},price:10.0,emoji:"🍓"},
+  {cat:"batido",name:{es:"Batido de plátano y chocolate",en:"Banana and chocolate milkshake",de:"Bananen-Schoko-Milchshake"},price:10.0,emoji:"🍌"},
+  // Granizados
+  {cat:"granizado",name:{es:"Granizado de limón",en:"Lemon slush",de:"Zitronen-Slush"},price:8.5,emoji:"🍋"},
+  {cat:"granizado",name:{es:"Granizado de naranja",en:"Orange slush",de:"Orangen-Slush"},price:8.5,emoji:"🍊"},
+  {cat:"granizado",name:{es:"Granizado de café",en:"Coffee slush",de:"Kaffee-Slush"},price:8.5,emoji:"☕"},
+  {cat:"granizado",name:{es:"Granizado de café con licor",en:"Coffee slush with liqueur",de:"Kaffee-Slush mit Likör"},price:10.0,emoji:"☕"},
+  // Refrescos
   {cat:"refresco",name:{es:"Refresco",en:"Soft drink",de:"Softdrink"},price:3.0,emoji:"🥤"},
-  {cat:"refresco",name:{es:"Agua",en:"Water",de:"Wasser"},price:2.0,emoji:"💧"},
-  {cat:"picar",name:{es:"Patatas fritas",en:"Fries",de:"Pommes"},price:4.0,emoji:"🍟"},
-  {cat:"picar",name:{es:"Nachos",en:"Nachos",de:"Nachos"},price:6.0,emoji:"🧀"},
+  {cat:"refresco",name:{es:"Agua",en:"Water",de:"Wasser"},price:3.0,emoji:"💧"},
 ];
 const T={
   es:{h1:"Arroces y cócteles a tu barco, en el mar",lead:"Estés fondeado, navegando o flotando en una cala: pide desde el móvil, el Don Pepito te localiza y te lleva tu pedido con el tiempo estimado en pantalla.",
@@ -246,7 +381,7 @@ const T={
     paynote:"💶 Se paga al recibir, en el barco. Sin registros ni tarjetas.",
     howk:"Cómo funciona",howt:"Tan fácil como pedir un taxi",
     s1t:"Localízate",s1x:"Abre la app y toca «Localizarme»: verás dónde está el Don Pepito y a qué distancia.",
-    s2t:"Elige de la carta",s2x:"Arroz del día, cócteles, refrescos y algo de picar. Pide en la app o por WhatsApp.",
+    s2t:"Elige de la carta",s2x:"Arroz del día, mojitos, cócteles, smoothies, batidos y granizados. Pide en la app o por WhatsApp.",
     s3t:"Te lo llevamos",s3x:"Ves el tiempo estimado y tu turno en la cola. Pagas al recibirlo, en mano.",
     wk:"La carta de la semana",wt:"Arroces y fideuás, cada día distintos",b1:"la ración",b2:"con refresco",
     wnote:"Si pides por ración, las opciones cambian cada día. Alérgenos indicados en cada día.",
@@ -255,18 +390,19 @@ const T={
     zk:"La zona",zt:"¿Dónde está el Don Pepito?",
     zoff:"🍹⛵ El barco no está en marcha ahora mismo.\nAbre la app para verlo en vivo cuando esté sirviendo.",
     znote:"Carta náutica real (OpenSeaMap). Cuando el barco comparte su GPS, lo ves aquí moverse en vivo.",
-    cartak:"Bebidas y picoteo",cartat:"Cócteles hechos al momento, servidos en el agua",
+    cartak:"Bebidas",cartat:"Cócteles hechos al momento, servidos en el agua",
     cartanote:"Precios con todo incluido. La carta puede variar según el día y la despensa del barco.",
     appk:"La app",appt:"Llévate Don Pepito en el móvil",qrt:"Escanea el QR y pide desde el agua",
     qrx:"Se instala como una app normal (icono y pantalla completa), sin tienda ni descargas. En iPhone: Compartir → «Añadir a pantalla de inicio».",
     foot1:"Servicio a barcos y bañistas · temporada de verano.",foot2:"Consumo responsable. No servimos alcohol a menores de 18 años.",
-    cats:{coctel:"Cócteles",refresco:"Refrescos",picar:"Para picar"}},
+    aniv:"15º aniversario",aniv2:"15º aniversario",navapp:"La app",navarroces:"Arroces",navcarta:"Bebidas",navmapa:"Dónde está",dlk:"La app",dlt:"Descárgate Don Pepito en el móvil",dlx:"Pide desde el agua en dos toques: mapa del barco en vivo, la carta completa y tu pedido con tiempo estimado. Gratis, sin registros ni tarjetas.",get:"Descárgala en",get2:"Descárgala en",iost:"Instalar en iPhone",ios1:"Abre donpepito-2607151158.web.app en Safari.",ios2:"Toca el botón Compartir (el cuadrado con la flecha).",ios3:"Elige «Añadir a pantalla de inicio» y confirma: ya tienes la app con su icono 🍹.",andt:"Instalar en Android",and1:"Abre donpepito-2607151158.web.app en Chrome.",and2:"Toca el menú ⋮ de arriba a la derecha.",and3:"Elige «Instalar aplicación» (o «Añadir a pantalla principal») y confirma.",apk:"⬇️ Descargar APK directa",
+    cats:{mojito:"Mojitos",coctel:"Cócteles",sinalcohol:"Cócteles sin alcohol",combinado:"Combinados",smoothie:"Smoothies de fruta fresca",batido:"Batidos",granizado:"Granizados",refresco:"Refrescos"}},
   en:{h1:"Rice dishes & cocktails to your boat, at sea",lead:"Anchored, sailing or floating in a cove: order from your phone, Don Pepito finds you and brings your order with a live ETA on screen.",
     openapp:"🍹 Open the app & order",openapp2:"Open the app →",wa:"💬 Order via WhatsApp",
     paynote:"💶 Pay on delivery, at the boat. No sign-ups, no cards.",
     howk:"How it works",howt:"As easy as hailing a cab",
     s1t:"Share your spot",s1x:"Open the app and tap “Locate me”: you'll see where Don Pepito is and how far.",
-    s2t:"Pick from the menu",s2x:"Rice of the day, cocktails, soft drinks and snacks. Order in the app or via WhatsApp.",
+    s2t:"Pick from the menu",s2x:"Rice of the day, mojitos, cocktails, smoothies, milkshakes and slushies. Order in the app or via WhatsApp.",
     s3t:"We bring it over",s3x:"Watch the ETA and your place in the queue. Pay when it arrives, in person.",
     wk:"This week's menu",wt:"Rice & fideua, different every day",b1:"per portion",b2:"with soft drink",
     wnote:"If you order by the portion, the options change every day. Allergens listed per day.",
@@ -275,18 +411,19 @@ const T={
     zk:"The area",zt:"Where is Don Pepito?",
     zoff:"🍹⛵ The boat isn't out right now.\nOpen the app to see it live when it's serving.",
     znote:"Real nautical chart (OpenSeaMap). When the boat shares its GPS, you'll see it move here live.",
-    cartak:"Drinks & snacks",cartat:"Cocktails made fresh, served on the water",
+    cartak:"Drinks",cartat:"Cocktails made fresh, served on the water",
     cartanote:"All-in prices. The menu may vary with the day and the boat's pantry.",
     appk:"The app",appt:"Take Don Pepito with you",qrt:"Scan the QR and order from the water",
     qrx:"Installs like a normal app (icon and full screen), no store or downloads. On iPhone: Share → “Add to Home Screen”.",
     foot1:"Serving boats and swimmers · summer season.",foot2:"Drink responsibly. No alcohol served under 18.",
-    cats:{coctel:"Cocktails",refresco:"Soft drinks",picar:"Snacks"}},
+    aniv:"15th anniversary",aniv2:"15th anniversary",navapp:"The app",navarroces:"Rice menu",navcarta:"Drinks",navmapa:"Find the boat",dlk:"The app",dlt:"Get Don Pepito on your phone",dlx:"Order from the water in two taps: live boat map, the full menu and your order with a live ETA. Free, no sign-ups, no cards.",get:"Get it for",get2:"Get it for",iost:"Install on iPhone",ios1:"Open donpepito-2607151158.web.app in Safari.",ios2:"Tap the Share button (the square with the arrow).",ios3:"Choose \u201cAdd to Home Screen\u201d and confirm \u2014 the app appears with its icon 🍹.",andt:"Install on Android",and1:"Open donpepito-2607151158.web.app in Chrome.",and2:"Tap the ⋮ menu, top right.",and3:"Choose \u201cInstall app\u201d (or \u201cAdd to Home screen\u201d) and confirm.",apk:"⬇️ Direct APK download",
+    cats:{mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alcohol-free cocktails",combinado:"Spirits & mixers",smoothie:"Fresh fruit smoothies",batido:"Milkshakes",granizado:"Slushies",refresco:"Soft drinks"}},
   de:{h1:"Reisgerichte & Cocktails zu deinem Boot, auf See",lead:"Ob vor Anker, unter Segel oder in einer Bucht treibend: Bestell per Handy — Don Pepito findet dich und bringt deine Bestellung, mit Live-Zeitschätzung.",
     openapp:"🍹 App öffnen & bestellen",openapp2:"App öffnen →",wa:"💬 Per WhatsApp bestellen",
     paynote:"💶 Zahlung bei Lieferung am Boot. Ohne Konto, ohne Karte.",
     howk:"So funktioniert's",howt:"So einfach wie ein Taxi rufen",
     s1t:"Standort teilen",s1x:"App öffnen und „Orten“ tippen: Du siehst, wo Don Pepito ist und wie weit entfernt.",
-    s2t:"Aus der Karte wählen",s2x:"Reis des Tages, Cocktails, Softdrinks und Snacks. In der App oder per WhatsApp bestellen.",
+    s2t:"Aus der Karte wählen",s2x:"Reis des Tages, Mojitos, Cocktails, Smoothies, Milchshakes und Slush. In der App oder per WhatsApp bestellen.",
     s3t:"Wir bringen's dir",s3x:"Du siehst die Ankunftszeit und deinen Platz in der Schlange. Bezahlt wird bei Lieferung.",
     wk:"Die Wochenkarte",wt:"Reis & Fideuá, jeden Tag anders",b1:"pro Portion",b2:"mit Softdrink",
     wnote:"Bei Bestellung pro Portion wechseln die Optionen täglich. Allergene pro Tag angegeben.",
@@ -295,12 +432,13 @@ const T={
     zk:"Das Revier",zt:"Wo ist Don Pepito?",
     zoff:"🍹⛵ Das Boot ist gerade nicht unterwegs.\nÖffne die App, um es live zu sehen, wenn es serviert.",
     znote:"Echte Seekarte (OpenSeaMap). Teilt das Boot sein GPS, siehst du es hier live fahren.",
-    cartak:"Getränke & Snacks",cartat:"Frisch gemixte Cocktails, auf dem Wasser serviert",
+    cartak:"Getränke",cartat:"Frisch gemixte Cocktails, auf dem Wasser serviert",
     cartanote:"Alles inklusive. Die Karte kann je nach Tag und Vorrat variieren.",
     appk:"Die App",appt:"Nimm Don Pepito mit",qrt:"QR scannen und vom Wasser aus bestellen",
     qrx:"Installiert sich wie eine normale App (Icon und Vollbild), ohne Store. Auf dem iPhone: Teilen → „Zum Home-Bildschirm“.",
     foot1:"Service für Boote und Badegäste · Sommersaison.",foot2:"Bitte verantwortungsvoll genießen. Kein Alkohol unter 18.",
-    cats:{coctel:"Cocktails",refresco:"Softdrinks",picar:"Snacks"}},
+    aniv:"15. Jubiläum",aniv2:"15. Jubiläum",navapp:"Die App",navarroces:"Reiskarte",navcarta:"Getränke",navmapa:"Wo ist das Boot",dlk:"Die App",dlt:"Hol dir Don Pepito aufs Handy",dlx:"Bestell vom Wasser aus in zwei Fingertipps: Live-Karte des Boots, die komplette Karte und deine Bestellung mit Zeitschätzung. Gratis, ohne Konto und Karte.",get:"Laden für",get2:"Laden für",iost:"Auf dem iPhone installieren",ios1:"Öffne donpepito-2607151158.web.app in Safari.",ios2:"Tippe auf Teilen (Quadrat mit Pfeil).",ios3:"Wähle „Zum Home-Bildschirm“ und bestätige – fertig, App mit Icon 🍹.",andt:"Auf Android installieren",and1:"Öffne donpepito-2607151158.web.app in Chrome.",and2:"Tippe oben rechts auf das ⋮-Menü.",and3:"Wähle „App installieren“ (oder „Zum Startbildschirm“) und bestätige.",apk:"⬇️ APK direkt laden",
+    cats:{mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alkoholfreie Cocktails",combinado:"Longdrinks",smoothie:"Frische Frucht-Smoothies",batido:"Milchshakes",granizado:"Slush-Eis",refresco:"Softdrinks"}},
 };
 let lang=localStorage.getItem('mb_lang')||(navigator.language||'es').slice(0,2);
 if(!T[lang])lang='es';
@@ -323,10 +461,15 @@ function render(){
     </div>`).join('');
   // bebidas
   const cats=T[lang].cats; let html='';
+  const CC={mojito:"var(--hoja)",coctel:"var(--morado)",sinalcohol:"var(--teal)",combinado:"var(--royal)",
+    smoothie:"var(--rosa)",batido:"var(--ambar)",granizado:"var(--azul)",refresco:"var(--mar)"};
+  const CE={mojito:"🌿",coctel:"🍹",sinalcohol:"🥤",combinado:"🥃",smoothie:"🍓",batido:"🥛",granizado:"🍧",refresco:"💧"};
   Object.keys(cats).forEach(c=>{
     const items=MENU.filter(m=>m.cat===c); if(!items.length)return;
-    html+=`<div class="cat" data-c="${c}">${cats[c]}</div>`;
-    items.forEach(m=>{ html+=`<div class="dish"><span class="em">${m.emoji}</span><span class="nm">${m.name[lang]||m.name.es}</span><span class="dots"></span><span class="pr">${eur(m.price)}</span></div>`; });
+    html+=`<div class="catcard" style="--cc:${CC[c]||'var(--marO)'}"><div class="cathead"><span class="cmed">${CE[c]||'🍹'}</span><b>${cats[c]}</b></div>${
+      items.map(m=>{const d=m.d?(m.d[lang]||m.d.es):'';
+        return `<div class="dish"><span class="em">${m.emoji}</span><span class="nm">${m.name[lang]||m.name.es}${d?`<small>${d}</small>`:''}</span><span class="dots"></span><span class="pr">${eur(m.price)}</span></div>`;}).join('')
+    }</div>`;
   });
   document.getElementById('menu').innerHTML=html;
   document.querySelectorAll('#langs button').forEach(b=>b.classList.toggle('on',b.dataset.l===lang));
@@ -364,6 +507,11 @@ function showBoat(b){
     poll(); setInterval(poll,5000);
   }
 })();
+
+// ---------- descarga de la app: hojas de instrucciones + APK directa si existe ----------
+function openSheet(id){document.getElementById(id).classList.add('show')}
+function closeSheet(id){document.getElementById(id).classList.remove('show')}
+fetch('../Don-Pepito.apk',{method:'HEAD'}).then(r=>{ if(r.ok) document.getElementById('apkLink').classList.remove('hidden'); }).catch(()=>{});
 </script>
 </body>
 </html>
