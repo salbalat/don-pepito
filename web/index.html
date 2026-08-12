@@ -215,7 +215,7 @@
       <div class="note">Solo quien tenga el código puede entrar en el modo Barco. «Bloquear» vuelve a pedirlo la próxima vez.</div>
     </div>
   </section>
-  <div class="note" style="text-align:center;opacity:.55;font-size:11px;letter-spacing:.5px">donpepito-javea.web.app · v12ago-5</div>
+  <div class="note" style="text-align:center;opacity:.55;font-size:11px;letter-spacing:.5px">donpepito-javea.web.app · v12ago-6</div>
 </main>
 
 <div class="pill" id="pill">
@@ -238,6 +238,10 @@
       <div class="note">Se instala como una app normal: icono en tu móvil y pantalla completa, sin tienda ni descargas.</div>
       <a class="btn hidden" id="apkBtnApp" href="Don-Pepito.apk" download style="display:block;text-align:center;margin-top:10px;padding:10px;border-radius:10px;background:var(--card);color:var(--banda);border:1.5px solid var(--line);font-weight:800;text-decoration:none">⬇️ Descargar APK (Android)</a>
       <div class="note hidden" id="apkNote">Alternativa: baja el archivo e instálalo a mano (Android pedirá permitir «instalar apps de esta fuente»).</div>
+      <div class="hidden" id="apkQR" style="text-align:center;margin-top:10px">
+        <img src="www/qr-apk.png" alt="QR APK" style="width:150px;height:150px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:8px;image-rendering:pixelated">
+        <div class="note">Escanea para descargar la APK (Android)</div>
+      </div>
     </div>
     <div class="isec" id="inst_ios" style="display:none">
       <b>iPhone — 3 toques</b>
@@ -890,7 +894,8 @@ if(isStandalone()){ const b=document.getElementById('installBtn'); if(b)b.onclic
 // el botón de la APK solo aparece si el archivo existe de verdad (empieza por "PK")
 fetch('Don-Pepito.apk',{headers:{'Range':'bytes=0-3'}}).then(r=>r.ok?r.text():'').then(t=>{
   if(t.startsWith('PK')){ document.getElementById('apkBtnApp').classList.remove('hidden');
-    document.getElementById('apkNote').classList.remove('hidden'); }
+    document.getElementById('apkNote').classList.remove('hidden');
+    document.getElementById('apkQR').classList.remove('hidden'); }
 }).catch(()=>{});
 // Compartir la app: QR a pantalla completa + enviar enlace
 function showQR(){ document.getElementById('qrFull').classList.add('show'); }
