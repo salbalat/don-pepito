@@ -173,6 +173,7 @@
   .sheetbox .btn{display:block;margin-top:10px}
   /* EL TIEMPO */
   .s-tiempo{background:var(--papel)}
+  .wxday .calad{display:block;margin-top:3px;color:var(--hibisco);font-weight:800;font-size:11px}
   .wxbox{display:grid;gap:16px}
   .wxnow{display:flex;gap:28px;align-items:center;background:var(--carton);border:1.5px solid var(--line);
     border-radius:18px;box-shadow:var(--shadow);padding:20px 26px;flex-wrap:wrap}
@@ -652,10 +653,16 @@ function showBoat(b){
 const WMO={0:"☀️",1:"🌤️",2:"⛅",3:"☁️",45:"🌫️",48:"🌫️",51:"🌦️",53:"🌦️",55:"🌧️",61:"🌦️",63:"🌧️",65:"🌧️",66:"🌧️",67:"🌧️",71:"🌨️",73:"🌨️",75:"❄️",77:"❄️",80:"🌦️",81:"🌧️",82:"⛈️",85:"🌨️",86:"🌨️",95:"⛈️",96:"⛈️",99:"⛈️"};
 const wemo=c=>WMO[c]||"🌤️";
 const DIRV={es:["N","NE","E","SE","S","SO","O","NO"],en:["N","NE","E","SE","S","SW","W","NW"],de:["N","NO","O","SO","S","SW","W","NW"]};
+function catCala(spd,dir,wv){dir=(((dir%360)+360)%360);
+  if(spd<10&&(wv==null||wv<0.4)) return 'rec0';
+  if(dir>=202||dir<22) return 'recW';
+  if(dir<112) return 'recNE';
+  return 'recS';}
+const CALA_CORTA={rec0:'Granadella',recW:'Granadella',recNE:'Sardinera',recS:'Cala Blanca'};
 async function loadWeather(){
   try{
     const [w,m]=await Promise.all([
-      fetch('https://api.open-meteo.com/v1/forecast?latitude=38.79&longitude=0.18&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=5&timezone=Europe%2FMadrid').then(r=>r.json()),
+      fetch('https://api.open-meteo.com/v1/forecast?latitude=38.79&longitude=0.18&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_direction_10m_dominant&forecast_days=5&timezone=Europe%2FMadrid').then(r=>r.json()),
       fetch('https://marine-api.open-meteo.com/v1/marine?latitude=38.80&longitude=0.25&current=sea_surface_temperature,wave_height&daily=wave_height_max&forecast_days=5&timezone=Europe%2FMadrid').then(r=>r.json()).catch(()=>null)
     ]);
     if(!w||!w.current) throw 0;
@@ -670,19 +677,15 @@ async function loadWeather(){
     document.getElementById('wxdays').innerHTML=w.daily.time.map((t,i)=>{
       const d=new Date(t+'T12:00:00');
       const wave=(m&&m.daily&&m.daily.wave_height_max)?m.daily.wave_height_max[i]:null;
+      const dcat=catCala(w.daily.wind_speed_10m_max?w.daily.wind_speed_10m_max[i]:99,w.daily.wind_direction_10m_dominant?w.daily.wind_direction_10m_dominant[i]:0,wave);
       return `<div class="wxday"><b>${i===0?T[lang].hoy:DIAS[lang][d.getDay()].slice(0,3)}</b>
         <span class="wi">${wemo(w.daily.weather_code[i])}</span>
         <span class="tt2">${Math.round(w.daily.temperature_2m_max[i])}º / ${Math.round(w.daily.temperature_2m_min[i])}º</span>
-        ${wave!=null?`<small>🌊 ${wave.toFixed(1).replace('.',',')} m</small>`:''}</div>`;
+        ${wave!=null?`<small>🌊 ${wave.toFixed(1).replace('.',',')} m</small>`:''}<small class="calad">🧭 ${CALA_CORTA[dcat]}</small></div>`;
     }).join('');
     // recomendación de cala según viento y olas (reglas de abrigo de la costa de Jávea)
-    const spd=w.current.wind_speed_10m, dir=(((w.current.wind_direction_10m%360)+360)%360);
     const wv=(m&&m.current&&m.current.wave_height!=null)?m.current.wave_height:null;
-    let rec;
-    if(spd<10&&(wv==null||wv<0.4)) rec=T[lang].rec0;
-    else if(dir>=202||dir<22) rec=T[lang].recW;
-    else if(dir<112) rec=T[lang].recNE;
-    else rec=T[lang].recS;
+    const rec=T[lang][catCala(w.current.wind_speed_10m,w.current.wind_direction_10m,wv)];
     const rc=document.getElementById('calarec'); rc.textContent=rec; rc.classList.remove('hidden');
     document.getElementById('wxbox').classList.remove('hidden');
     document.getElementById('wxoff').classList.add('hidden');
