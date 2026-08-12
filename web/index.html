@@ -215,7 +215,7 @@
       <div class="note">Solo quien tenga el código puede entrar en el modo Barco. «Bloquear» vuelve a pedirlo la próxima vez.</div>
     </div>
   </section>
-  <div class="note" style="text-align:center;opacity:.55;font-size:11px;letter-spacing:.5px">donpepito-javea.web.app/www · v12ago-5</div>
+  <div class="note" style="text-align:center;opacity:.55;font-size:11px;letter-spacing:.5px">donpepito-javea.web.app · v12ago-5</div>
 </main>
 
 <div class="pill" id="pill">
@@ -895,7 +895,7 @@ fetch('Don-Pepito.apk',{headers:{'Range':'bytes=0-3'}}).then(r=>r.ok?r.text():''
 // Compartir la app: QR a pantalla completa + enviar enlace
 function showQR(){ document.getElementById('qrFull').classList.add('show'); }
 async function shareApp(){
-  const url='https://donpepito-javea.web.app/www/?i=1';
+  const url='https://donpepito-javea.web.app/?i=1';
   if(navigator.share){ try{ await navigator.share({title:'Don Pepito 🍹',text:'Arroces y cócteles a tu barco, en el mar',url}); }catch(_){} return; }
   try{ await navigator.clipboard.writeText(url); toast('Enlace copiado ✓'); }catch(_){ prompt('Copia el enlace:',url); }
 }
