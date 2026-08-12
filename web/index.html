@@ -257,7 +257,7 @@ const T={
       needLoc:"Necesito tu ubicación para calcular el tiempo.",empty:"Añade algo a tu pedido.",
       cancel:"Cancelar pedido",canceled:"Pedido cancelado.",
       myboat:"Mi barco",colorq:"Color del barco (opcional): así te encuentran antes.",
-      photo:"📷 Foto del barco (opcional)",photodel:"Quitar la foto"},
+      photo:"📷 Foto del barco (opcional)",photodel:"Quitar la foto",install:"📲 Instalar / descargar la app"},
   en:{cliente:"Customer",barco:"Boat",menu:"Menu",total:"Total",order:"Order",locate:"📍 Locate me",
       tapLoc:"Tap “Locate me”",paynote:"💶 Pay on delivery, at the boat.",yourname:"Your name / boat",
       away:"to your spot",min:"min",queuePos:"in the queue",ordered:"Order sent!",onway:"On the way",
@@ -265,7 +265,7 @@ const T={
       needLoc:"I need your location to estimate the time.",empty:"Add something to your order.",
       cancel:"Cancel order",canceled:"Order canceled.",
       myboat:"My boat",colorq:"Boat colour (optional): helps us spot you sooner.",
-      photo:"📷 Boat photo (optional)",photodel:"Remove photo"},
+      photo:"📷 Boat photo (optional)",photodel:"Remove photo",install:"📲 Install / get the app"},
   de:{cliente:"Kunde",barco:"Boot",menu:"Karte",total:"Gesamt",order:"Bestellen",locate:"📍 Orten",
       tapLoc:"„Orten“ tippen",paynote:"💶 Zahlung bei Lieferung am Boot.",yourname:"Ihr Name / Boot",
       away:"zu deinem Platz",min:"Min",queuePos:"in der Schlange",ordered:"Bestellung gesendet!",onway:"Unterwegs",
@@ -273,7 +273,15 @@ const T={
       needLoc:"Ich brauche deinen Standort für die Zeitschätzung.",empty:"Füge etwas hinzu.",
       cancel:"Bestellung stornieren",canceled:"Bestellung storniert.",
       myboat:"Mein Boot",colorq:"Bootsfarbe (optional): so finden wir dich schneller.",
-      photo:"📷 Bootsfoto (optional)",photodel:"Foto entfernen"},
+      photo:"📷 Bootsfoto (optional)",photodel:"Foto entfernen",install:"📲 App installieren / laden"},
+  nl:{cliente:"Klant",barco:"Boot",menu:"Kaart",total:"Totaal",order:"Bestellen",locate:"📍 Vind mij",
+      tapLoc:"Tik op ‘Vind mij’",paynote:"💶 Betalen bij levering, aan de boot.",yourname:"Je naam / boot",
+      away:"naar jouw plek",min:"min",queuePos:"in de rij",ordered:"Bestelling verzonden!",onway:"Onderweg",
+      pending:"Wordt bereid",delivered:"Geleverd! 🍹",tagline:"Cocktails naar je boot, op zee",
+      needLoc:"Ik heb je locatie nodig om de tijd te schatten.",empty:"Voeg iets toe aan je bestelling.",
+      cancel:"Bestelling annuleren",canceled:"Bestelling geannuleerd.",
+      myboat:"Mijn boot",colorq:"Kleur van je boot (optioneel): zo vinden we je sneller.",
+      photo:"📷 Foto van je boot (optioneel)",photodel:"Foto verwijderen",install:"📲 Installeer / download de app"},
 };
 let lang=localStorage.getItem('mb_lang')||'es';
 function t(k){return (T[lang]&&T[lang][k])||T.es[k]||k}
@@ -282,12 +290,64 @@ function applyLang(){
   document.querySelectorAll('[data-tp]').forEach(e=>e.placeholder=t(e.dataset.tp));
   document.getElementById('cname').placeholder=t('yourname');
   document.getElementById('tagline').textContent=t('tagline');
+  const ib=document.getElementById('installBtn'); if(ib)ib.textContent=t('install');
   document.querySelectorAll('#langs button').forEach(b=>b.classList.toggle('on',b.dataset.l===lang));
   renderMenu(); if(myOrder) trackRender();
 }
-document.getElementById('langs').innerHTML=['es','en','de'].map(l=>`<button data-l="${l}" onclick="setLang('${l}')">${l.toUpperCase()}</button>`).join('');
+document.getElementById('langs').innerHTML=['es','en','de','nl'].map(l=>`<button data-l="${l}" onclick="setLang('${l}')">${l.toUpperCase()}</button>`).join('');
 function setLang(l){lang=l;localStorage.setItem('mb_lang',l);applyLang();}
 
+
+// Traducciones de la carta ([nombre, ingredientes] por idioma; lo que falte queda como en la carta española)
+const MTR={
+ "moj-clasico":{en:["Classic mojito"],de:["Klassischer Mojito"],nl:["Klassieke mojito"]},
+ "moj-coco":{en:["Coconut mojito"],de:["Kokos-Mojito"],nl:["Kokos-mojito"]},
+ "moj-fresa":{en:["Strawberry mojito"],de:["Erdbeer-Mojito"],nl:["Aardbei-mojito"]},
+ "moj-pasion":{en:["Passion fruit mojito"],de:["Maracuja-Mojito"],nl:["Passievrucht-mojito"]},
+ "moj-mango":{en:["Mango mojito"],de:["Mango-Mojito"],nl:["Mango-mojito"]},
+ "caipirinha":{en:[null,"Cachaça, lime, soda, brown sugar"],de:[null,"Cachaça, Limette, Soda, brauner Zucker"],nl:[null,"Cachaça, limoen, sodawater, bruine suiker"]},
+ "caipiroska":{en:[null,"Vodka, lime, soda, brown sugar"],de:[null,"Wodka, Limette, Soda, brauner Zucker"],nl:[null,"Wodka, limoen, sodawater, bruine suiker"]},
+ "margarita":{en:[null,"Tequila, cointreau, lemon juice, brown sugar"],de:[null,"Tequila, Cointreau, Zitronensaft, brauner Zucker"],nl:[null,"Tequila, cointreau, citroensap, bruine suiker"]},
+ "sexontheboat":{en:[null,"Vodka, cointreau, orange and strawberry juice"],de:[null,"Wodka, Cointreau, Orangen- und Erdbeersaft"],nl:[null,"Wodka, cointreau, sinaasappel- en aardbeiensap"]},
+ "daiquiri":{en:["Fruit daiquiri","White rum, fresh fruit"],de:["Frucht-Daiquiri","Weißer Rum, frische Frucht"],nl:["Fruit-daiquiri","Witte rum, vers fruit"]},
+ "fresa-colada":{en:[null,"White rum, strawberry juice, coconut cream"],de:[null,"Weißer Rum, Erdbeersaft, Kokoscreme"],nl:[null,"Witte rum, aardbeiensap, kokosroom"]},
+ "pina-colada":{en:[null,"White rum, pineapple juice, coconut cream"],de:[null,"Weißer Rum, Ananassaft, Kokoscreme"],nl:[null,"Witte rum, ananassap, kokosroom"]},
+ "maitai":{en:[null,"White and dark rum, orange, pineapple, lemon, grenadine"],de:[null,"Weißer und dunkler Rum, Orange, Ananas, Zitrone, Grenadine"],nl:[null,"Witte en donkere rum, sinaasappel, ananas, citroen, grenadine"]},
+ "javea-sunrise":{en:[null,"Tequila, orange juice and grenadine"],de:[null,"Tequila, Orangensaft und Grenadine"],nl:[null,"Tequila, sinaasappelsap en grenadine"]},
+ "moj-virgen":{en:["Virgin mojito","Lime, brown sugar, mint, soda"],de:["Virgin Mojito","Limette, brauner Zucker, Minze, Soda"],nl:["Virgin mojito","Limoen, bruine suiker, munt, sodawater"]},
+ "pinacolada-virgen":{en:["Virgin piña colada","Pineapple juice, coconut cream"],de:["Virgin Piña Colada","Ananassaft, Kokoscreme"],nl:["Virgin piña colada","Ananassap, kokosroom"]},
+ "caipirinha-virgen":{en:["Virgin caipirinha","Lime, soda, brown sugar"],de:["Virgin Caipirinha","Limette, Soda, brauner Zucker"],nl:["Virgin caipirinha","Limoen, sodawater, bruine suiker"]},
+ "fresacolada-virgen":{en:["Virgin fresa colada","Strawberry juice, coconut cream"],de:["Virgin Fresa Colada","Erdbeersaft, Kokoscreme"],nl:["Virgin fresa colada","Aardbeiensap, kokosroom"]},
+ "ron":{en:["Rum","Flor de caña + soft drink"],de:["Rum","Flor de caña + Softdrink"],nl:["Rum","Flor de caña + frisdrank"]},
+ "whisky":{en:[null,"Johnnie Walker + soft drink"],de:[null,"Johnnie Walker + Softdrink"],nl:[null,"Johnnie Walker + frisdrank"]},
+ "vodka":{en:[null,"Absolut + soft drink"],de:["Wodka","Absolut + Softdrink"],nl:["Wodka","Absolut + frisdrank"]},
+ "gintonic":{en:[null,"Gin + tonic"],de:[null,"Gin + Tonic"],nl:[null,"Gin + tonic"]},
+ "granadella":{en:[null,"Strawberry, banana and orange"],de:[null,"Erdbeere, Banane und Orange"],nl:[null,"Aardbei, banaan en sinaasappel"]},
+ "sardinera":{en:[null,"Watermelon, orange and mint"],de:[null,"Wassermelone, Orange und Minze"],nl:[null,"Watermeloen, sinaasappel en munt"]},
+ "cala-blanca":{en:[null,"Pineapple, orange and strawberry"],de:[null,"Ananas, Orange und Erdbeere"],nl:[null,"Ananas, sinaasappel en aardbei"]},
+ "san-martin":{en:[null,"Watermelon and banana"],de:[null,"Wassermelone und Banane"],nl:[null,"Watermeloen en banaan"]},
+ "portichol":{en:[null,"Orange and banana"],de:[null,"Orange und Banane"],nl:[null,"Sinaasappel en banaan"]},
+ "fruta-extra":{en:["Extra fruit"],de:["Extra Frucht"],nl:["Extra fruit"]},
+ "bat-choco":{en:["Chocolate milkshake"],de:["Schoko-Milchshake"],nl:["Chocolademilkshake"]},
+ "bat-oreo":{en:["Oreo milkshake"],de:["Oreo-Milchshake"],nl:["Oreo-milkshake"]},
+ "bat-fresa-platano":{en:["Strawberry & banana milkshake"],de:["Erdbeer-Bananen-Milchshake"],nl:["Aardbei-banaan-milkshake"]},
+ "bat-platano-choco":{en:["Banana & chocolate milkshake"],de:["Bananen-Schoko-Milchshake"],nl:["Banaan-chocolade-milkshake"]},
+ "gra-limon":{en:["Lemon slush"],de:["Zitronen-Slush"],nl:["Citroen-slush"]},
+ "gra-naranja":{en:["Orange slush"],de:["Orangen-Slush"],nl:["Sinaasappel-slush"]},
+ "gra-cafe":{en:["Coffee slush"],de:["Kaffee-Slush"],nl:["Koffie-slush"]},
+ "gra-cafe-licor":{en:["Coffee slush with liqueur"],de:["Kaffee-Slush mit Likör"],nl:["Koffie-slush met likeur"]},
+ "refresco":{en:["Soft drink"],de:["Softdrink"],nl:["Frisdrank"]},
+ "agua":{en:["Water"],de:["Wasser"],nl:["Water"]},
+ "arroz-senoret":{en:["Senoret’s rice"],de:["Señoret-Reis"],nl:["Señoret-rijst"]},
+ "fideua-secreto":{en:["Iberian pork & flamed red pepper fideua"],de:["Fideuá mit iberischem Secreto und geflämmter Paprika"],nl:["Fideuá met Iberisch varken en gevlamde paprika"]},
+ "fideua-senoret":{en:["Senoret’s fideua"],de:["Señoret-Fideuá"],nl:["Señoret-fideuá"]},
+ "arroz-pato":{en:["Duck rice with mushrooms"],de:["Reis mit Ente und Pilzen"],nl:["Rijst met eend en paddenstoelen"]},
+ "fideua-negra":{en:["Black fideua with prawns and squid"],de:["Schwarze Fideuá mit Garnelen und Tintenfisch"],nl:["Zwarte fideuá met garnalen en inktvis"]},
+ "arroz-negro":{en:["Black rice with prawns and squid"],de:["Schwarzer Reis mit Garnelen und Tintenfisch"],nl:["Zwarte rijst met garnalen en inktvis"]},
+ "fideua-pato":{en:["Duck fideua with mushrooms"],de:["Fideuá mit Ente und Pilzen"],nl:["Fideuá met eend en paddenstoelen"]},
+ "paella-valenciana":{en:["Valencian paella"],de:["Paella Valenciana"],nl:["Valenciaanse paella"]},
+ "racion-refresco":{en:["Soft drink with your portion (+€2)"],de:["Softdrink zur Portion (+2 €)"],nl:["Frisdrank bij je portie (+€2)"]},
+};
 // ---------- estado ----------
 // Carta real Don Pepito Jávea (15º aniversario) — guardada en docs/carta/
 const MENU=[
@@ -395,16 +455,21 @@ async function bootData(){
 
 // ---------- CLIENTE: carta ----------
 function renderMenu(){
-  const cats={arroz:"🥘 Arroz del día — ración 18 € · con refresco 20 €",
-    mojito:"Mojitos",coctel:"Cócteles",sinalcohol:"Cócteles sin alcohol",combinado:"Combinados",
-    smoothie:"Smoothies de fruta fresca",batido:"Batidos",granizado:"Granizados",refresco:"Refrescos y agua"};
+  const CATS={
+    es:{arroz:"🥘 Arroz del día — ración 18 € · con refresco 20 €",mojito:"Mojitos",coctel:"Cócteles",sinalcohol:"Cócteles sin alcohol",combinado:"Combinados",smoothie:"Smoothies de fruta fresca",batido:"Batidos",granizado:"Granizados",refresco:"Refrescos y agua"},
+    en:{arroz:"🥘 Rice of the day — portion €18 · with soft drink €20",mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alcohol-free cocktails",combinado:"Spirits & mixers",smoothie:"Fresh fruit smoothies",batido:"Milkshakes",granizado:"Slushies",refresco:"Soft drinks & water"},
+    de:{arroz:"🥘 Reis des Tages — Portion 18 € · mit Softdrink 20 €",mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alkoholfreie Cocktails",combinado:"Longdrinks",smoothie:"Frische Frucht-Smoothies",batido:"Milchshakes",granizado:"Slush-Eis",refresco:"Softdrinks & Wasser"},
+    nl:{arroz:"🥘 Rijst van de dag — portie €18 · met frisdrank €20",mojito:"Mojito’s",coctel:"Cocktails",sinalcohol:"Alcoholvrije cocktails",combinado:"Sterke drank & mixers",smoothie:"Verse fruitsmoothies",batido:"Milkshakes",granizado:"Slush",refresco:"Frisdrank & water"}};
+  const cats=CATS[lang]||CATS.es;
   let html='';
   Object.keys(cats).forEach(c=>{
     const items=MENU.filter(m=>m.cat===c); if(!items.length)return;
     html+=`<div class="cat" data-c="${c}">${cats[c]}</div>`;
     items.forEach(m=>{ const q=cart[m.id]||0;
+      const x=(MTR[m.id]&&MTR[m.id][lang])||[];      // [nombre, ingredientes] traducidos
+      const nom=x[0]||m.name, des=x[1]||m.d;
       html+=`<div class="item"><div class="em">${m.emoji}</div>
-        <div class="nm"><b>${m.name}</b><span>${m.d?m.d+' · ':''}${eur(m.price)}</span></div>
+        <div class="nm"><b>${nom}</b><span>${des?des+' · ':''}${eur(m.price)}</span></div>
         <div class="step"><button onclick="chg('${m.id}',-1)">−</button><b id="q-${m.id}">${q}</b><button onclick="chg('${m.id}',1)">+</button></div></div>`;
     });
   });
