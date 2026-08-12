@@ -70,6 +70,20 @@
         }
       ],
       "target": "corto"
+    },
+    {
+      "target": "principal",
+      "public": "web",
+      "ignore": [
+        "**"
+      ],
+      "redirects": [
+        {
+          "source": "/:path*",
+          "destination": "https://donpepito-javea.web.app/:path*",
+          "type": 301
+        }
+      ]
     }
   ],
   "firestore": {
