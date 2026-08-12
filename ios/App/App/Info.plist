@@ -47,5 +47,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Don Pepito usa tu ubicación para saber dónde está tu barco y llevarte el pedido.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Para hacer la foto de tu barco (opcional) y que te reconozcan al servirte.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Para elegir una foto de tu barco (opcional).</string>
 </dict>
 </plist>
