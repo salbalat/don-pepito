@@ -1,5 +1,17 @@
 # Desplegar Don Pepito en Firebase (HTTPS + tiempo real)
 
+## ⚠️ Publicación automática: estado de cada dirección (agosto 2026)
+
+| Dirección | Estado | Arreglo |
+|---|---|---|
+| `salbalat.github.io/don-pepito` | Daba **404** porque GitHub Pages nunca se activó en los ajustes del repo. | **Arreglado**: el workflow de Pages ahora lo activa y publica solo en cada cambio de master. |
+| `donpepito-javea.web.app` y `donpepito-2607151158.web.app` (la del QR) | Abren, pero **solo se actualizan cuando ejecutas `firebase deploy` a mano**: sin el secreto de Firebase, la publicación automática se salta en silencio en cada merge (ahora al menos deja un aviso visible en Actions). | Una sola vez, desde el ordenador con sesión de Firebase iniciada: `firebase init hosting:github` (crea el secreto `FIREBASE_SERVICE_ACCOUNT_DONPEPITO_2607151158` en GitHub). |
+
+Ese arreglo pide tu sesión de Google (`firebase login`), por eso no se puede hacer
+desde aquí. Con el secreto creado, cada cambio en master actualizará las dos
+direcciones de Firebase él solo, igual que la de GitHub Pages. Mientras tanto:
+`git pull && firebase deploy` después de cada merge.
+
 La app funciona en **dos modos**: si `web/firebase-config.js` tiene tu config, usa
 **Firebase** (nube, tiempo real, HTTPS); si está vacío, usa el **backend local** (para pruebas
 en el Mac). Para el barco de verdad → Firebase.
