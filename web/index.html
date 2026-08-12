@@ -232,7 +232,7 @@
       <div class="note" id="pwaWait" style="display:none">Preparando la instalación…</div>
       <div id="andManual" style="display:none">
         <div class="istep"><span class="ico">⋮</span><div><b>1 · Toca el menú ⋮</b><span>Arriba a la derecha de Chrome (la flecha te lo señala).</span></div></div>
-        <div class="istep"><span class="ico">📲</span><div><b>2 · «Instalar aplicación»</b><span>O «Añadir a pantalla principal». Confirma y listo: icono 🍹 en tu móvil.</span></div></div>
+        <div class="istep"><span class="ico">📲</span><div><b>2 · «Instalar aplicación»</b><span>O «Añadir a pantalla de inicio». En Samsung: Menú → «Añadir página a» → Pantalla de inicio. Confirma y listo: icono 🍹 en tu móvil.</span></div></div>
       </div>
       <div class="note">Se instala como una app normal: icono en tu móvil y pantalla completa, sin tienda ni descargas.</div>
       <a class="btn hidden" id="apkBtnApp" href="Don-Pepito.apk" download style="display:block;text-align:center;margin-top:10px;padding:10px;border-radius:10px;background:var(--card);color:var(--banda);border:1.5px solid var(--line);font-weight:800;text-decoration:none">⬇️ Descargar APK (Android)</a>
@@ -553,7 +553,7 @@ function locateMe(){
 }
 // ---------- Mapa real del mar (Leaflet: OpenStreetMap + capa náutica OpenSeaMap) ----------
 const LMAPS={};
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));  // sin «??»: los navegadores Android antiguos (Honor/Huawei) no lo entienden y matan todo el script
 function mkMap(id){
   if(typeof L==='undefined')return null;            // sin Leaflet (offline) → respaldo SVG
   if(LMAPS[id])return LMAPS[id];
