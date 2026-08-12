@@ -633,7 +633,9 @@ function openSheet(id){document.getElementById(id).classList.add('show');
     a.classList.remove('hidden'); a.classList.toggle('top',chr); a.textContent=chr?'⬆️':'⬇️'; }}
 function closeSheet(id){document.getElementById(id).classList.remove('show');
   document.getElementById('sharrow').classList.add('hidden');}
-fetch('../Don-Pepito.apk',{method:'HEAD'}).then(r=>{ if(r.ok) document.getElementById('apkLink').classList.remove('hidden'); }).catch(()=>{});
+fetch('../Don-Pepito.apk',{headers:{'Range':'bytes=0-3'}}).then(r=>r.ok?r.text():'').then(t=>{
+  if(t.startsWith('PK')) document.getElementById('apkLink').classList.remove('hidden');   // solo si es una APK real
+}).catch(()=>{});
 </script>
 </body>
 </html>
