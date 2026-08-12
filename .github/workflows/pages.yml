@@ -1,30 +1,35 @@
-# Publicación automática en GitHub Pages (rama gh-pages): no necesita claves
-# de Firebase ni permisos especiales. Cada cambio fusionado en master deja la
-# app y la web publicadas en https://salbalat.github.io/don-pepito/
+# Publicación automática en GitHub Pages con el mecanismo oficial de Actions.
+# Además de publicar, ACTIVA GitHub Pages él solo la primera vez (enablement).
+# Antes se subía la rama gh-pages, pero Pages nunca se activó en los ajustes
+# del repositorio, así que https://salbalat.github.io/don-pepito/ daba 404.
 name: Publicar en GitHub Pages
 on:
   push:
     branches: [master]
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
   publicar:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Publicar la carpeta web en la rama gh-pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd web
-          touch .nojekyll
-          git init -b gh-pages
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "Publicación automática desde ${GITHUB_SHA}"
-          git push --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+      - name: Activar GitHub Pages si aún no lo está
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Empaquetar la carpeta web
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+      - name: Publicar
+        id: despliegue
+        uses: actions/deploy-pages@v4
