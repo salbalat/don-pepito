@@ -113,6 +113,13 @@
   .sharrow{position:fixed;bottom:4px;left:50%;font-size:36px;z-index:99;color:var(--rojo);
     text-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none;animation:bnc 1s infinite}
   @keyframes bnc{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,9px)}}
+  .qrfull{position:fixed;inset:0;background:#fff;z-index:120;display:none;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;padding:26px;text-align:center;cursor:pointer}
+  .qrfull.show{display:flex}
+  .qrfull img{width:min(78vw,420px);height:auto;image-rendering:pixelated;border:2px solid var(--line);
+    border-radius:18px;padding:14px;background:#fff}
+  .qrfull b{font-size:21px;color:var(--banda);font-weight:800}
+  .qrfull span{color:var(--muted);font-size:14px}
   .sharrow.top{top:4px;bottom:auto;left:auto;right:10px;animation-name:bnct}
   @keyframes bnct{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
   @media (prefers-reduced-motion: reduce){.sharrow{animation:none;transform:translateX(-50%)}.sharrow.top{transform:none}}
@@ -192,6 +199,14 @@
       <div id="queue"></div>
     </div>
     <div class="card">
+      <h2>📲 Pásale la app a un cliente</h2>
+      <div class="row">
+        <button class="btn p" onclick="showQR()">Enseñar QR en grande</button>
+        <button class="btn s" onclick="shareApp()">Enviar enlace</button>
+      </div>
+      <div class="note">Enséñale el QR: al escanearlo, su móvil abre la app con el botón de instalar delante.</div>
+    </div>
+    <div class="card">
       <h2>🔒 Acceso del patrón</h2>
       <div class="row">
         <button class="btn s" onclick="changePin()">Cambiar código</button>
@@ -229,12 +244,20 @@
       <b>Compártela con un QR</b>
       <div style="display:flex;gap:14px;align-items:center">
         <img src="www/qr-donpepito.png" alt="QR Don Pepito" style="width:110px;height:110px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:7px;image-rendering:pixelated;flex:0 0 auto">
-        <div class="note" style="margin:0">Quien lo escanee con la cámara abre la app al momento y puede instalarla en su móvil.</div>
+        <div class="note" style="margin:0">Quien lo escanee con la cámara abre la app al momento y puede instalarla en su móvil.<br>
+          <a href="#" onclick="showQR();return false" style="color:var(--teal);font-weight:800">🔍 Ver el QR en grande</a></div>
       </div>
     </div>
   </div>
 </div>
 
+<div class="qrfull" id="qrFull" onclick="this.classList.remove('show')">
+  <b>Don Pepito 🍹⛵</b>
+  <img src="www/qr-donpepito.png" alt="QR Don Pepito">
+  <b>Escanéame y pide desde tu barco</b>
+  <span>Scan me &amp; order from your boat · donpepito-javea.web.app</span>
+  <span style="font-size:12px">(toca la pantalla para cerrar)</span>
+</div>
 <div class="sheet" id="pinModal" onclick="if(event.target===this)closePin()">
   <div class="sheetbox">
     <div class="sheethead"><b>🔒 Modo Barco</b><button onclick="closePin()">✕</button></div>
@@ -849,6 +872,14 @@ fetch('Don-Pepito.apk',{headers:{'Range':'bytes=0-3'}}).then(r=>r.ok?r.text():''
   if(t.startsWith('PK')){ document.getElementById('apkBtnApp').classList.remove('hidden');
     document.getElementById('apkNote').classList.remove('hidden'); }
 }).catch(()=>{});
+// Compartir la app: QR a pantalla completa + enviar enlace
+function showQR(){ document.getElementById('qrFull').classList.add('show'); }
+async function shareApp(){
+  const url='https://donpepito-javea.web.app/?i=1';
+  if(navigator.share){ try{ await navigator.share({title:'Don Pepito 🍹',text:'Arroces y cócteles a tu barco, en el mar',url}); }catch(_){} return; }
+  try{ await navigator.clipboard.writeText(url); toast('Enlace copiado ✓'); }catch(_){ prompt('Copia el enlace:',url); }
+}
+
 // Si se llega desde el QR (?i=1), abrir directamente la guía de instalación
 if(new URLSearchParams(location.search).has('i')&&!isStandalone()) setTimeout(openInstall,600);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
