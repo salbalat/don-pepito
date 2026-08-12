@@ -372,14 +372,14 @@
 <script>
 // ---------- carta de la semana (arroces reales) ----------
 const PLATOS={
-  "arroz-senoret":{es:"Arroz del señoret",en:"Senoret's rice",de:"Señoret-Reis"},
-  "fideua-secreto":{es:"Fideuá de secreto ibérico y pimiento rojo a la llama",en:"Iberian pork and flamed red pepper fideua",de:"Fideuá mit iberischem Secreto und geflämmter Paprika"},
-  "fideua-senoret":{es:"Fideuá del señoret",en:"Senoret's fideua",de:"Señoret-Fideuá"},
-  "arroz-pato":{es:"Arroz de pato y setas",en:"Duck rice with mushrooms",de:"Reis mit Ente und Pilzen"},
-  "fideua-negra":{es:"Fideuá negra con gambón y calamar",en:"Black fideua with prawns and squid",de:"Schwarze Fideuá mit Garnelen und Tintenfisch"},
-  "arroz-negro":{es:"Arroz negro con gambón y calamar",en:"Black rice with prawns and squid",de:"Schwarzer Reis mit Garnelen und Tintenfisch"},
-  "fideua-pato":{es:"Fideuá de pato y setas",en:"Duck fideua with mushrooms",de:"Fideuá mit Ente und Pilzen"},
-  "paella-valenciana":{es:"Paella Valenciana",en:"Valencian paella",de:"Paella Valenciana"},
+  "arroz-senoret":{es:"Arroz del señoret",en:"Senoret's rice",de:"Señoret-Reis",nl:"Señoret-rijst"},
+  "fideua-secreto":{es:"Fideuá de secreto ibérico y pimiento rojo a la llama",en:"Iberian pork and flamed red pepper fideua",de:"Fideuá mit iberischem Secreto und geflämmter Paprika",nl:"Fideuá met Iberisch varken en gevlamde paprika"},
+  "fideua-senoret":{es:"Fideuá del señoret",en:"Senoret's fideua",de:"Señoret-Fideuá",nl:"Señoret-fideuá"},
+  "arroz-pato":{es:"Arroz de pato y setas",en:"Duck rice with mushrooms",de:"Reis mit Ente und Pilzen",nl:"Rijst met eend en paddenstoelen"},
+  "fideua-negra":{es:"Fideuá negra con gambón y calamar",en:"Black fideua with prawns and squid",de:"Schwarze Fideuá mit Garnelen und Tintenfisch",nl:"Zwarte fideuá met garnalen en inktvis"},
+  "arroz-negro":{es:"Arroz negro con gambón y calamar",en:"Black rice with prawns and squid",de:"Schwarzer Reis mit Garnelen und Tintenfisch",nl:"Zwarte rijst met garnalen en inktvis"},
+  "fideua-pato":{es:"Fideuá de pato y setas",en:"Duck fideua with mushrooms",de:"Fideuá mit Ente und Pilzen",nl:"Fideuá met eend en paddenstoelen"},
+  "paella-valenciana":{es:"Paella Valenciana",en:"Valencian paella",de:"Paella Valenciana",nl:"Valenciaanse paella"},
 };
 const SEMANA=[
   {d:1,items:["arroz-senoret","fideua-secreto"],al:"2-4-13"},
@@ -392,57 +392,58 @@ const SEMANA=[
 ];
 const DIAS={es:["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"],
   en:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
-  de:["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"]};
+  de:["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],
+  nl:["Zondag","Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag"]};
 // Carta real Don Pepito Jávea (15º aniversario) — original en docs/carta/
-const N=s=>({es:s,en:s,de:s});
+const N=s=>({es:s,en:s,de:s,nl:s});
 const MENU=[
   // Mojitos — 12,5 €
-  {cat:"mojito",name:N("Mojito clásico"),price:12.5,emoji:"🌿"},
-  {cat:"mojito",name:N("Mojito coco"),price:12.5,emoji:"🥥"},
-  {cat:"mojito",name:N("Mojito fresa"),price:12.5,emoji:"🍓"},
-  {cat:"mojito",name:N("Mojito de la pasión"),price:12.5,emoji:"🌺"},
-  {cat:"mojito",name:N("Mojito mango"),price:12.5,emoji:"🥭"},
+  {cat:"mojito",name:{es:"Mojito clásico",en:"Classic mojito",de:"Klassischer Mojito",nl:"Klassieke mojito"},price:12.5,emoji:"🌿"},
+  {cat:"mojito",name:{es:"Mojito coco",en:"Coconut mojito",de:"Kokos-Mojito",nl:"Kokos-mojito"},price:12.5,emoji:"🥥"},
+  {cat:"mojito",name:{es:"Mojito fresa",en:"Strawberry mojito",de:"Erdbeer-Mojito",nl:"Aardbei-mojito"},price:12.5,emoji:"🍓"},
+  {cat:"mojito",name:{es:"Mojito de la pasión",en:"Passion fruit mojito",de:"Maracuja-Mojito",nl:"Passievrucht-mojito"},price:12.5,emoji:"🌺"},
+  {cat:"mojito",name:{es:"Mojito mango",en:"Mango mojito",de:"Mango-Mojito",nl:"Mango-mojito"},price:12.5,emoji:"🥭"},
   // Cócteles — 12,5 €
-  {cat:"coctel",name:N("Caipirinha"),price:12.5,emoji:"🍸",d:{es:"Cachaça, lima, gaseosa, azúcar moreno",en:"Cachaça, lime, soda, brown sugar",de:"Cachaça, Limette, Soda, brauner Zucker"}},
-  {cat:"coctel",name:N("Caipiroska"),price:12.5,emoji:"🍸",d:{es:"Vodka, lima, gaseosa, azúcar moreno",en:"Vodka, lime, soda, brown sugar",de:"Wodka, Limette, Soda, brauner Zucker"}},
-  {cat:"coctel",name:N("Margarita"),price:12.5,emoji:"🍹",d:{es:"Tequila, cointreau, zumo de limón, azúcar moreno",en:"Tequila, cointreau, lemon juice, brown sugar",de:"Tequila, Cointreau, Zitronensaft, brauner Zucker"}},
-  {cat:"coctel",name:N("Sex on the Boat"),price:12.5,emoji:"🍹",d:{es:"Vodka, cointreau, zumo de naranja y fresa",en:"Vodka, cointreau, orange and strawberry juice",de:"Wodka, Cointreau, Orangen- und Erdbeersaft"}},
-  {cat:"coctel",name:N("Daiquiri de fruta"),price:12.5,emoji:"🍹",d:{es:"Ron blanco, fruta natural",en:"White rum, fresh fruit juice",de:"Weißer Rum, frische Frucht"}},
-  {cat:"coctel",name:N("Fresa colada"),price:12.5,emoji:"🍓",d:{es:"Ron blanco, zumo de fresa, coco batido",en:"White rum, strawberry juice, coconut cream",de:"Weißer Rum, Erdbeersaft, Kokoscreme"}},
-  {cat:"coctel",name:N("Piña colada"),price:12.5,emoji:"🍍",d:{es:"Ron blanco, zumo de piña, coco batido",en:"White rum, pineapple juice, coconut cream",de:"Weißer Rum, Ananassaft, Kokoscreme"}},
-  {cat:"coctel",name:N("Mai Tai"),price:12.5,emoji:"🍹",d:{es:"Ron blanco y negro, naranja, piña, limón y granadina",en:"White and dark rum, orange, pineapple, lemon, grenadine",de:"Weißer und dunkler Rum, Orange, Ananas, Zitrone, Grenadine"}},
-  {cat:"coctel",name:N("Javea Sunrise"),price:12.5,emoji:"🌅",d:{es:"Tequila, zumo de naranja y granadina",en:"Tequila, orange juice and grenadine",de:"Tequila, Orangensaft und Grenadine"}},
+  {cat:"coctel",name:N("Caipirinha"),price:12.5,emoji:"🍸",d:{es:"Cachaça, lima, gaseosa, azúcar moreno",en:"Cachaça, lime, soda, brown sugar",de:"Cachaça, Limette, Soda, brauner Zucker",nl:"Cachaça, limoen, sodawater, bruine suiker"}},
+  {cat:"coctel",name:N("Caipiroska"),price:12.5,emoji:"🍸",d:{es:"Vodka, lima, gaseosa, azúcar moreno",en:"Vodka, lime, soda, brown sugar",de:"Wodka, Limette, Soda, brauner Zucker",nl:"Wodka, limoen, sodawater, bruine suiker"}},
+  {cat:"coctel",name:N("Margarita"),price:12.5,emoji:"🍹",d:{es:"Tequila, cointreau, zumo de limón, azúcar moreno",en:"Tequila, cointreau, lemon juice, brown sugar",de:"Tequila, Cointreau, Zitronensaft, brauner Zucker",nl:"Tequila, cointreau, citroensap, bruine suiker"}},
+  {cat:"coctel",name:N("Sex on the Boat"),price:12.5,emoji:"🍹",d:{es:"Vodka, cointreau, zumo de naranja y fresa",en:"Vodka, cointreau, orange and strawberry juice",de:"Wodka, Cointreau, Orangen- und Erdbeersaft",nl:"Wodka, cointreau, sinaasappel- en aardbeiensap"}},
+  {cat:"coctel",name:{es:"Daiquiri de fruta",en:"Fruit daiquiri",de:"Frucht-Daiquiri",nl:"Fruit-daiquiri"},price:12.5,emoji:"🍹",d:{es:"Ron blanco, fruta natural",en:"White rum, fresh fruit juice",de:"Weißer Rum, frische Frucht",nl:"Witte rum, vers fruit"}},
+  {cat:"coctel",name:N("Fresa colada"),price:12.5,emoji:"🍓",d:{es:"Ron blanco, zumo de fresa, coco batido",en:"White rum, strawberry juice, coconut cream",de:"Weißer Rum, Erdbeersaft, Kokoscreme",nl:"Witte rum, aardbeiensap, kokosroom"}},
+  {cat:"coctel",name:N("Piña colada"),price:12.5,emoji:"🍍",d:{es:"Ron blanco, zumo de piña, coco batido",en:"White rum, pineapple juice, coconut cream",de:"Weißer Rum, Ananassaft, Kokoscreme",nl:"Witte rum, ananassap, kokosroom"}},
+  {cat:"coctel",name:N("Mai Tai"),price:12.5,emoji:"🍹",d:{es:"Ron blanco y negro, naranja, piña, limón y granadina",en:"White and dark rum, orange, pineapple, lemon, grenadine",de:"Weißer und dunkler Rum, Orange, Ananas, Zitrone, Grenadine",nl:"Witte en donkere rum, sinaasappel, ananas, citroen, grenadine"}},
+  {cat:"coctel",name:N("Javea Sunrise"),price:12.5,emoji:"🌅",d:{es:"Tequila, zumo de naranja y granadina",en:"Tequila, orange juice and grenadine",de:"Tequila, Orangensaft und Grenadine",nl:"Tequila, sinaasappelsap en grenadine"}},
   // Cócteles sin alcohol — 10 €
-  {cat:"sinalcohol",name:N("Mojito virgen"),price:10.0,emoji:"🌿",d:{es:"Lima, azúcar moreno, hierbabuena, gaseosa",en:"Lime, brown sugar, mint, soda",de:"Limette, brauner Zucker, Minze, Soda"}},
-  {cat:"sinalcohol",name:N("Piña colada virgen"),price:10.0,emoji:"🍍",d:{es:"Zumo de piña, coco batido",en:"Pineapple juice, coconut cream",de:"Ananassaft, Kokoscreme"}},
-  {cat:"sinalcohol",name:N("Caipirinha virgen"),price:10.0,emoji:"🍋",d:{es:"Lima, gaseosa, azúcar moreno",en:"Lime, soda, brown sugar",de:"Limette, Soda, brauner Zucker"}},
-  {cat:"sinalcohol",name:N("Fresa colada virgen"),price:10.0,emoji:"🍓",d:{es:"Zumo de fresa, coco batido",en:"Strawberry juice and coconut cream",de:"Erdbeersaft, Kokoscreme"}},
+  {cat:"sinalcohol",name:{es:"Mojito virgen",en:"Virgin mojito",de:"Virgin Mojito",nl:"Virgin mojito"},price:10.0,emoji:"🌿",d:{es:"Lima, azúcar moreno, hierbabuena, gaseosa",en:"Lime, brown sugar, mint, soda",de:"Limette, brauner Zucker, Minze, Soda",nl:"Limoen, bruine suiker, munt, sodawater"}},
+  {cat:"sinalcohol",name:{es:"Piña colada virgen",en:"Virgin piña colada",de:"Virgin Piña Colada",nl:"Virgin piña colada"},price:10.0,emoji:"🍍",d:{es:"Zumo de piña, coco batido",en:"Pineapple juice, coconut cream",de:"Ananassaft, Kokoscreme",nl:"Ananassap, kokosroom"}},
+  {cat:"sinalcohol",name:{es:"Caipirinha virgen",en:"Virgin caipirinha",de:"Virgin Caipirinha",nl:"Virgin caipirinha"},price:10.0,emoji:"🍋",d:{es:"Lima, gaseosa, azúcar moreno",en:"Lime, soda, brown sugar",de:"Limette, Soda, brauner Zucker",nl:"Limoen, sodawater, bruine suiker"}},
+  {cat:"sinalcohol",name:{es:"Fresa colada virgen",en:"Virgin fresa colada",de:"Virgin Fresa Colada",nl:"Virgin fresa colada"},price:10.0,emoji:"🍓",d:{es:"Zumo de fresa, coco batido",en:"Strawberry juice and coconut cream",de:"Erdbeersaft, Kokoscreme",nl:"Aardbeiensap, kokosroom"}},
   // Combinados — 12,5 €
-  {cat:"combinado",name:{es:"Ron",en:"Rum",de:"Rum"},price:12.5,emoji:"🥃",d:{es:"Flor de caña + refresco",en:"Flor de caña + soft drink",de:"Flor de caña + Softdrink"}},
-  {cat:"combinado",name:N("Whisky"),price:12.5,emoji:"🥃",d:{es:"Johnnie Walker + refresco",en:"Johnnie Walker + soft drink",de:"Johnnie Walker + Softdrink"}},
-  {cat:"combinado",name:{es:"Vodka",en:"Vodka",de:"Wodka"},price:12.5,emoji:"🥃",d:{es:"Absolut + refresco",en:"Absolut + soft drink",de:"Absolut + Softdrink"}},
-  {cat:"combinado",name:N("Gin tonic"),price:12.5,emoji:"🍸",d:{es:"Ginebra + tónica",en:"Gin + tonic",de:"Gin + Tonic"}},
+  {cat:"combinado",name:{es:"Ron",en:"Rum",de:"Rum",nl:"Rum"},price:12.5,emoji:"🥃",d:{es:"Flor de caña + refresco",en:"Flor de caña + soft drink",de:"Flor de caña + Softdrink",nl:"Flor de caña + frisdrank"}},
+  {cat:"combinado",name:N("Whisky"),price:12.5,emoji:"🥃",d:{es:"Johnnie Walker + refresco",en:"Johnnie Walker + soft drink",de:"Johnnie Walker + Softdrink",nl:"Johnnie Walker + frisdrank"}},
+  {cat:"combinado",name:{es:"Vodka",en:"Vodka",de:"Wodka",nl:"Wodka"},price:12.5,emoji:"🥃",d:{es:"Absolut + refresco",en:"Absolut + soft drink",de:"Absolut + Softdrink",nl:"Absolut + frisdrank"}},
+  {cat:"combinado",name:N("Gin tonic"),price:12.5,emoji:"🍸",d:{es:"Ginebra + tónica",en:"Gin + tonic",de:"Gin + Tonic",nl:"Gin + tonic"}},
   {cat:"combinado",name:N("Gin premium Sylex"),price:12.5,emoji:"🍸"},
   // Smoothies de fruta fresca — 10 €
-  {cat:"smoothie",name:N("Granadella"),price:10.0,emoji:"🍓",d:{es:"Fresa, plátano y naranja",en:"Strawberry, banana and orange",de:"Erdbeere, Banane und Orange"}},
-  {cat:"smoothie",name:N("Sardinera"),price:10.0,emoji:"🍉",d:{es:"Sandía, naranja y hierbabuena",en:"Watermelon, orange and mint",de:"Wassermelone, Orange und Minze"}},
-  {cat:"smoothie",name:N("Cala Blanca"),price:10.0,emoji:"🍍",d:{es:"Piña, naranja y fresa",en:"Pineapple, orange and strawberry",de:"Ananas, Orange und Erdbeere"}},
-  {cat:"smoothie",name:N("San Martín"),price:10.0,emoji:"🍉",d:{es:"Sandía y plátano",en:"Watermelon and banana",de:"Wassermelone und Banane"}},
-  {cat:"smoothie",name:N("Portichol"),price:10.0,emoji:"🍊",d:{es:"Naranja y plátano",en:"Orange and banana",de:"Orange und Banane"}},
-  {cat:"smoothie",name:{es:"Fruta extra",en:"Extra fruit",de:"Extra Frucht"},price:1.0,emoji:"➕"},
+  {cat:"smoothie",name:N("Granadella"),price:10.0,emoji:"🍓",d:{es:"Fresa, plátano y naranja",en:"Strawberry, banana and orange",de:"Erdbeere, Banane und Orange",nl:"Aardbei, banaan en sinaasappel"}},
+  {cat:"smoothie",name:N("Sardinera"),price:10.0,emoji:"🍉",d:{es:"Sandía, naranja y hierbabuena",en:"Watermelon, orange and mint",de:"Wassermelone, Orange und Minze",nl:"Watermeloen, sinaasappel en munt"}},
+  {cat:"smoothie",name:N("Cala Blanca"),price:10.0,emoji:"🍍",d:{es:"Piña, naranja y fresa",en:"Pineapple, orange and strawberry",de:"Ananas, Orange und Erdbeere",nl:"Ananas, sinaasappel en aardbei"}},
+  {cat:"smoothie",name:N("San Martín"),price:10.0,emoji:"🍉",d:{es:"Sandía y plátano",en:"Watermelon and banana",de:"Wassermelone und Banane",nl:"Watermeloen en banaan"}},
+  {cat:"smoothie",name:N("Portichol"),price:10.0,emoji:"🍊",d:{es:"Naranja y plátano",en:"Orange and banana",de:"Orange und Banane",nl:"Sinaasappel en banaan"}},
+  {cat:"smoothie",name:{es:"Fruta extra",en:"Extra fruit",de:"Extra Frucht",nl:"Extra fruit"},price:1.0,emoji:"➕"},
   // Batidos — 10 €
-  {cat:"batido",name:{es:"Batido de chocolate",en:"Chocolate milkshake",de:"Schoko-Milchshake"},price:10.0,emoji:"🍫"},
-  {cat:"batido",name:{es:"Batido de Oreo",en:"Oreo milkshake",de:"Oreo-Milchshake"},price:10.0,emoji:"🍪"},
-  {cat:"batido",name:{es:"Batido de fresa y plátano",en:"Strawberry and banana milkshake",de:"Erdbeer-Bananen-Milchshake"},price:10.0,emoji:"🍓"},
-  {cat:"batido",name:{es:"Batido de plátano y chocolate",en:"Banana and chocolate milkshake",de:"Bananen-Schoko-Milchshake"},price:10.0,emoji:"🍌"},
+  {cat:"batido",name:{es:"Batido de chocolate",en:"Chocolate milkshake",de:"Schoko-Milchshake",nl:"Chocolademilkshake"},price:10.0,emoji:"🍫"},
+  {cat:"batido",name:{es:"Batido de Oreo",en:"Oreo milkshake",de:"Oreo-Milchshake",nl:"Oreo-milkshake"},price:10.0,emoji:"🍪"},
+  {cat:"batido",name:{es:"Batido de fresa y plátano",en:"Strawberry and banana milkshake",de:"Erdbeer-Bananen-Milchshake",nl:"Aardbei-banaan-milkshake"},price:10.0,emoji:"🍓"},
+  {cat:"batido",name:{es:"Batido de plátano y chocolate",en:"Banana and chocolate milkshake",de:"Bananen-Schoko-Milchshake",nl:"Banaan-chocolade-milkshake"},price:10.0,emoji:"🍌"},
   // Granizados
-  {cat:"granizado",name:{es:"Granizado de limón",en:"Lemon slush",de:"Zitronen-Slush"},price:8.5,emoji:"🍋"},
-  {cat:"granizado",name:{es:"Granizado de naranja",en:"Orange slush",de:"Orangen-Slush"},price:8.5,emoji:"🍊"},
-  {cat:"granizado",name:{es:"Granizado de café",en:"Coffee slush",de:"Kaffee-Slush"},price:8.5,emoji:"☕"},
-  {cat:"granizado",name:{es:"Granizado de café con licor",en:"Coffee slush with liqueur",de:"Kaffee-Slush mit Likör"},price:10.0,emoji:"☕"},
+  {cat:"granizado",name:{es:"Granizado de limón",en:"Lemon slush",de:"Zitronen-Slush",nl:"Citroen-slush"},price:8.5,emoji:"🍋"},
+  {cat:"granizado",name:{es:"Granizado de naranja",en:"Orange slush",de:"Orangen-Slush",nl:"Sinaasappel-slush"},price:8.5,emoji:"🍊"},
+  {cat:"granizado",name:{es:"Granizado de café",en:"Coffee slush",de:"Kaffee-Slush",nl:"Koffie-slush"},price:8.5,emoji:"☕"},
+  {cat:"granizado",name:{es:"Granizado de café con licor",en:"Coffee slush with liqueur",de:"Kaffee-Slush mit Likör",nl:"Koffie-slush met likeur"},price:10.0,emoji:"☕"},
   // Refrescos
-  {cat:"refresco",name:{es:"Refresco",en:"Soft drink",de:"Softdrink"},price:3.0,emoji:"🥤"},
-  {cat:"refresco",name:{es:"Agua",en:"Water",de:"Wasser"},price:3.0,emoji:"💧"},
+  {cat:"refresco",name:{es:"Refresco",en:"Soft drink",de:"Softdrink",nl:"Frisdrank"},price:3.0,emoji:"🥤"},
+  {cat:"refresco",name:{es:"Agua",en:"Water",de:"Wasser",nl:"Water"},price:3.0,emoji:"💧"},
 ];
 const T={
   es:{h1:"Arroces y cócteles a tu barco, en el mar",lead:"Estés fondeado, navegando o flotando en una cala: pide desde el móvil, el Don Pepito te localiza y te lleva tu pedido con el tiempo estimado en pantalla.",
@@ -514,6 +515,47 @@ const T={
     navtiempo:"Wetter",tk:"Das Wetter",tt:"Wetter in Jávea: Sonne und Meer",tolas:"Wellen",tagua:"Wasser",toff:"Die Vorhersage lässt sich gerade nicht laden. Versuch es später.",tnote:"Open-Meteo-Vorhersage für die Küste von Jávea — nur zur Orientierung: auf See bestimmt das Meer.",
     ck:"🧭 Welche Bucht heute?",rec0:"Ruhiger Tag: jede Bucht passt — La Granadella oder Portitxol, wie auf der Postkarte.",recW:"Landwind: die Küste ist ruhig. La Granadella und Portitxol liegen meist spiegelglatt.",recNE:"Bei NO-/Ostwind kommt etwas Welle: besser im Schutz des Cap de Sant Antoni (Sardinera) oder hinten in der Arenal-Bucht.",recS:"Bei Südwind besser nach Norden: Cala Blanca und Sardinera bleiben geschützt.",c1x:"Das Juwel im Süden: glasklares Wasser zwischen Pinien.",c2x:"Die Insel mit Postkartengrund; guter Ankergrund.",c3x:"Im Schutz des Cap de Sant Antoni.",c4x:"Zwillingsbuchten mit türkisem Wasser.",c5x:"Einfach ankern vor dem Strand.",
     cats:{mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alkoholfreie Cocktails",combinado:"Longdrinks",smoothie:"Frische Frucht-Smoothies",batido:"Milchshakes",granizado:"Slush-Eis",refresco:"Softdrinks"}},
+  nl:{h1:"Rijstgerechten & cocktails naar je boot, op zee",lead:"Voor anker, zeilend of dobberend in een baai: bestel met je telefoon — Don Pepito vindt je en brengt je bestelling, met live tijdschatting.",
+    openapp:"🍹 App openen & bestellen",openapp2:"App openen →",wa:"💬 Bestellen via WhatsApp",
+    paynote:"💶 Betalen bij levering, aan de boot. Geen account, geen kaart.",
+    howk:"Zo werkt het",howt:"Zo makkelijk als een taxi bellen",
+    s1t:"Deel je plek",s1x:"Open de app en tik op ‘Vind mij’: je ziet waar Don Pepito is en hoe ver.",
+    s2t:"Kies van de kaart",s2x:"Rijst van de dag, mojito’s, cocktails, smoothies, milkshakes en slush. Bestel in de app of via WhatsApp.",
+    s3t:"Wij brengen het",s3x:"Zie de verwachte tijd en je plek in de rij. Betalen bij ontvangst.",
+    wk:"De weekkaart",wt:"Rijst & fideuá, elke dag anders",b1:"per portie",b2:"met frisdrank",
+    wnote:"Bestel je per portie, dan wisselen de opties per dag. Allergenen per dag aangegeven.",
+    caldos:"🫒 Al onze bouillons worden natuurlijk gemaakt met lokale producten.",
+    hoy:"Vandaag",alg:"Allergenen",
+    zk:"De omgeving",zt:"Waar is Don Pepito?",
+    zoff:"🍹⛵ De boot vaart nu niet.\nOpen de app om hem live te zien wanneer hij bedient.",
+    znote:"Echte zeekaart (OpenSeaMap). Deelt de boot zijn gps, dan zie je hem hier live varen.",
+    cartak:"Dranken",cartat:"Verse cocktails, geserveerd op het water",
+    cartanote:"Alles inbegrepen. De kaart kan wisselen per dag en voorraad van de boot.",
+    appk:"De app",appt:"Neem Don Pepito mee",qrt:"Scan de QR en bestel vanaf het water",
+    qrx:"Installeert als een gewone app (icoon en volledig scherm), zonder store. Op iPhone: Delen → ‘Zet op beginscherm’.",
+    foot1:"Voor boten en zwemmers · zomerseizoen.",foot2:"Drink verantwoord. Geen alcohol onder de 18.",
+    aniv:"15-jarig jubileum",aniv2:"15-jarig jubileum",navapp:"De app",navarroces:"Rijstkaart",navcarta:"Dranken",navmapa:"Waar is de boot",navtiempo:"Weer",
+    dlk:"De app",dlt:"Zet Don Pepito op je telefoon",
+    dlx:"Bestel vanaf het water in twee tikken: live bootkaart, de volledige kaart en je bestelling met tijdschatting. Gratis, zonder account of kaart.",
+    get:"Zet ’m op je",get2:"Zet ’m op je",
+    iost:"Installeren op iPhone",ios1:"1 · Tik op ‘Delen’",ios1x:"Het vierkant met de pijl: in Safari onderaan, in Chrome rechtsboven.",
+    ios2:"2 · ‘Zet op beginscherm’",ios2x:"Scroll iets in de lijst en tik erop.",
+    ios3:"3 · Tik op ‘Voeg toe’",ios3x:"Klaar: de app met eigen icoon, volledig scherm.",
+    iosnote:"Werkt in Safari en Chrome. In Chrome zit ‘Delen’ rechtsboven; in Safari onderin.",
+    andt:"Installeren op Android",and1:"Open donpepito-javea.web.app in Chrome.",and2:"Tik rechtsboven op het ⋮-menu.",
+    and3:"Kies ‘App installeren’ (of ‘Toevoegen aan startscherm’) en bevestig.",
+    apk:"⬇️ APK direct downloaden",
+    tk:"Het weer",tt:"Weer in Jávea: zon en zee",tolas:"golven",tagua:"zeewater",
+    toff:"De verwachting laadt nu niet. Probeer het straks weer.",
+    tnote:"Open-Meteo-verwachting voor de kust van Jávea — richtlijn: op zee beslist de zee.",
+    ck:"🧭 Welke baai vandaag?",
+    rec0:"Rustige dag: elke baai kan — La Granadella of Portitxol, als een ansichtkaart.",
+    recW:"Aflandige wind: de kust is kalm. La Granadella en Portitxol liggen meestal spiegelglad.",
+    recNE:"Bij NO-/oostenwind komt wat golfslag: beter in de luwte van Cap de Sant Antoni (Sardinera) of achterin de Arenal-baai.",
+    recS:"Bij zuidenwind: ga noordelijk — Cala Blanca en Sardinera blijven beschut.",
+    c1x:"De parel van het zuiden: kristalhelder water tussen de dennen.",c2x:"Het eiland met ansichtkaartbodem; goede ankergrond.",
+    c3x:"In de luwte van Cap de Sant Antoni.",c4x:"Tweelingbaaitjes met turquoise water.",c5x:"Makkelijk ankeren voor het strand.",
+    cats:{mojito:"Mojito’s",coctel:"Cocktails",sinalcohol:"Alcoholvrije cocktails",combinado:"Sterke drank & mixers",smoothie:"Verse fruitsmoothies",batido:"Milkshakes",granizado:"Slush",refresco:"Frisdrank"}},
 };
 let lang=localStorage.getItem('mb_lang')||(navigator.language||'es').slice(0,2);
 if(!T[lang])lang='es';
@@ -549,7 +591,7 @@ function render(){
   document.getElementById('menu').innerHTML=html;
   document.querySelectorAll('#langs button').forEach(b=>b.classList.toggle('on',b.dataset.l===lang));
 }
-document.getElementById('langs').innerHTML=['es','en','de'].map(l=>`<button data-l="${l}" onclick="setLang('${l}')">${l.toUpperCase()}</button>`).join('');
+document.getElementById('langs').innerHTML=['es','en','de','nl'].map(l=>`<button data-l="${l}" onclick="setLang('${l}')">${l.toUpperCase()}</button>`).join('');
 function setLang(l){lang=l;localStorage.setItem('mb_lang',l);render();}
 render();
 
