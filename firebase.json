@@ -1,15 +1,72 @@
 {
-  "hosting": {
-    "site": "donpepito-2607151158",
-    "public": "web",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "backend/**", "brainstorms/**"],
-    "headers": [
-      { "source": "**/*.apk", "headers": [
-        { "key": "Content-Type", "value": "application/vnd.android.package-archive" },
-        { "key": "Content-Disposition", "value": "attachment; filename=\"Don-Pepito.apk\"" }
-      ] }
-    ],
-    "rewrites": [{ "source": "**", "destination": "/index.html" }]
-  },
-  "firestore": { "rules": "firestore.rules", "indexes": "firestore.indexes.json" }
+  "hosting": [
+    {
+      "public": "web",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "backend/**",
+        "brainstorms/**"
+      ],
+      "headers": [
+        {
+          "source": "**/*.apk",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/vnd.android.package-archive"
+            },
+            {
+              "key": "Content-Disposition",
+              "value": "attachment; filename=\"Don-Pepito.apk\""
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "target": "principal"
+    },
+    {
+      "public": "web",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "backend/**",
+        "brainstorms/**"
+      ],
+      "headers": [
+        {
+          "source": "**/*.apk",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/vnd.android.package-archive"
+            },
+            {
+              "key": "Content-Disposition",
+              "value": "attachment; filename=\"Don-Pepito.apk\""
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "target": "corto"
+    }
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
 }

@@ -1,1 +1,11 @@
-{ "projects": { "default": "donpepito-2607151158" } }
+{
+  "projects": { "default": "donpepito-2607151158" },
+  "targets": {
+    "donpepito-2607151158": {
+      "hosting": {
+        "principal": ["donpepito-2607151158"],
+        "corto": ["donpepito-javea"]
+      }
+    }
+  }
+}
