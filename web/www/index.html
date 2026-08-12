@@ -183,6 +183,14 @@
   .wxday .wi{font-size:26px}
   .wxday .tt2{font-weight:800;font-size:13.5px;color:var(--marO)}
   .wxday small{color:var(--muted);font-size:11.5px}
+  .calas{margin-top:28px}
+  .calas h3{font-family:var(--hand);font-weight:800;font-size:19px;color:var(--marO);margin:0 0 10px}
+  .carec{background:var(--carton);border:1.5px dashed var(--naranja);border-radius:14px;padding:13px 16px;
+    font-size:14.5px;margin:0 0 14px;line-height:1.55}
+  .calagrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+  .cala{background:var(--carton);border:1.5px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
+  .cala b{display:block;color:var(--hibisco);font-size:14.5px;margin-bottom:3px}
+  .cala span{font-size:12.5px;color:var(--muted);line-height:1.4}
 </style>
 </head>
 <body>
@@ -292,6 +300,17 @@
     </div>
     <p class="cartanote hidden" id="wxoff" data-t="toff">Ahora mismo no puedo leer la previsión. Prueba en un rato.</p>
     <p class="cartanote" data-t="tnote">Previsión de Open-Meteo para la costa de Jávea: orientativa — en el mar, manda el mar.</p>
+    <div class="calas">
+      <h3 data-t="ck">🧭 ¿A qué cala vamos hoy?</h3>
+      <p class="carec hidden" id="calarec"></p>
+      <div class="calagrid">
+        <div class="cala"><b>La Granadella</b><span data-t="c1x">La joya del sur: agua cristalina entre pinos.</span></div>
+        <div class="cala"><b>El Portitxol</b><span data-t="c2x">La isla y el fondo de postal; buen tenedero.</span></div>
+        <div class="cala"><b>Cala Sardinera</b><span data-t="c3x">Al abrigo del Cap de Sant Antoni.</span></div>
+        <div class="cala"><b>Cala Blanca</b><span data-t="c4x">Calitas gemelas de agua turquesa.</span></div>
+        <div class="cala"><b>Bahía del Arenal</b><span data-t="c5x">Fondeo fácil frente a la playa.</span></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -435,6 +454,7 @@ const T={
     foot1:"Servicio a barcos y bañistas · temporada de verano.",foot2:"Consumo responsable. No servimos alcohol a menores de 18 años.",
     aniv:"15º aniversario",aniv2:"15º aniversario",navapp:"La app",navarroces:"Arroces",navcarta:"Bebidas",navmapa:"Dónde está",dlk:"La app",dlt:"Descárgate Don Pepito en el móvil",dlx:"Pide desde el agua en dos toques: mapa del barco en vivo, la carta completa y tu pedido con tiempo estimado. Gratis, sin registros ni tarjetas.",get:"Descárgala en",get2:"Descárgala en",iost:"Instalar en iPhone",ios1:"Abre donpepito-2607151158.web.app en Safari.",ios2:"Toca el botón Compartir (el cuadrado con la flecha).",ios3:"Elige «Añadir a pantalla de inicio» y confirma: ya tienes la app con su icono 🍹.",andt:"Instalar en Android",and1:"Abre donpepito-2607151158.web.app en Chrome.",and2:"Toca el menú ⋮ de arriba a la derecha.",and3:"Elige «Instalar aplicación» (o «Añadir a pantalla principal») y confirma.",apk:"⬇️ Descargar APK directa",
     navtiempo:"El tiempo",tk:"El tiempo",tt:"El tiempo en Jávea: sol y mar",tolas:"de ola",tagua:"el agua",toff:"Ahora mismo no puedo leer la previsión. Prueba en un rato.",tnote:"Previsión de Open-Meteo para la costa de Jávea: orientativa — en el mar, manda el mar.",
+    ck:"🧭 ¿A qué cala vamos hoy?",rec0:"Día de calma: cualquier cala vale — la Granadella o el Portitxol, de postal.",recW:"Sopla de tierra: la costa está tranquila. La Granadella y el Portitxol suelen estar como un plato.",recNE:"Con gregal o levante entra algo de mar: mejor al abrigo del Cap de Sant Antoni (la Sardinera) o el fondo de la bahía del Arenal.",recS:"Con viento del sur, mejor al norte: Cala Blanca o la Sardinera quedan resguardadas.",c1x:"La joya del sur: agua cristalina entre pinos.",c2x:"La isla y el fondo de postal; buen tenedero.",c3x:"Al abrigo del Cap de Sant Antoni.",c4x:"Calitas gemelas de agua turquesa.",c5x:"Fondeo fácil frente a la playa.",
     cats:{mojito:"Mojitos",coctel:"Cócteles",sinalcohol:"Cócteles sin alcohol",combinado:"Combinados",smoothie:"Smoothies de fruta fresca",batido:"Batidos",granizado:"Granizados",refresco:"Refrescos"}},
   en:{h1:"Rice dishes & cocktails to your boat, at sea",lead:"Anchored, sailing or floating in a cove: order from your phone, Don Pepito finds you and brings your order with a live ETA on screen.",
     openapp:"🍹 Open the app & order",openapp2:"Open the app →",wa:"💬 Order via WhatsApp",
@@ -457,6 +477,7 @@ const T={
     foot1:"Serving boats and swimmers · summer season.",foot2:"Drink responsibly. No alcohol served under 18.",
     aniv:"15th anniversary",aniv2:"15th anniversary",navapp:"The app",navarroces:"Rice menu",navcarta:"Drinks",navmapa:"Find the boat",dlk:"The app",dlt:"Get Don Pepito on your phone",dlx:"Order from the water in two taps: live boat map, the full menu and your order with a live ETA. Free, no sign-ups, no cards.",get:"Get it for",get2:"Get it for",iost:"Install on iPhone",ios1:"Open donpepito-2607151158.web.app in Safari.",ios2:"Tap the Share button (the square with the arrow).",ios3:"Choose \u201cAdd to Home Screen\u201d and confirm \u2014 the app appears with its icon 🍹.",andt:"Install on Android",and1:"Open donpepito-2607151158.web.app in Chrome.",and2:"Tap the ⋮ menu, top right.",and3:"Choose \u201cInstall app\u201d (or \u201cAdd to Home screen\u201d) and confirm.",apk:"⬇️ Direct APK download",
     navtiempo:"Weather",tk:"The weather",tt:"Jávea weather: sun and sea",tolas:"waves",tagua:"sea temp",toff:"Can\u2019t load the forecast right now. Try again in a while.",tnote:"Open-Meteo forecast for the Jávea coast — a guide only: at sea, the sea rules.",
+    ck:"🧭 Which cove today?",rec0:"Calm day: any cove works — La Granadella or Portitxol, postcard material.",recW:"Offshore breeze: the coast is calm. La Granadella and Portitxol are usually mirror-flat.",recNE:"With NE/E wind some swell comes in: better in the lee of Cap de Sant Antoni (Sardinera) or the inner Arenal bay.",recS:"With southerly wind, head north: Cala Blanca and Sardinera stay sheltered.",c1x:"The southern gem: crystal water among pines.",c2x:"The island and a postcard seabed; good holding.",c3x:"Sheltered by Cap de Sant Antoni.",c4x:"Twin coves of turquoise water.",c5x:"Easy anchoring off the beach.",
     cats:{mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alcohol-free cocktails",combinado:"Spirits & mixers",smoothie:"Fresh fruit smoothies",batido:"Milkshakes",granizado:"Slushies",refresco:"Soft drinks"}},
   de:{h1:"Reisgerichte & Cocktails zu deinem Boot, auf See",lead:"Ob vor Anker, unter Segel oder in einer Bucht treibend: Bestell per Handy — Don Pepito findet dich und bringt deine Bestellung, mit Live-Zeitschätzung.",
     openapp:"🍹 App öffnen & bestellen",openapp2:"App öffnen →",wa:"💬 Per WhatsApp bestellen",
@@ -479,6 +500,7 @@ const T={
     foot1:"Service für Boote und Badegäste · Sommersaison.",foot2:"Bitte verantwortungsvoll genießen. Kein Alkohol unter 18.",
     aniv:"15. Jubiläum",aniv2:"15. Jubiläum",navapp:"Die App",navarroces:"Reiskarte",navcarta:"Getränke",navmapa:"Wo ist das Boot",dlk:"Die App",dlt:"Hol dir Don Pepito aufs Handy",dlx:"Bestell vom Wasser aus in zwei Fingertipps: Live-Karte des Boots, die komplette Karte und deine Bestellung mit Zeitschätzung. Gratis, ohne Konto und Karte.",get:"Laden für",get2:"Laden für",iost:"Auf dem iPhone installieren",ios1:"Öffne donpepito-2607151158.web.app in Safari.",ios2:"Tippe auf Teilen (Quadrat mit Pfeil).",ios3:"Wähle „Zum Home-Bildschirm“ und bestätige – fertig, App mit Icon 🍹.",andt:"Auf Android installieren",and1:"Öffne donpepito-2607151158.web.app in Chrome.",and2:"Tippe oben rechts auf das ⋮-Menü.",and3:"Wähle „App installieren“ (oder „Zum Startbildschirm“) und bestätige.",apk:"⬇️ APK direkt laden",
     navtiempo:"Wetter",tk:"Das Wetter",tt:"Wetter in Jávea: Sonne und Meer",tolas:"Wellen",tagua:"Wasser",toff:"Die Vorhersage lässt sich gerade nicht laden. Versuch es später.",tnote:"Open-Meteo-Vorhersage für die Küste von Jávea — nur zur Orientierung: auf See bestimmt das Meer.",
+    ck:"🧭 Welche Bucht heute?",rec0:"Ruhiger Tag: jede Bucht passt — La Granadella oder Portitxol, wie auf der Postkarte.",recW:"Landwind: die Küste ist ruhig. La Granadella und Portitxol liegen meist spiegelglatt.",recNE:"Bei NO-/Ostwind kommt etwas Welle: besser im Schutz des Cap de Sant Antoni (Sardinera) oder hinten in der Arenal-Bucht.",recS:"Bei Südwind besser nach Norden: Cala Blanca und Sardinera bleiben geschützt.",c1x:"Das Juwel im Süden: glasklares Wasser zwischen Pinien.",c2x:"Die Insel mit Postkartengrund; guter Ankergrund.",c3x:"Im Schutz des Cap de Sant Antoni.",c4x:"Zwillingsbuchten mit türkisem Wasser.",c5x:"Einfach ankern vor dem Strand.",
     cats:{mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alkoholfreie Cocktails",combinado:"Longdrinks",smoothie:"Frische Frucht-Smoothies",batido:"Milchshakes",granizado:"Slush-Eis",refresco:"Softdrinks"}},
 };
 let lang=localStorage.getItem('mb_lang')||(navigator.language||'es').slice(0,2);
@@ -576,6 +598,15 @@ async function loadWeather(){
         <span class="tt2">${Math.round(w.daily.temperature_2m_max[i])}º / ${Math.round(w.daily.temperature_2m_min[i])}º</span>
         ${wave!=null?`<small>🌊 ${wave.toFixed(1).replace('.',',')} m</small>`:''}</div>`;
     }).join('');
+    // recomendación de cala según viento y olas (reglas de abrigo de la costa de Jávea)
+    const spd=w.current.wind_speed_10m, dir=(((w.current.wind_direction_10m%360)+360)%360);
+    const wv=(m&&m.current&&m.current.wave_height!=null)?m.current.wave_height:null;
+    let rec;
+    if(spd<10&&(wv==null||wv<0.4)) rec=T[lang].rec0;
+    else if(dir>=202||dir<22) rec=T[lang].recW;
+    else if(dir<112) rec=T[lang].recNE;
+    else rec=T[lang].recS;
+    const rc=document.getElementById('calarec'); rc.textContent=rec; rc.classList.remove('hidden');
     document.getElementById('wxbox').classList.remove('hidden');
     document.getElementById('wxoff').classList.add('hidden');
   }catch(_){ if(document.getElementById('wxbox').classList.contains('hidden')) document.getElementById('wxoff').classList.remove('hidden'); }
