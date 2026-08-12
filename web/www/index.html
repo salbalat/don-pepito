@@ -381,7 +381,7 @@
     <ol class="ins"><li data-t="and1">Abre donpepito-javea.web.app en Chrome.</li>
       <li data-t="and2">Toca el menú ⋮ de arriba a la derecha.</li>
       <li data-t="and3">Elige «Instalar aplicación» (o «Añadir a pantalla principal») y confirma.</li></ol>
-    <a class="btn s hidden" id="apkLink" href="../Don-Pepito.apk" data-t="apk">⬇️ Descargar APK directa</a>
+    <a class="btn s hidden" id="apkLink" href="https://github.com/salbalat/don-pepito/raw/master/apk/Don-Pepito.apk" target="_blank" rel="noopener" data-t="apk">⬇️ Descargar APK directa</a>
     <div class="qrhero hidden" id="apkQRw" style="margin:14px 0 0">
       <img src="qr-apk.png" alt="QR APK Android">
       <b data-t="apkqr">Escanea para descargar la APK (Android)</b>
@@ -707,10 +707,9 @@ function openSheet(id){document.getElementById(id).classList.add('show');
 function closeSheet(id){document.getElementById(id).classList.remove('show');
   document.getElementById('sharrow').classList.add('hidden');
   document.getElementById('sharrowTip').classList.add('hidden');}
-fetch('../Don-Pepito.apk',{headers:{'Range':'bytes=0-3'}}).then(r=>r.ok?r.text():'').then(t=>{
-  if(t.startsWith('PK')){ document.getElementById('apkLink').classList.remove('hidden');
-    document.getElementById('apkQRw').classList.remove('hidden'); }   // solo si es una APK real
-}).catch(()=>{});
+// La APK se aloja en GitHub (Firebase plan gratis no sirve ejecutables): mostrar siempre.
+document.getElementById('apkLink').classList.remove('hidden');
+var _aqw=document.getElementById('apkQRw'); if(_aqw)_aqw.classList.remove('hidden');
 </script>
 </body>
 </html>
