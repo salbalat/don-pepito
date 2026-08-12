@@ -29,6 +29,11 @@ en el Mac). Para el barco de verdad → Firebase.
    (HTTPS → el GPS funciona). Modo Cliente para pedir, modo Barco para servir.
 
 ## Notas
+- ⚠️ **Nada de ejecutables en `web/`** (`.apk`, `.aab`, `.keystore`, `.exe`…). El plan
+  gratis de Firebase (**Spark**) los **prohíbe** y el deploy revienta con *«Executable files
+  are forbidden on the Spark billing plan»*. Ya están excluidos en `firebase.json` (`ignore`),
+  pero NO copies una APK a `web/`. La **APK vive en `apk/Don-Pepito.apk`** y se descarga por
+  GitHub: `https://github.com/salbalat/don-pepito/raw/master/apk/Don-Pepito.apk`.
 - Las **reglas están abiertas** para el piloto (`firestore.rules`). Antes de abrirlo al público
   de verdad, hay que restringirlas (te aviso cuando toque).
 - El backend local (`backend/`) queda solo para pruebas; en producción no se usa.

@@ -91,3 +91,16 @@ npx cap sync
 | Abrir en Xcode | `npx cap open ios` |
 | Abrir en Android Studio | `npx cap open android` |
 | Añadir plataforma (si no existe) | `npx cap add ios` / `npx cap add android` |
+
+## APK de Android (descarga directa)
+
+Generada con **PWABuilder** (Android → descarga el .zip). Vive en `apk/Don-Pepito.apk`.
+**Firebase (plan gratis) NO puede servir la APK** (es ejecutable), así que NO la copies a
+`web/` — el deploy fallaría. Se descarga desde GitHub:
+
+```
+https://github.com/salbalat/don-pepito/raw/master/apk/Don-Pepito.apk
+```
+
+La vía recomendada de instalación sigue siendo la **PWA** (botón «Instalar» / «Añadir a
+pantalla de inicio»); la APK es solo para quien la quiera suelta.
