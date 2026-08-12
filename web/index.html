@@ -113,7 +113,9 @@
   .sharrow{position:fixed;bottom:4px;left:50%;font-size:36px;z-index:99;color:var(--rojo);
     text-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none;animation:bnc 1s infinite}
   @keyframes bnc{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,9px)}}
-  @media (prefers-reduced-motion: reduce){.sharrow{animation:none;transform:translateX(-50%)}}
+  .sharrow.top{top:4px;bottom:auto;left:auto;right:10px;animation-name:bnct}
+  @keyframes bnct{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
+  @media (prefers-reduced-motion: reduce){.sharrow{animation:none;transform:translateX(-50%)}.sharrow.top{transform:none}}
 </style>
 </head>
 <body>
@@ -221,7 +223,7 @@
       <div class="istep"><span class="ico">⬆️</span><div><b>1 · Toca «Compartir»</b><span>El cuadrado con la flecha, abajo en el centro de Safari.</span></div></div>
       <div class="istep"><span class="ico">➕</span><div><b>2 · «Añadir a pantalla de inicio»</b><span>Baja un poco en la lista hasta verlo, y tócalo.</span></div></div>
       <div class="istep"><span class="ico">🍹</span><div><b>3 · Toca «Añadir»</b><span>Ya está: la app con su icono, a pantalla completa.</span></div></div>
-      <div class="note">¿Estás en otro navegador? Abre <b>donpepito-javea.web.app</b> en Safari primero.</div>
+      <div class="note">Vale en <b>Safari</b> y en <b>Chrome</b>. En Chrome, «Compartir» está <b>arriba a la derecha</b>; en Safari, abajo en el centro.</div>
     </div>
     <div class="isec">
       <b>Compártela con un QR</b>
@@ -766,7 +768,9 @@ function openInstall(){
   document.getElementById('inst_ios').style.display=isIOS()?'block':'none';
   document.getElementById('inst_android').style.display=isIOS()?'none':'block';
   document.getElementById('installModal').classList.add('show');
-  document.getElementById('sharrow').classList.toggle('hidden',!isIOS()||isStandalone());  // flecha al botón Compartir de Safari
+  const arr=document.getElementById('sharrow'), chr=/crios/i.test(navigator.userAgent);
+  arr.classList.toggle('hidden',!isIOS()||isStandalone());          // flecha al botón Compartir
+  arr.classList.toggle('top',chr); arr.textContent=chr?'⬆️':'⬇️';   // Safari: abajo · Chrome iPhone: arriba dcha
 }
 function closeInstall(){ document.getElementById('installModal').classList.remove('show');
   document.getElementById('sharrow').classList.add('hidden'); }
