@@ -191,6 +191,14 @@
   .cala{background:var(--carton);border:1.5px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
   .cala b{display:block;color:var(--hibisco);font-size:14.5px;margin-bottom:3px}
   .cala span{font-size:12.5px;color:var(--muted);line-height:1.4}
+  .istep{display:flex;gap:13px;align-items:flex-start;margin-bottom:13px}
+  .istep .ico{font-size:26px;width:46px;height:46px;background:var(--crema);border:1.5px solid var(--line);border-radius:12px;display:grid;place-items:center;flex:0 0 auto}
+  .istep b{display:block;font-size:15px;margin-bottom:2px}
+  .istep span{font-size:12.5px;color:var(--muted);line-height:1.4}
+  .sharrow{position:fixed;bottom:4px;left:50%;font-size:36px;z-index:99;color:var(--hibisco);
+    text-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none;animation:bnc 1s infinite}
+  @keyframes bnc{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,9px)}}
+  @media (prefers-reduced-motion: reduce){.sharrow{animation:none;transform:translateX(-50%)}}
 </style>
 </head>
 <body>
@@ -339,9 +347,10 @@
 <div class="sheet" id="shIos" onclick="if(event.target===this)closeSheet('shIos')">
   <div class="sheetbox">
     <div class="sheethead"><b data-t="iost">Instalar en iPhone</b><button onclick="closeSheet('shIos')" aria-label="Cerrar">✕</button></div>
-    <ol class="ins"><li data-t="ios1">Abre donpepito-2607151158.web.app en Safari.</li>
-      <li data-t="ios2">Toca el botón Compartir (el cuadrado con la flecha).</li>
-      <li data-t="ios3">Elige «Añadir a pantalla de inicio» y confirma: ya tienes la app con su icono 🍹.</li></ol>
+    <div class="istep"><span class="ico">⬆️</span><div><b data-t="ios1">1 · Toca «Compartir»</b><span data-t="ios1x">El cuadrado con la flecha, abajo en el centro de Safari.</span></div></div>
+    <div class="istep"><span class="ico">➕</span><div><b data-t="ios2">2 · «Añadir a pantalla de inicio»</b><span data-t="ios2x">Baja un poco en la lista hasta verlo, y tócalo.</span></div></div>
+    <div class="istep"><span class="ico">🍹</span><div><b data-t="ios3">3 · Toca «Añadir»</b><span data-t="ios3x">Ya está: la app con su icono, a pantalla completa.</span></div></div>
+    <p class="cartanote" data-t="iosnote">Si estás en otro navegador, abre primero donpepito-javea.web.app en Safari.</p>
     <a class="btn p" href="../" data-t="openapp2">Abrir la app →</a>
   </div>
 </div>
@@ -356,6 +365,7 @@
   </div>
 </div>
 
+<div class="sharrow hidden" id="sharrow">⬇️</div>
 <script src="../firebase-config.js"></script>
 <script>
 // ---------- carta de la semana (arroces reales) ----------
@@ -452,7 +462,7 @@ const T={
     appk:"La app",appt:"Llévate Don Pepito en el móvil",qrt:"Escanea el QR y pide desde el agua",
     qrx:"Se instala como una app normal (icono y pantalla completa), sin tienda ni descargas. En iPhone: Compartir → «Añadir a pantalla de inicio».",
     foot1:"Servicio a barcos y bañistas · temporada de verano.",foot2:"Consumo responsable. No servimos alcohol a menores de 18 años.",
-    aniv:"15º aniversario",aniv2:"15º aniversario",navapp:"La app",navarroces:"Arroces",navcarta:"Bebidas",navmapa:"Dónde está",dlk:"La app",dlt:"Descárgate Don Pepito en el móvil",dlx:"Pide desde el agua en dos toques: mapa del barco en vivo, la carta completa y tu pedido con tiempo estimado. Gratis, sin registros ni tarjetas.",get:"Descárgala en",get2:"Descárgala en",iost:"Instalar en iPhone",ios1:"Abre donpepito-2607151158.web.app en Safari.",ios2:"Toca el botón Compartir (el cuadrado con la flecha).",ios3:"Elige «Añadir a pantalla de inicio» y confirma: ya tienes la app con su icono 🍹.",andt:"Instalar en Android",and1:"Abre donpepito-2607151158.web.app en Chrome.",and2:"Toca el menú ⋮ de arriba a la derecha.",and3:"Elige «Instalar aplicación» (o «Añadir a pantalla principal») y confirma.",apk:"⬇️ Descargar APK directa",
+    aniv:"15º aniversario",aniv2:"15º aniversario",navapp:"La app",navarroces:"Arroces",navcarta:"Bebidas",navmapa:"Dónde está",dlk:"La app",dlt:"Descárgate Don Pepito en el móvil",dlx:"Pide desde el agua en dos toques: mapa del barco en vivo, la carta completa y tu pedido con tiempo estimado. Gratis, sin registros ni tarjetas.",get:"Descárgala en",get2:"Descárgala en",iost:"Instalar en iPhone",ios1:"1 · Toca «Compartir»",ios1x:"El cuadrado con la flecha, abajo en el centro de Safari.",ios2:"2 · «Añadir a pantalla de inicio»",ios2x:"Baja un poco en la lista hasta verlo, y tócalo.",ios3:"3 · Toca «Añadir»",ios3x:"Ya está: la app con su icono, a pantalla completa.",iosnote:"Si estás en otro navegador, abre primero donpepito-javea.web.app en Safari.",andt:"Instalar en Android",and1:"Abre donpepito-2607151158.web.app en Chrome.",and2:"Toca el menú ⋮ de arriba a la derecha.",and3:"Elige «Instalar aplicación» (o «Añadir a pantalla principal») y confirma.",apk:"⬇️ Descargar APK directa",
     navtiempo:"El tiempo",tk:"El tiempo",tt:"El tiempo en Jávea: sol y mar",tolas:"de ola",tagua:"el agua",toff:"Ahora mismo no puedo leer la previsión. Prueba en un rato.",tnote:"Previsión de Open-Meteo para la costa de Jávea: orientativa — en el mar, manda el mar.",
     ck:"🧭 ¿A qué cala vamos hoy?",rec0:"Día de calma: cualquier cala vale — la Granadella o el Portitxol, de postal.",recW:"Sopla de tierra: la costa está tranquila. La Granadella y el Portitxol suelen estar como un plato.",recNE:"Con gregal o levante entra algo de mar: mejor al abrigo del Cap de Sant Antoni (la Sardinera) o el fondo de la bahía del Arenal.",recS:"Con viento del sur, mejor al norte: Cala Blanca o la Sardinera quedan resguardadas.",c1x:"La joya del sur: agua cristalina entre pinos.",c2x:"La isla y el fondo de postal; buen tenedero.",c3x:"Al abrigo del Cap de Sant Antoni.",c4x:"Calitas gemelas de agua turquesa.",c5x:"Fondeo fácil frente a la playa.",
     cats:{mojito:"Mojitos",coctel:"Cócteles",sinalcohol:"Cócteles sin alcohol",combinado:"Combinados",smoothie:"Smoothies de fruta fresca",batido:"Batidos",granizado:"Granizados",refresco:"Refrescos"}},
@@ -475,7 +485,7 @@ const T={
     appk:"The app",appt:"Take Don Pepito with you",qrt:"Scan the QR and order from the water",
     qrx:"Installs like a normal app (icon and full screen), no store or downloads. On iPhone: Share → “Add to Home Screen”.",
     foot1:"Serving boats and swimmers · summer season.",foot2:"Drink responsibly. No alcohol served under 18.",
-    aniv:"15th anniversary",aniv2:"15th anniversary",navapp:"The app",navarroces:"Rice menu",navcarta:"Drinks",navmapa:"Find the boat",dlk:"The app",dlt:"Get Don Pepito on your phone",dlx:"Order from the water in two taps: live boat map, the full menu and your order with a live ETA. Free, no sign-ups, no cards.",get:"Get it for",get2:"Get it for",iost:"Install on iPhone",ios1:"Open donpepito-2607151158.web.app in Safari.",ios2:"Tap the Share button (the square with the arrow).",ios3:"Choose \u201cAdd to Home Screen\u201d and confirm \u2014 the app appears with its icon 🍹.",andt:"Install on Android",and1:"Open donpepito-2607151158.web.app in Chrome.",and2:"Tap the ⋮ menu, top right.",and3:"Choose \u201cInstall app\u201d (or \u201cAdd to Home screen\u201d) and confirm.",apk:"⬇️ Direct APK download",
+    aniv:"15th anniversary",aniv2:"15th anniversary",navapp:"The app",navarroces:"Rice menu",navcarta:"Drinks",navmapa:"Find the boat",dlk:"The app",dlt:"Get Don Pepito on your phone",dlx:"Order from the water in two taps: live boat map, the full menu and your order with a live ETA. Free, no sign-ups, no cards.",get:"Get it for",get2:"Get it for",iost:"Install on iPhone",ios1:"1 · Tap \u201cShare\u201d",ios1x:"The square with the arrow, bottom centre of Safari.",ios2:"2 · \u201cAdd to Home Screen\u201d",ios2x:"Scroll the list a little and tap it.",ios3:"3 · Tap \u201cAdd\u201d",ios3x:"Done: the app with its icon, full screen.",iosnote:"If you\u2019re in another browser, open donpepito-javea.web.app in Safari first.",andt:"Install on Android",and1:"Open donpepito-2607151158.web.app in Chrome.",and2:"Tap the ⋮ menu, top right.",and3:"Choose \u201cInstall app\u201d (or \u201cAdd to Home screen\u201d) and confirm.",apk:"⬇️ Direct APK download",
     navtiempo:"Weather",tk:"The weather",tt:"Jávea weather: sun and sea",tolas:"waves",tagua:"sea temp",toff:"Can\u2019t load the forecast right now. Try again in a while.",tnote:"Open-Meteo forecast for the Jávea coast — a guide only: at sea, the sea rules.",
     ck:"🧭 Which cove today?",rec0:"Calm day: any cove works — La Granadella or Portitxol, postcard material.",recW:"Offshore breeze: the coast is calm. La Granadella and Portitxol are usually mirror-flat.",recNE:"With NE/E wind some swell comes in: better in the lee of Cap de Sant Antoni (Sardinera) or the inner Arenal bay.",recS:"With southerly wind, head north: Cala Blanca and Sardinera stay sheltered.",c1x:"The southern gem: crystal water among pines.",c2x:"The island and a postcard seabed; good holding.",c3x:"Sheltered by Cap de Sant Antoni.",c4x:"Twin coves of turquoise water.",c5x:"Easy anchoring off the beach.",
     cats:{mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alcohol-free cocktails",combinado:"Spirits & mixers",smoothie:"Fresh fruit smoothies",batido:"Milkshakes",granizado:"Slushies",refresco:"Soft drinks"}},
@@ -498,7 +508,7 @@ const T={
     appk:"Die App",appt:"Nimm Don Pepito mit",qrt:"QR scannen und vom Wasser aus bestellen",
     qrx:"Installiert sich wie eine normale App (Icon und Vollbild), ohne Store. Auf dem iPhone: Teilen → „Zum Home-Bildschirm“.",
     foot1:"Service für Boote und Badegäste · Sommersaison.",foot2:"Bitte verantwortungsvoll genießen. Kein Alkohol unter 18.",
-    aniv:"15. Jubiläum",aniv2:"15. Jubiläum",navapp:"Die App",navarroces:"Reiskarte",navcarta:"Getränke",navmapa:"Wo ist das Boot",dlk:"Die App",dlt:"Hol dir Don Pepito aufs Handy",dlx:"Bestell vom Wasser aus in zwei Fingertipps: Live-Karte des Boots, die komplette Karte und deine Bestellung mit Zeitschätzung. Gratis, ohne Konto und Karte.",get:"Laden für",get2:"Laden für",iost:"Auf dem iPhone installieren",ios1:"Öffne donpepito-2607151158.web.app in Safari.",ios2:"Tippe auf Teilen (Quadrat mit Pfeil).",ios3:"Wähle „Zum Home-Bildschirm“ und bestätige – fertig, App mit Icon 🍹.",andt:"Auf Android installieren",and1:"Öffne donpepito-2607151158.web.app in Chrome.",and2:"Tippe oben rechts auf das ⋮-Menü.",and3:"Wähle „App installieren“ (oder „Zum Startbildschirm“) und bestätige.",apk:"⬇️ APK direkt laden",
+    aniv:"15. Jubiläum",aniv2:"15. Jubiläum",navapp:"Die App",navarroces:"Reiskarte",navcarta:"Getränke",navmapa:"Wo ist das Boot",dlk:"Die App",dlt:"Hol dir Don Pepito aufs Handy",dlx:"Bestell vom Wasser aus in zwei Fingertipps: Live-Karte des Boots, die komplette Karte und deine Bestellung mit Zeitschätzung. Gratis, ohne Konto und Karte.",get:"Laden für",get2:"Laden für",iost:"Auf dem iPhone installieren",ios1:"1 · Tippe auf „Teilen“",ios1x:"Das Quadrat mit dem Pfeil, unten in der Mitte von Safari.",ios2:"2 · „Zum Home-Bildschirm“",ios2x:"Etwas in der Liste scrollen und antippen.",ios3:"3 · „Hinzufügen“ antippen",ios3x:"Fertig: die App mit Icon, im Vollbild.",iosnote:"Bist du in einem anderen Browser, öffne donpepito-javea.web.app zuerst in Safari.",andt:"Auf Android installieren",and1:"Öffne donpepito-2607151158.web.app in Chrome.",and2:"Tippe oben rechts auf das ⋮-Menü.",and3:"Wähle „App installieren“ (oder „Zum Startbildschirm“) und bestätige.",apk:"⬇️ APK direkt laden",
     navtiempo:"Wetter",tk:"Das Wetter",tt:"Wetter in Jávea: Sonne und Meer",tolas:"Wellen",tagua:"Wasser",toff:"Die Vorhersage lässt sich gerade nicht laden. Versuch es später.",tnote:"Open-Meteo-Vorhersage für die Küste von Jávea — nur zur Orientierung: auf See bestimmt das Meer.",
     ck:"🧭 Welche Bucht heute?",rec0:"Ruhiger Tag: jede Bucht passt — La Granadella oder Portitxol, wie auf der Postkarte.",recW:"Landwind: die Küste ist ruhig. La Granadella und Portitxol liegen meist spiegelglatt.",recNE:"Bei NO-/Ostwind kommt etwas Welle: besser im Schutz des Cap de Sant Antoni (Sardinera) oder hinten in der Arenal-Bucht.",recS:"Bei Südwind besser nach Norden: Cala Blanca und Sardinera bleiben geschützt.",c1x:"Das Juwel im Süden: glasklares Wasser zwischen Pinien.",c2x:"Die Insel mit Postkartengrund; guter Ankergrund.",c3x:"Im Schutz des Cap de Sant Antoni.",c4x:"Zwillingsbuchten mit türkisem Wasser.",c5x:"Einfach ankern vor dem Strand.",
     cats:{mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alkoholfreie Cocktails",combinado:"Longdrinks",smoothie:"Frische Frucht-Smoothies",batido:"Milchshakes",granizado:"Slush-Eis",refresco:"Softdrinks"}},
@@ -615,8 +625,11 @@ loadWeather();
 const _setLang=setLang; setLang=l=>{_setLang(l);loadWeather();};
 
 // ---------- descarga de la app: hojas de instrucciones + APK directa si existe ----------
-function openSheet(id){document.getElementById(id).classList.add('show')}
-function closeSheet(id){document.getElementById(id).classList.remove('show')}
+const IS_IOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+function openSheet(id){document.getElementById(id).classList.add('show');
+  if(id==='shIos'&&IS_IOS)document.getElementById('sharrow').classList.remove('hidden');}
+function closeSheet(id){document.getElementById(id).classList.remove('show');
+  document.getElementById('sharrow').classList.add('hidden');}
 fetch('../Don-Pepito.apk',{method:'HEAD'}).then(r=>{ if(r.ok) document.getElementById('apkLink').classList.remove('hidden'); }).catch(()=>{});
 </script>
 </body>
