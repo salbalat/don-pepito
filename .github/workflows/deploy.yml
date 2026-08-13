@@ -13,6 +13,21 @@ jobs:
     steps:
       - id: llave
         run: echo "hay=${{ secrets.FIREBASE_SERVICE_ACCOUNT_DONPEPITO_2607151158 != '' }}" >> "$GITHUB_OUTPUT"
+      - if: steps.llave.outputs.hay != 'true'
+        name: Aviso — sin la clave de Firebase NO se publica
+        run: |
+          echo "::warning::Falta el secreto FIREBASE_SERVICE_ACCOUNT_DONPEPITO_2607151158 — las webs .web.app se quedan con la última versión subida a mano. Cómo arreglarlo: DEPLOY.md."
+          {
+            echo "## ⚠️ No se ha publicado en Firebase Hosting"
+            echo "Falta el secreto \`FIREBASE_SERVICE_ACCOUNT_DONPEPITO_2607151158\`, así que"
+            echo "**donpepito-javea.web.app y donpepito-2607151158.web.app siguen sirviendo la última versión subida a mano** (\`firebase deploy\`)."
+            echo ""
+            echo "Para activarlo (una sola vez, desde el ordenador con sesión de Firebase):"
+            echo '```bash'
+            echo "firebase init hosting:github"
+            echo '```'
+            echo "Los detalles están en \`DEPLOY.md\`."
+          } >> "$GITHUB_STEP_SUMMARY"
       - if: steps.llave.outputs.hay == 'true'
         uses: actions/checkout@v4
       - if: steps.llave.outputs.hay == 'true'
