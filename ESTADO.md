@@ -5,6 +5,13 @@
 
 Última actualización: 2026-08-28 (autogenerado desde git + README reales; **revisar y completar lo marcado "por confirmar"**).
 
+## Repositorio PÚBLICO a propósito (decisión de Salvador, 29-09-2026)
+`salbalat/don-pepito` es **público** aunque la regla general es privado: el botón y el QR de
+descarga de la APK apuntan a `https://github.com/salbalat/don-pepito/raw/master/apk/Don-Pepito.apk`
+(`web/www/index.html`, `README.md`, `MOVIL.md`), y ese enlace solo funciona con el repo público.
+Por eso: **nunca subir aquí claves ni datos privados.** Si algún día se hace privado, antes hay
+que mover la APK a otro sitio o el botón deja de funcionar.
+
 ## Qué es
 Arroces y cócteles a tu barco, en el mar (Jávea). El cliente pide desde su barco o flotando en una cala; la app localiza el Don Pepito, enseña el tiempo estimado y su turno, y el barco le lleva el pedido (se paga al recibir). Tiene **Modo Cliente** (ES/EN/DE/NL: mapa marino, carta, pedido con ETA y cola, perfil "Mi barco", pedir por WhatsApp) y **Modo Barco** (protegido con código: GPS en vivo, cola con colores/fotos, aviso sonoro, mapa de flota numerado), más una **web pública** con carta semanal, tiempo/olas de Jávea, cala del día, QR y descarga de la app.
 
