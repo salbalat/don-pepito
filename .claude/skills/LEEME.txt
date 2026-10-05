@@ -1,0 +1,2 @@
+Órdenes propias de este proyecto (skills). Cada una en su carpeta: skills/<nombre>/SKILL.md.
+Las comunes a todos los proyectos ya están en ~/.claude/skills.

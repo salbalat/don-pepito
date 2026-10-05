@@ -1,0 +1,2 @@
+Avisos automáticos propios de este proyecto (scripts que se lanzan antes o después de cada acción).
+Se activan en .claude/settings.json. Los comunes ya están en ~/.claude/hooks.

@@ -1,0 +1,2 @@
+Revisores o ayudantes especializados de este proyecto (subagentes): agents/<nombre>.md.
+Los comunes ya están en ~/.claude/agents.

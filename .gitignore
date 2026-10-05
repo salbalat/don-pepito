@@ -16,3 +16,6 @@ android/app/src/main/assets/public/
 web/donpepito.apk
 backend/registro/
 .firebase/
+# --- notas privadas de Claude Code en cada ordenador (aplicar-estructura) ---
+CLAUDE.local.md
+.claude/settings.local.json
