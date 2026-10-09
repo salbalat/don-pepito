@@ -1,0 +1,93 @@
+{
+  "hosting": [
+    {
+      "public": "web",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "backend/**",
+        "brainstorms/**"
+      ],
+      "headers": [
+        {
+          "source": "**/*.html",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            }
+          ]
+        },
+        {
+          "source": "/",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            }
+          ]
+        },
+        {
+          "source": "/www/",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            }
+          ]
+        },
+        {
+          "source": "**/sw.js",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            }
+          ]
+        },
+        {
+          "source": "**/manifest.json",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            }
+          ]
+        },
+        {
+          "source": "**/*.apk",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/vnd.android.package-archive"
+            },
+            {
+              "key": "Content-Disposition",
+              "value": "attachment; filename=\"Don-Pepito.apk\""
+            }
+          ]
+        }
+      ],
+      "target": "corto"
+    },
+    {
+      "target": "principal",
+      "public": "web",
+      "ignore": [
+        "**"
+      ],
+      "redirects": [
+        {
+          "source": "/:path*",
+          "destination": "https://donpepito-javea.web.app/:path*",
+          "type": 301
+        }
+      ]
+    }
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
