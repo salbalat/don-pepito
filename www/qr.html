@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Don Pepito — QR para imprimir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Shantell+Sans:wght@600;800&display=swap">
+<style>
+  /* Lámina imprimible del QR (A6 apaisada aprox.) — colores del menú impreso */
+  *{box-sizing:border-box}
+  body{margin:0;background:#8a8a8a;font-family:'Shantell Sans','Comic Sans MS',cursive,sans-serif;
+    display:grid;place-items:center;min-height:100vh;padding:20px}
+  .card{width:560px;max-width:96vw;background:#25b0a7;border-radius:22px;padding:26px;
+    display:flex;gap:24px;align-items:center;color:#fff;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+  .qrbox{background:#fff;border-radius:16px;padding:12px;flex:0 0 auto}
+  .qrbox img{display:block;width:200px;height:200px;image-rendering:pixelated}
+  h1{font-family:'Pacifico',cursive;font-weight:400;font-size:34px;margin:0 0 6px;line-height:1.1;color:#ffe9b8}
+  h1 em{font-style:normal;color:#ffb3a0}
+  p{margin:0 0 8px;font-size:15.5px;font-weight:600;line-height:1.4}
+  small{display:block;font-size:12px;opacity:.85;font-weight:600;letter-spacing:.3px}
+  .url{margin-top:10px;background:rgba(255,255,255,.14);border:1.5px dashed rgba(255,255,255,.5);
+    border-radius:10px;padding:7px 12px;font-size:14px;font-weight:800;display:inline-block}
+  .print{position:fixed;top:14px;right:14px;background:#e2543a;color:#fff;border:0;border-radius:12px;
+    padding:12px 18px;font:inherit;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 0 #b93a26}
+  @media print{
+    body{background:#fff;padding:0}
+    .print{display:none}
+    .card{box-shadow:none;border-radius:0;width:100%}
+  }
+</style>
+</head>
+<body>
+<button class="print" onclick="print()">🖨️ Imprimir</button>
+<div class="card">
+  <div class="qrbox"><img src="qr-donpepito.png" alt="QR Don Pepito"></div>
+  <div>
+    <h1>Don <em>Pepito</em> 🍹</h1>
+    <p>Escanéame y pide desde el agua.<br>Te lo llevamos a tu barco. ⛵</p>
+    <small>Scan me &amp; order from the water — we bring it to your boat.<br>
+    Scan &amp; bestell vom Wasser aus. · Scan en bestel vanaf het water.</small>
+    <span class="url">donpepito-javea.web.app</span>
+  </div>
+</div>
+</body>
+</html>

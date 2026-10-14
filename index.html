@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Don Pepito 🍹</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f8efda">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Shantell+Sans:wght@400;600;700;800&display=swap">
+<style>
+  /* Piel «Don Pepito» — la del menú impreso: papel crema, letras pintadas de colores,
+     separadores punteados y sellos redondos. */
+  :root{
+    --paper:#f8efda; --ink:#41392e; --muted:#8a7c66; --line:#eadfc2; --card:#fffdf4;
+    --azul:#3e8fc0; --rojo:#d94a33; --teal:#2b9db3; --morado:#7b4fa6; --verde:#57a154;
+    --ambar:#e39a2d; --royal:#3763b8; --rosa:#d34a72; --banda:#1d6b78;
+    --navy:#1d6b78; --navy2:#2b9db3; --accent:#d94a33; --accent-d:#b93a26;   /* alias de la piel anterior */
+    --script:'Pacifico',cursive; --hand:'Shantell Sans','Comic Sans MS',cursive,sans-serif;
+    --serif:'Shantell Sans','Comic Sans MS',cursive,sans-serif;
+    --shadow:0 1px 2px rgba(88,64,32,.06),0 8px 22px rgba(88,64,32,.10);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--hand);
+    background:var(--paper);color:var(--ink);-webkit-text-size-adjust:100%}
+  header{position:sticky;top:0;z-index:5;background:var(--paper);color:var(--ink);
+    padding:calc(15px + env(safe-area-inset-top)) 18px 12px;border-bottom:2px dotted var(--ambar)}
+  .brand{display:flex;flex-direction:column;gap:1px}
+  .brand h1{font-family:var(--script);font-size:27px;margin:0;font-weight:400;letter-spacing:.5px;color:var(--azul)}
+  .brand h1 em{font-style:normal;color:var(--rojo)}
+  .brand small{color:var(--muted);font-weight:600;font-size:12px;letter-spacing:.3px}
+  .modes{display:flex;margin-top:13px;border:2px solid var(--teal);border-radius:12px;overflow:hidden;background:var(--card)}
+  .modes button{flex:1;border:0;background:none;color:var(--teal);padding:9px;font:inherit;font-weight:800;cursor:pointer;font-size:14px;letter-spacing:.3px}
+  .modes button.on{background:var(--teal);color:#fff}
+  .langs{position:absolute;top:calc(15px + env(safe-area-inset-top));right:18px;display:flex;gap:3px}
+  .langs button{border:1.5px solid var(--line);background:var(--card);color:var(--muted);border-radius:7px;padding:3px 7px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+  .langs button.on{background:var(--rojo);color:#fff;border-color:var(--rojo)}
+  main{padding:16px 18px 122px;max-width:640px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+  h2{font-family:var(--hand);font-size:17px;margin:0 0 12px;font-weight:800;letter-spacing:.2px;color:var(--banda)}
+  /* MAPA */
+  .sea{position:relative;border-radius:14px;overflow:hidden;height:230px;box-shadow:var(--shadow);background:linear-gradient(180deg,#2b9db3,#1d6b78)}
+  .sea svg{position:absolute;inset:0;width:100%;height:100%;z-index:2}  /* respaldo sin conexión; se oculta cuando Leaflet arranca */
+  .lmap{position:absolute;inset:0;z-index:1}
+  .lmap.leaflet-container{background:#bcd6e2}
+  .seahud{position:absolute;left:16px;bottom:14px;color:#fff;z-index:650;pointer-events:none;text-shadow:0 1px 4px rgba(10,40,48,.85)}
+  .seahud b{font-family:var(--hand);font-size:26px;font-weight:800}.seahud span{font-size:12px;color:#e6f3ef;letter-spacing:.3px}
+  .pin{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.35);border:2px solid #fffdf4;background:var(--banda)}
+  .pin-boat{font-size:18px}
+  .pin-me{background:#fffdf4;border:3px solid var(--rojo)}
+  .pin-num{color:#fffdf4;font-weight:700;font-size:13px}
+  .leaflet-control-attribution{font-size:9px;opacity:.8}
+  .leaflet-popup-content{font:13px/1.4 'Shantell Sans','Comic Sans MS',cursive,sans-serif;margin:10px 14px}
+  .btn{width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.3px}
+  .btn.p{background:var(--rojo);color:#fff;box-shadow:0 3px 0 var(--accent-d)}
+  .btn.s{background:var(--card);color:var(--banda);border:1.5px solid var(--line)}
+  .btn.go{background:var(--card);color:var(--teal);border:2px solid var(--teal)}
+  .row{display:flex;gap:12px}.row>*{flex:1}
+  .item{display:flex;align-items:center;gap:14px;padding:12px 2px;border-bottom:2px dotted var(--line)}
+  .item:last-child{border-bottom:0}
+  .item .em{font-size:15px;width:20px;text-align:center}
+  .item .nm{flex:1}.item .nm b{display:block;font-size:15px;font-weight:700;color:var(--rojo)}.item .nm span{font-size:12px;color:var(--muted)}
+  .step{display:flex;align-items:center;gap:10px}
+  .step button{width:32px;height:32px;border-radius:10px;border:1.5px solid var(--teal);background:var(--card);font-size:18px;cursor:pointer;color:var(--teal);font-weight:800}
+  .step b{min-width:18px;text-align:center;font-weight:800}
+  .cat{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--banda);font-weight:800;margin:18px 2px 4px;border-bottom:2.5px solid currentColor;padding-bottom:6px;font-family:var(--hand)}
+  .cat[data-c="arroz"]{color:var(--rojo)} .cat[data-c="mojito"]{color:var(--verde)}
+  .cat[data-c="coctel"]{color:var(--morado)} .cat[data-c="sinalcohol"]{color:var(--teal)}
+  .cat[data-c="combinado"]{color:var(--royal)} .cat[data-c="smoothie"]{color:var(--rosa)}
+  .cat[data-c="batido"]{color:var(--ambar)} .cat[data-c="granizado"]{color:var(--azul)}
+  .cat[data-c="refresco"]{color:var(--teal)}
+  .total{display:flex;justify-content:space-between;align-items:baseline;font-weight:800;font-size:16px;margin:14px 2px 4px}
+  .total span:last-child{font-family:var(--hand);font-size:20px;color:var(--rojo)}
+  .eta{display:flex;gap:14px;align-items:center;background:var(--banda);color:#e6f3ef;border-radius:14px;padding:16px;margin-bottom:14px}
+  .eta .big{font-family:var(--hand);font-size:34px;font-weight:800;color:#fff;line-height:1}
+  .eta small{color:#bcdfe0}
+  .status{display:inline-block;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px}
+  .st-pendiente{background:#f6e3b8;color:#93641c}.st-en_camino{background:#d3ecef;color:#1d6b78}.st-entregado{background:#dcecd8;color:#3c7a39}
+  .note{font-size:13px;color:var(--muted);margin-top:8px}
+  .qi{display:flex;align-items:center;gap:12px;padding:13px;border:1.5px solid var(--line);border-radius:12px;margin-bottom:10px;background:var(--card)}
+  .qi .n{width:26px;height:26px;border-radius:50%;background:var(--rojo);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+  .qi .info{flex:1}.qi .info b{font-size:15px;font-weight:700}.qi .info span{font-size:12px;color:var(--muted);display:block}
+  .qi .acts{display:flex;flex-direction:column;gap:6px}
+  .qi .acts button{border:1.5px solid var(--teal);border-radius:9px;padding:7px 11px;font:inherit;font-weight:800;font-size:12px;cursor:pointer}
+  .mini{background:none;color:var(--teal)}.mini.done{background:var(--verde);color:#fff;border-color:var(--verde)}
+  .hidden{display:none}
+  .pill{position:fixed;left:0;right:0;bottom:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--paper) 68%,transparent);max-width:640px;margin:0 auto}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:92px;background:var(--banda);color:#fff;padding:11px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.2s;z-index:30;box-shadow:var(--shadow);max-width:90%}
+  .toast.show{opacity:1}
+  input[type=text],input[type=number],input[type=tel]{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:10px;font:inherit;background:var(--card);color:var(--ink)}
+  .installbtn{width:100%;margin-top:12px;background:var(--card);color:var(--banda);border:2px dashed var(--ambar);border-radius:12px;padding:10px;font:inherit;font-weight:800;font-size:13px;cursor:pointer}
+  .installbtn:hover{background:#fdf6e3}
+  .sheet{display:none;position:fixed;inset:0;background:rgba(60,40,20,.5);z-index:60;align-items:flex-end;justify-content:center}
+  .sheet.show{display:flex}
+  .sheetbox{background:var(--paper);width:100%;max-width:640px;border-radius:18px 18px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.25)}
+  .sheethead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .sheethead b{font-family:var(--hand);font-size:18px;font-weight:800;color:var(--banda)}
+  .sheethead button{background:none;border:0;font-size:18px;color:var(--muted);cursor:pointer}
+  .isec{margin-bottom:14px}
+  .isec>b{display:block;margin-bottom:8px;font-size:12px;color:var(--rojo);text-transform:uppercase;letter-spacing:.7px}
+  .isec .btn{margin-bottom:8px;display:block;text-align:center;text-decoration:none}
+  .swatches{display:flex;gap:9px;margin-top:8px;flex-wrap:wrap}
+  .sw{width:32px;height:32px;border-radius:50%;border:2.5px solid rgba(0,0,0,.08);cursor:pointer;padding:0}
+  .sw.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink);transform:scale(1.05)}
+  .boatphoto{width:52px;height:52px;border-radius:10px;object-fit:cover;border:2px solid var(--line);flex:0 0 auto}
+  .qphoto{width:44px;height:44px;border-radius:10px;object-fit:cover;border:1.5px solid var(--line);flex:0 0 auto}
+  .istep{display:flex;gap:13px;align-items:flex-start;margin-bottom:13px}
+  .istep .ico{font-size:26px;width:46px;height:46px;background:#fdf6e3;border:1.5px solid var(--line);border-radius:12px;display:grid;place-items:center;flex:0 0 auto}
+  .istep b{display:block;font-size:15px;margin-bottom:2px}
+  .istep span{font-size:12.5px;color:var(--muted);line-height:1.4}
+  .sharrow{position:fixed;bottom:4px;left:50%;font-size:36px;z-index:99;color:var(--rojo);
+    text-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none;animation:bnc 1s infinite}
+  @keyframes bnc{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,9px)}}
+  .qrfull{position:fixed;inset:0;background:#fff;z-index:120;display:none;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;padding:26px;text-align:center;cursor:pointer}
+  .qrfull.show{display:flex}
+  .qrfull img{width:min(78vw,420px);height:auto;image-rendering:pixelated;border:2px solid var(--line);
+    border-radius:18px;padding:14px;background:#fff}
+  .qrfull b{font-size:21px;color:var(--banda);font-weight:800}
+  .qrfull span{color:var(--muted);font-size:14px}
+  .sharrow.top{top:4px;bottom:auto;left:auto;right:10px;animation-name:bnct}
+  .sharrowtip{position:fixed;left:50%;transform:translateX(-50%);bottom:58px;background:#41392e;color:#fff;
+    padding:9px 15px;border-radius:999px;font-size:13.5px;font-weight:800;z-index:99;
+    box-shadow:0 4px 14px rgba(0,0,0,.35);max-width:88vw;text-align:center}
+  .sharrowtip.top{bottom:auto;top:56px;left:auto;right:8px;transform:none}
+  @keyframes bnct{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
+  @media (prefers-reduced-motion: reduce){.sharrow{animation:none;transform:translateX(-50%)}.sharrow.top{transform:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="langs" id="langs"></div>
+  <div class="brand"><h1>Don <em>Pepito</em></h1><small id="tagline">Cócteles a tu barco, en el mar</small></div>
+  <div class="modes">
+    <button id="mCliente" class="on" onclick="setMode('cliente')"><span data-t="cliente">Cliente</span></button>
+    <button id="mBarco" onclick="setMode('barco')"><span data-t="barco">Barco</span></button>
+  </div>
+  <button class="installbtn" id="installBtn" onclick="openInstall()">📲 Instalar / descargar la app</button>
+</header>
+
+<main>
+  <!-- ===== CLIENTE ===== -->
+  <section id="cli">
+    <div class="sea card" style="padding:0"><div class="sea" id="map">
+      <div class="lmap" id="lmap"></div>
+      <svg viewBox="0 0 300 230" id="mapsvg"></svg>
+      <div class="seahud"><b id="distTxt">—</b><br><span id="distSub" data-t="tapLoc">Toca «Localizarme»</span></div>
+    </div></div>
+    <button class="btn go" onclick="locateMe()" style="margin-bottom:14px" id="locBtn" data-t="locate">📍 Localizarme</button>
+
+    <div id="etaBox" class="hidden"></div>
+
+    <div class="card" id="menuCard">
+      <h2 data-t="menu">Carta</h2>
+      <div id="menu"></div>
+      <div class="total"><span data-t="total">Total</span><span id="total">0,00 €</span></div>
+      <div class="note" data-t="paynote">💶 Se paga al recibir, en el barco.</div>
+      <div class="note"><a href="www/" style="color:var(--accent-d);font-weight:600;text-decoration:none">📅 Ver la carta de arroces de la semana →</a></div>
+    </div>
+    <div class="card" id="myboatCard">
+      <h2 data-t="myboat">Mi barco</h2>
+      <input type="text" id="cname" placeholder="Tu nombre / matrícula del barco" data-tp="yourname" oninput="saveProfileName()">
+      <div class="note" data-t="colorq">Color del barco (opcional): así te encuentran antes.</div>
+      <div class="swatches" id="swatches"></div>
+      <div style="display:flex;gap:12px;margin-top:12px;align-items:center">
+        <button class="btn s" style="flex:1" onclick="document.getElementById('photoIn').click()" data-t="photo">📷 Foto del barco (opcional)</button>
+        <img id="photoPrev" class="boatphoto hidden" alt="">
+      </div>
+      <input type="file" id="photoIn" accept="image/*" style="display:none" onchange="setPhoto(this)">
+      <div class="note" id="photoDelRow" style="display:none"><a href="#" onclick="delPhoto();return false" style="color:var(--rojo)" data-t="photodel">Quitar la foto</a></div>
+    </div>
+    <button class="btn" id="waBtn" onclick="orderWhatsApp()" style="width:100%;background:#25D366;color:#04310f;margin-bottom:14px">💬 Pedir por WhatsApp</button>
+  </section>
+
+  <!-- ===== BARCO ===== -->
+  <section id="bar" class="hidden">
+    <div class="sea" style="height:260px;margin-bottom:16px">
+      <div class="lmap" id="lfleet"></div>
+      <svg viewBox="0 0 340 260" id="fleetsvg"></svg>
+      <div class="seahud"><b id="fleetCount">0</b><span style="display:block">barcos en cola</span></div>
+    </div>
+    <div class="card">
+      <h2>Mi posición (GPS)</h2>
+      <button class="btn go" id="shareBtn" onclick="toggleShare()">Compartir mi GPS en vivo</button>
+      <div class="row" style="margin-top:12px">
+        <div><label class="note">Velocidad (km/h)</label><input type="number" id="speed" value="12" min="3" max="40"></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn s" onclick="pushSpeed()">Guardar</button></div>
+      </div>
+      <div class="note" id="boatPos">Sin compartir todavía.</div>
+    </div>
+    <div class="card">
+      <h2>WhatsApp del barco</h2>
+      <div class="row">
+        <div style="flex:1"><input type="tel" id="waNum" placeholder="+34 6XX XXX XXX"></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn s" onclick="saveWa()">Guardar</button></div>
+      </div>
+      <div class="note">Número al que llegan los pedidos por WhatsApp. Puedes cambiarlo cuando quieras.</div>
+    </div>
+    <div class="card">
+      <h2>Cola de pedidos (<span id="qcount">0</span>)</h2>
+      <div id="queue"></div>
+    </div>
+    <div class="card">
+      <h2>📒 Caja de hoy (<span id="cajaN">0</span>)</h2>
+      <div class="total" style="margin:0 2px 10px"><span>Total entregado</span><span id="cajaTot">0,00 €</span></div>
+      <div id="cajaList" class="note">Aún no hay entregas hoy.</div>
+    </div>
+    <div class="card">
+      <h2>📲 Pásale la app a un cliente</h2>
+      <div class="row">
+        <button class="btn p" onclick="showQR()">Enseñar QR en grande</button>
+        <button class="btn s" onclick="shareApp()">Enviar enlace</button>
+      </div>
+      <div class="note">Enséñale el QR: al escanearlo, su móvil abre la app con el botón de instalar delante.</div>
+    </div>
+    <div class="card">
+      <h2>🔒 Acceso del patrón</h2>
+      <div class="row">
+        <button class="btn s" onclick="changePin()">Cambiar código</button>
+        <button class="btn go" onclick="lockBarco()">Bloquear</button>
+      </div>
+      <div class="note">Solo quien tenga el código puede entrar en el modo Barco. «Bloquear» vuelve a pedirlo la próxima vez.</div>
+    </div>
+  </section>
+  <div class="note" style="text-align:center;opacity:.55;font-size:11px;letter-spacing:.5px">donpepito-javea.web.app · v12ago-8</div>
+</main>
+
+<div class="pill" id="pill">
+  <button class="btn p" onclick="placeOrder()" id="orderBtn"><span data-t="order">Pedir</span> · <span id="orderTotal">0,00 €</span></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="sheet" id="installModal" onclick="if(event.target===this)closeInstall()">
+  <div class="sheetbox">
+    <div class="sheethead"><b>📲 Llévate Don Pepito</b><button onclick="closeInstall()">✕</button></div>
+    <div class="isec" id="inst_android">
+      <b>Android</b>
+      <button class="btn p" id="pwaBtn" onclick="pwaInstall()">📲 Instalar la app</button>
+      <div class="note" id="pwaWait" style="display:none">Preparando la instalación…</div>
+      <div id="andManual" style="display:none">
+        <div class="istep"><span class="ico">⋮</span><div><b>1 · Toca el menú ⋮</b><span>Arriba a la derecha de Chrome (la flecha te lo señala).</span></div></div>
+        <div class="istep"><span class="ico">📲</span><div><b>2 · «Instalar aplicación»</b><span>O «Añadir a pantalla de inicio». En Samsung: Menú → «Añadir página a» → Pantalla de inicio. Confirma y listo: icono 🍹 en tu móvil.</span></div></div>
+      </div>
+      <div class="note">Se instala como una app normal: icono en tu móvil y pantalla completa, sin tienda ni descargas.</div>
+      <a class="btn hidden" id="apkBtnApp" href="Don-Pepito.apk" download style="display:block;text-align:center;margin-top:10px;padding:10px;border-radius:10px;background:var(--card);color:var(--banda);border:1.5px solid var(--line);font-weight:800;text-decoration:none">⬇️ Descargar APK (Android)</a>
+      <div class="note hidden" id="apkNote">Alternativa: baja el archivo e instálalo a mano (Android pedirá permitir «instalar apps de esta fuente»).</div>
+      <div class="hidden" id="apkQR" style="text-align:center;margin-top:10px">
+        <img src="www/qr-apk.png" alt="QR APK" style="width:150px;height:150px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:8px;image-rendering:pixelated">
+        <div class="note">Escanea para descargar la APK (Android)</div>
+      </div>
+    </div>
+    <div class="isec" id="inst_ios" style="display:none">
+      <b>iPhone — 3 toques</b>
+      <div class="istep"><span class="ico">⬆️</span><div><b>1 · Toca «Compartir»</b><span>El cuadrado con la flecha, abajo en el centro de Safari.</span></div></div>
+      <div class="istep"><span class="ico">➕</span><div><b>2 · «Añadir a pantalla de inicio»</b><span>Baja un poco en la lista hasta verlo, y tócalo.</span></div></div>
+      <div class="istep"><span class="ico">🍹</span><div><b>3 · Toca «Añadir»</b><span>Ya está: la app con su icono, a pantalla completa.</span></div></div>
+      <div class="note">Vale en <b>Safari</b> y en <b>Chrome</b>. En Chrome, «Compartir» está <b>arriba a la derecha</b>; en Safari, abajo en el centro.</div>
+    </div>
+    <div class="isec">
+      <b>Compártela con un QR</b>
+      <div style="display:flex;gap:14px;align-items:center">
+        <img src="www/qr-donpepito.png" alt="QR Don Pepito" style="width:110px;height:110px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:7px;image-rendering:pixelated;flex:0 0 auto">
+        <div class="note" style="margin:0">Quien lo escanee con la cámara abre la app al momento y puede instalarla en su móvil.<br>
+          <a href="#" onclick="showQR();return false" style="color:var(--teal);font-weight:800">🔍 Ver el QR en grande</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qrfull" id="qrFull" onclick="this.classList.remove('show')">
+  <b>Don Pepito 🍹⛵</b>
+  <img src="www/qr-donpepito.png" alt="QR Don Pepito">
+  <b>Escanéame y pide desde tu barco</b>
+  <span>Scan me &amp; order from your boat · donpepito-javea.web.app</span>
+  <span style="font-size:12px">(toca la pantalla para cerrar)</span>
+</div>
+<div class="sheet" id="pinModal" onclick="if(event.target===this)closePin()">
+  <div class="sheetbox">
+    <div class="sheethead"><b>🔒 Modo Barco</b><button onclick="closePin()">✕</button></div>
+    <div class="note" style="margin:0 0 12px">Introduce el código del patrón para entrar.</div>
+    <input type="tel" id="pinIn" inputmode="numeric" maxlength="6" placeholder="······" autocomplete="off"
+      style="text-align:center;font-size:24px;letter-spacing:8px;font-weight:800" onkeydown="if(event.key==='Enter')tryPin()">
+    <div class="note" id="pinErr" style="display:none;color:var(--rojo);font-weight:700">Código incorrecto</div>
+    <button class="btn p" style="margin-top:12px" onclick="tryPin()">Entrar</button>
+  </div>
+</div>
+<div class="sharrow hidden" id="sharrow">⬇️</div>
+<div class="sharrowtip hidden" id="sharrowTip" onclick="toast(this.textContent)"></div>
+<script src="firebase-config.js"></script>
+<script>
+// ---------- i18n ----------
+const T={
+  es:{cliente:"Cliente",barco:"Barco",menu:"Carta",total:"Total",order:"Pedir",locate:"📍 Localizarme",
+      tapLoc:"Toca «Localizarme»",paynote:"💶 Se paga al recibir, en el barco.",yourname:"Tu nombre / barco",
+      away:"a tu posición",min:"min",queuePos:"en la cola",ordered:"¡Pedido enviado!",onway:"En camino",
+      pending:"En preparación",delivered:"¡Entregado! 🍹",tagline:"Cócteles a tu barco, en el mar",
+      needLoc:"Necesito tu ubicación para calcular el tiempo.",empty:"Añade algo a tu pedido.",
+      cancel:"Cancelar pedido",canceled:"Pedido cancelado.",
+      myboat:"Mi barco",colorq:"Color del barco (opcional): así te encuentran antes.",
+      photo:"📷 Foto del barco (opcional)",photodel:"Quitar la foto",tapdown:"👇 Toca ese botón de ahí abajo — es de Safari, no de la app",tapup:"☝️ Toca ese botón de ahí arriba — es del navegador",install:"📲 Instalar / descargar la app",shareapp:"📲 Pásale la app a otro barco — QR"},
+  en:{cliente:"Customer",barco:"Boat",menu:"Menu",total:"Total",order:"Order",locate:"📍 Locate me",
+      tapLoc:"Tap “Locate me”",paynote:"💶 Pay on delivery, at the boat.",yourname:"Your name / boat",
+      away:"to your spot",min:"min",queuePos:"in the queue",ordered:"Order sent!",onway:"On the way",
+      pending:"Preparing",delivered:"Delivered! 🍹",tagline:"Cocktails to your boat, at sea",
+      needLoc:"I need your location to estimate the time.",empty:"Add something to your order.",
+      cancel:"Cancel order",canceled:"Order canceled.",
+      myboat:"My boat",colorq:"Boat colour (optional): helps us spot you sooner.",
+      photo:"📷 Boat photo (optional)",photodel:"Remove photo",tapdown:"👇 Tap that button down there — it belongs to Safari, not the app",tapup:"☝️ Tap that button up there — it belongs to the browser",install:"📲 Install / get the app",shareapp:"📲 Share the app — show the QR"},
+  de:{cliente:"Kunde",barco:"Boot",menu:"Karte",total:"Gesamt",order:"Bestellen",locate:"📍 Orten",
+      tapLoc:"„Orten“ tippen",paynote:"💶 Zahlung bei Lieferung am Boot.",yourname:"Ihr Name / Boot",
+      away:"zu deinem Platz",min:"Min",queuePos:"in der Schlange",ordered:"Bestellung gesendet!",onway:"Unterwegs",
+      pending:"Wird zubereitet",delivered:"Geliefert! 🍹",tagline:"Cocktails zu deinem Boot, auf See",
+      needLoc:"Ich brauche deinen Standort für die Zeitschätzung.",empty:"Füge etwas hinzu.",
+      cancel:"Bestellung stornieren",canceled:"Bestellung storniert.",
+      myboat:"Mein Boot",colorq:"Bootsfarbe (optional): so finden wir dich schneller.",
+      photo:"📷 Bootsfoto (optional)",photodel:"Foto entfernen",tapdown:"👇 Tippe auf den Knopf da unten — der gehört zu Safari, nicht zur App",tapup:"☝️ Tippe auf den Knopf da oben — der gehört zum Browser",install:"📲 App installieren / laden",shareapp:"📲 App weitergeben — QR zeigen"},
+  nl:{cliente:"Klant",barco:"Boot",menu:"Kaart",total:"Totaal",order:"Bestellen",locate:"📍 Vind mij",
+      tapLoc:"Tik op ‘Vind mij’",paynote:"💶 Betalen bij levering, aan de boot.",yourname:"Je naam / boot",
+      away:"naar jouw plek",min:"min",queuePos:"in de rij",ordered:"Bestelling verzonden!",onway:"Onderweg",
+      pending:"Wordt bereid",delivered:"Geleverd! 🍹",tagline:"Cocktails naar je boot, op zee",
+      needLoc:"Ik heb je locatie nodig om de tijd te schatten.",empty:"Voeg iets toe aan je bestelling.",
+      cancel:"Bestelling annuleren",canceled:"Bestelling geannuleerd.",
+      myboat:"Mijn boot",colorq:"Kleur van je boot (optioneel): zo vinden we je sneller.",
+      photo:"📷 Foto van je boot (optioneel)",photodel:"Foto verwijderen",tapdown:"👇 Tik op die knop daar beneden — die is van Safari, niet van de app",tapup:"☝️ Tik op die knop daar boven — die is van de browser",install:"📲 Installeer / download de app",shareapp:"📲 Deel de app — toon de QR"},
+};
+let lang=localStorage.getItem('mb_lang')||'es';
+function t(k){return (T[lang]&&T[lang][k])||T.es[k]||k}
+function applyLang(){
+  document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
+  document.querySelectorAll('[data-tp]').forEach(e=>e.placeholder=t(e.dataset.tp));
+  document.getElementById('cname').placeholder=t('yourname');
+  document.getElementById('tagline').textContent=t('tagline');
+  const ib=document.getElementById('installBtn'); if(ib)ib.textContent=isStandalone()?t('shareapp'):t('install');
+  document.querySelectorAll('#langs button').forEach(b=>b.classList.toggle('on',b.dataset.l===lang));
+  renderMenu(); if(myOrder) trackRender();
+}
+document.getElementById('langs').innerHTML=['es','en','de','nl'].map(l=>`<button data-l="${l}" onclick="setLang('${l}')">${l.toUpperCase()}</button>`).join('');
+function setLang(l){lang=l;localStorage.setItem('mb_lang',l);applyLang();}
+
+
+// Traducciones de la carta ([nombre, ingredientes] por idioma; lo que falte queda como en la carta española)
+const MTR={
+ "moj-clasico":{en:["Classic mojito"],de:["Klassischer Mojito"],nl:["Klassieke mojito"]},
+ "moj-coco":{en:["Coconut mojito"],de:["Kokos-Mojito"],nl:["Kokos-mojito"]},
+ "moj-fresa":{en:["Strawberry mojito"],de:["Erdbeer-Mojito"],nl:["Aardbei-mojito"]},
+ "moj-pasion":{en:["Passion fruit mojito"],de:["Maracuja-Mojito"],nl:["Passievrucht-mojito"]},
+ "moj-mango":{en:["Mango mojito"],de:["Mango-Mojito"],nl:["Mango-mojito"]},
+ "caipirinha":{en:[null,"Cachaça, lime, soda, brown sugar"],de:[null,"Cachaça, Limette, Soda, brauner Zucker"],nl:[null,"Cachaça, limoen, sodawater, bruine suiker"]},
+ "caipiroska":{en:[null,"Vodka, lime, soda, brown sugar"],de:[null,"Wodka, Limette, Soda, brauner Zucker"],nl:[null,"Wodka, limoen, sodawater, bruine suiker"]},
+ "margarita":{en:[null,"Tequila, cointreau, lemon juice, brown sugar"],de:[null,"Tequila, Cointreau, Zitronensaft, brauner Zucker"],nl:[null,"Tequila, cointreau, citroensap, bruine suiker"]},
+ "sexontheboat":{en:[null,"Vodka, cointreau, orange and strawberry juice"],de:[null,"Wodka, Cointreau, Orangen- und Erdbeersaft"],nl:[null,"Wodka, cointreau, sinaasappel- en aardbeiensap"]},
+ "daiquiri":{en:["Fruit daiquiri","White rum, fresh fruit"],de:["Frucht-Daiquiri","Weißer Rum, frische Frucht"],nl:["Fruit-daiquiri","Witte rum, vers fruit"]},
+ "fresa-colada":{en:[null,"White rum, strawberry juice, coconut cream"],de:[null,"Weißer Rum, Erdbeersaft, Kokoscreme"],nl:[null,"Witte rum, aardbeiensap, kokosroom"]},
+ "pina-colada":{en:[null,"White rum, pineapple juice, coconut cream"],de:[null,"Weißer Rum, Ananassaft, Kokoscreme"],nl:[null,"Witte rum, ananassap, kokosroom"]},
+ "maitai":{en:[null,"White and dark rum, orange, pineapple, lemon, grenadine"],de:[null,"Weißer und dunkler Rum, Orange, Ananas, Zitrone, Grenadine"],nl:[null,"Witte en donkere rum, sinaasappel, ananas, citroen, grenadine"]},
+ "javea-sunrise":{en:[null,"Tequila, orange juice and grenadine"],de:[null,"Tequila, Orangensaft und Grenadine"],nl:[null,"Tequila, sinaasappelsap en grenadine"]},
+ "moj-virgen":{en:["Virgin mojito","Lime, brown sugar, mint, soda"],de:["Virgin Mojito","Limette, brauner Zucker, Minze, Soda"],nl:["Virgin mojito","Limoen, bruine suiker, munt, sodawater"]},
+ "pinacolada-virgen":{en:["Virgin piña colada","Pineapple juice, coconut cream"],de:["Virgin Piña Colada","Ananassaft, Kokoscreme"],nl:["Virgin piña colada","Ananassap, kokosroom"]},
+ "caipirinha-virgen":{en:["Virgin caipirinha","Lime, soda, brown sugar"],de:["Virgin Caipirinha","Limette, Soda, brauner Zucker"],nl:["Virgin caipirinha","Limoen, sodawater, bruine suiker"]},
+ "fresacolada-virgen":{en:["Virgin fresa colada","Strawberry juice, coconut cream"],de:["Virgin Fresa Colada","Erdbeersaft, Kokoscreme"],nl:["Virgin fresa colada","Aardbeiensap, kokosroom"]},
+ "ron":{en:["Rum","Flor de caña + soft drink"],de:["Rum","Flor de caña + Softdrink"],nl:["Rum","Flor de caña + frisdrank"]},
+ "whisky":{en:[null,"Johnnie Walker + soft drink"],de:[null,"Johnnie Walker + Softdrink"],nl:[null,"Johnnie Walker + frisdrank"]},
+ "vodka":{en:[null,"Absolut + soft drink"],de:["Wodka","Absolut + Softdrink"],nl:["Wodka","Absolut + frisdrank"]},
+ "gintonic":{en:[null,"Gin + tonic"],de:[null,"Gin + Tonic"],nl:[null,"Gin + tonic"]},
+ "granadella":{en:[null,"Strawberry, banana and orange"],de:[null,"Erdbeere, Banane und Orange"],nl:[null,"Aardbei, banaan en sinaasappel"]},
+ "sardinera":{en:[null,"Watermelon, orange and mint"],de:[null,"Wassermelone, Orange und Minze"],nl:[null,"Watermeloen, sinaasappel en munt"]},
+ "cala-blanca":{en:[null,"Pineapple, orange and strawberry"],de:[null,"Ananas, Orange und Erdbeere"],nl:[null,"Ananas, sinaasappel en aardbei"]},
+ "san-martin":{en:[null,"Watermelon and banana"],de:[null,"Wassermelone und Banane"],nl:[null,"Watermeloen en banaan"]},
+ "portichol":{en:[null,"Orange and banana"],de:[null,"Orange und Banane"],nl:[null,"Sinaasappel en banaan"]},
+ "fruta-extra":{en:["Extra fruit"],de:["Extra Frucht"],nl:["Extra fruit"]},
+ "bat-choco":{en:["Chocolate milkshake"],de:["Schoko-Milchshake"],nl:["Chocolademilkshake"]},
+ "bat-oreo":{en:["Oreo milkshake"],de:["Oreo-Milchshake"],nl:["Oreo-milkshake"]},
+ "bat-fresa-platano":{en:["Strawberry & banana milkshake"],de:["Erdbeer-Bananen-Milchshake"],nl:["Aardbei-banaan-milkshake"]},
+ "bat-platano-choco":{en:["Banana & chocolate milkshake"],de:["Bananen-Schoko-Milchshake"],nl:["Banaan-chocolade-milkshake"]},
+ "gra-limon":{en:["Lemon slush"],de:["Zitronen-Slush"],nl:["Citroen-slush"]},
+ "gra-naranja":{en:["Orange slush"],de:["Orangen-Slush"],nl:["Sinaasappel-slush"]},
+ "gra-cafe":{en:["Coffee slush"],de:["Kaffee-Slush"],nl:["Koffie-slush"]},
+ "gra-cafe-licor":{en:["Coffee slush with liqueur"],de:["Kaffee-Slush mit Likör"],nl:["Koffie-slush met likeur"]},
+ "refresco":{en:["Soft drink"],de:["Softdrink"],nl:["Frisdrank"]},
+ "agua":{en:["Water"],de:["Wasser"],nl:["Water"]},
+ "arroz-senoret":{en:["Senoret’s rice"],de:["Señoret-Reis"],nl:["Señoret-rijst"]},
+ "fideua-secreto":{en:["Iberian pork & flamed red pepper fideua"],de:["Fideuá mit iberischem Secreto und geflämmter Paprika"],nl:["Fideuá met Iberisch varken en gevlamde paprika"]},
+ "fideua-senoret":{en:["Senoret’s fideua"],de:["Señoret-Fideuá"],nl:["Señoret-fideuá"]},
+ "arroz-pato":{en:["Duck rice with mushrooms"],de:["Reis mit Ente und Pilzen"],nl:["Rijst met eend en paddenstoelen"]},
+ "fideua-negra":{en:["Black fideua with prawns and squid"],de:["Schwarze Fideuá mit Garnelen und Tintenfisch"],nl:["Zwarte fideuá met garnalen en inktvis"]},
+ "arroz-negro":{en:["Black rice with prawns and squid"],de:["Schwarzer Reis mit Garnelen und Tintenfisch"],nl:["Zwarte rijst met garnalen en inktvis"]},
+ "fideua-pato":{en:["Duck fideua with mushrooms"],de:["Fideuá mit Ente und Pilzen"],nl:["Fideuá met eend en paddenstoelen"]},
+ "paella-valenciana":{en:["Valencian paella"],de:["Paella Valenciana"],nl:["Valenciaanse paella"]},
+ "racion-refresco":{en:["Soft drink with your portion (+€2)"],de:["Softdrink zur Portion (+2 €)"],nl:["Frisdrank bij je portie (+€2)"]},
+};
+// ---------- estado ----------
+// Carta real Don Pepito Jávea (15º aniversario) — guardada en docs/carta/
+const MENU=[
+  // Mojitos — 12,5 €
+  {id:"moj-clasico",cat:"mojito",name:"Mojito clásico",price:12.5,emoji:"🌿"},
+  {id:"moj-coco",cat:"mojito",name:"Mojito coco",price:12.5,emoji:"🥥"},
+  {id:"moj-fresa",cat:"mojito",name:"Mojito fresa",price:12.5,emoji:"🍓"},
+  {id:"moj-pasion",cat:"mojito",name:"Mojito de la pasión",price:12.5,emoji:"🌺"},
+  {id:"moj-mango",cat:"mojito",name:"Mojito mango",price:12.5,emoji:"🥭"},
+  // Cócteles — 12,5 €
+  {id:"caipirinha",cat:"coctel",name:"Caipirinha",price:12.5,emoji:"🍸",d:"Cachaça, lima, gaseosa, azúcar moreno"},
+  {id:"caipiroska",cat:"coctel",name:"Caipiroska",price:12.5,emoji:"🍸",d:"Vodka, lima, gaseosa, azúcar moreno"},
+  {id:"margarita",cat:"coctel",name:"Margarita",price:12.5,emoji:"🍹",d:"Tequila, cointreau, zumo de limón, azúcar moreno"},
+  {id:"sexontheboat",cat:"coctel",name:"Sex on the Boat",price:12.5,emoji:"🍹",d:"Vodka, cointreau, zumo de naranja y fresa"},
+  {id:"daiquiri",cat:"coctel",name:"Daiquiri de fruta",price:12.5,emoji:"🍹",d:"Ron blanco, fruta natural"},
+  {id:"fresa-colada",cat:"coctel",name:"Fresa colada",price:12.5,emoji:"🍓",d:"Ron blanco, zumo de fresa, coco batido"},
+  {id:"pina-colada",cat:"coctel",name:"Piña colada",price:12.5,emoji:"🍍",d:"Ron blanco, zumo de piña, coco batido"},
+  {id:"maitai",cat:"coctel",name:"Mai Tai",price:12.5,emoji:"🍹",d:"Ron blanco y negro, naranja, piña, limón y granadina"},
+  {id:"javea-sunrise",cat:"coctel",name:"Javea Sunrise",price:12.5,emoji:"🌅",d:"Tequila, zumo de naranja y granadina"},
+  // Cócteles sin alcohol — 10 €
+  {id:"moj-virgen",cat:"sinalcohol",name:"Mojito virgen",price:10.0,emoji:"🌿",d:"Lima, azúcar moreno, hierbabuena, gaseosa"},
+  {id:"pinacolada-virgen",cat:"sinalcohol",name:"Piña colada virgen",price:10.0,emoji:"🍍",d:"Zumo de piña, coco batido"},
+  {id:"caipirinha-virgen",cat:"sinalcohol",name:"Caipirinha virgen",price:10.0,emoji:"🍋",d:"Lima, gaseosa, azúcar moreno"},
+  {id:"fresacolada-virgen",cat:"sinalcohol",name:"Fresa colada virgen",price:10.0,emoji:"🍓",d:"Zumo de fresa, coco batido"},
+  // Combinados — 12,5 €
+  {id:"ron",cat:"combinado",name:"Ron",price:12.5,emoji:"🥃",d:"Flor de caña + refresco"},
+  {id:"whisky",cat:"combinado",name:"Whisky",price:12.5,emoji:"🥃",d:"Johnnie Walker + refresco"},
+  {id:"vodka",cat:"combinado",name:"Vodka",price:12.5,emoji:"🥃",d:"Absolut + refresco"},
+  {id:"gintonic",cat:"combinado",name:"Gin tonic",price:12.5,emoji:"🍸",d:"Ginebra + tónica"},
+  {id:"gin-sylex",cat:"combinado",name:"Gin premium Sylex",price:12.5,emoji:"🍸"},
+  // Smoothies de fruta fresca — 10 €
+  {id:"granadella",cat:"smoothie",name:"Granadella",price:10.0,emoji:"🍓",d:"Fresa, plátano y naranja"},
+  {id:"sardinera",cat:"smoothie",name:"Sardinera",price:10.0,emoji:"🍉",d:"Sandía, naranja y hierbabuena"},
+  {id:"cala-blanca",cat:"smoothie",name:"Cala Blanca",price:10.0,emoji:"🍍",d:"Piña, naranja y fresa"},
+  {id:"san-martin",cat:"smoothie",name:"San Martín",price:10.0,emoji:"🍉",d:"Sandía y plátano"},
+  {id:"portichol",cat:"smoothie",name:"Portichol",price:10.0,emoji:"🍊",d:"Naranja y plátano"},
+  {id:"fruta-extra",cat:"smoothie",name:"Fruta extra",price:1.0,emoji:"➕"},
+  // Batidos — 10 €
+  {id:"bat-choco",cat:"batido",name:"Batido de chocolate",price:10.0,emoji:"🍫"},
+  {id:"bat-oreo",cat:"batido",name:"Batido de Oreo",price:10.0,emoji:"🍪"},
+  {id:"bat-fresa-platano",cat:"batido",name:"Batido de fresa y plátano",price:10.0,emoji:"🍓"},
+  {id:"bat-platano-choco",cat:"batido",name:"Batido de plátano y chocolate",price:10.0,emoji:"🍌"},
+  // Granizados
+  {id:"gra-limon",cat:"granizado",name:"Granizado de limón",price:8.5,emoji:"🍋"},
+  {id:"gra-naranja",cat:"granizado",name:"Granizado de naranja",price:8.5,emoji:"🍊"},
+  {id:"gra-cafe",cat:"granizado",name:"Granizado de café",price:8.5,emoji:"☕"},
+  {id:"gra-cafe-licor",cat:"granizado",name:"Granizado de café con licor",price:10.0,emoji:"☕"},
+  // Refrescos
+  {id:"refresco",cat:"refresco",name:"Refresco",price:3.0,emoji:"🥤"},
+  {id:"agua",cat:"refresco",name:"Agua",price:3.0,emoji:"💧"},
+];
+// Arroces del día (carta real): ración 18 € · con refresco 20 €. Las opciones cambian cada día.
+const ARROCES={
+  "arroz-senoret":"Arroz del señoret","fideua-secreto":"Fideuá de secreto ibérico y pimiento rojo a la llama",
+  "fideua-senoret":"Fideuá del señoret","arroz-pato":"Arroz de pato y setas",
+  "fideua-negra":"Fideuá negra con gambón y calamar","arroz-negro":"Arroz negro con gambón y calamar",
+  "fideua-pato":"Fideuá de pato y setas","paella-valenciana":"Paella Valenciana",
+};
+const SEMANA={1:["arroz-senoret","fideua-secreto"],2:["fideua-senoret","arroz-pato"],
+  3:["fideua-negra","arroz-senoret"],4:["fideua-senoret","arroz-pato"],
+  5:["arroz-senoret","fideua-secreto"],6:["arroz-negro","fideua-pato"],
+  0:["arroz-senoret","paella-valenciana"]};
+(SEMANA[new Date().getDay()]||[]).forEach((id,i)=>MENU.splice(i,0,{id,cat:"arroz",name:ARROCES[id],price:18.0,emoji:"🥘"}));
+MENU.splice((SEMANA[new Date().getDay()]||[]).length,0,{id:"racion-refresco",cat:"arroz",name:"Refresco con tu ración (+2 €)",price:2.0,emoji:"🥤"});
+let cart={}, me=null, boat=null, _orders=[], myOrder=null, shareId=null;
+let myOrderId=localStorage.getItem('mb_oid')||null;
+const WA_DEFAULT="34604805968";                       // WhatsApp del barco (editable en modo Barco)
+let waNumber=localStorage.getItem('mb_wa')||WA_DEFAULT;
+const eur=n=>n.toFixed(2).replace('.',',')+' €';
+
+// --- Firebase (si hay config) o backend local ---
+const FB={cfg:(window.FIREBASE_CONFIG||{}), db:null, fs:null};
+const useFB=()=>!!(FB.cfg&&FB.cfg.projectId);
+
+function computeDerived(){
+  const pend=_orders.filter(o=>o.status!=='entregado').sort((a,b)=>(a.created||0)-(b.created||0));
+  pend.forEach((o,i)=>{ o.queue_pos=i+1;
+    o.eta_min=(boat&&o.lat!=null)? Math.max(1,Math.round(
+      haversine({lat:boat.lat,lng:boat.lng},{lat:o.lat,lng:o.lng})/Math.max(1,(boat.speed||12))*60 + i*3)) : null;
+  });
+  _orders.filter(o=>o.status==='entregado').forEach(o=>{o.queue_pos=0;o.eta_min=null;});
+}
+function applyData(b, orders){
+  boat=(b&&b.lat!=null)?b:null; _orders=orders||[]; computeDerived();
+  drawMap(); renderQueue(_orders); renderCaja(_orders);
+  if(myOrderId){ const o=_orders.find(x=>String(x.id)===String(myOrderId)); if(o){myOrder=o;} trackRender(); }
+}
+async function pollLocal(){ try{ const s=await (await fetch('/api/state')).json(); trackPts=s.track||[]; applyData(s.boat, s.orders); }catch(_){} }
+async function bootData(){
+  renderMenu();
+  if(useFB()){
+    try{
+      const A=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+      const F=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      FB.db=F.getFirestore(A.initializeApp(FB.cfg)); FB.fs=F;
+      F.onSnapshot(F.doc(FB.db,'boat','current'), d=>applyData(d.exists()?d.data():null,_orders));
+      F.onSnapshot(F.collection(FB.db,'orders'), s=>{const a=[];s.forEach(x=>a.push({id:x.id,...x.data()}));applyData(boat,a);});
+      F.onSnapshot(F.doc(FB.db,'track',dayKey()), d=>{ trackPts=(d.exists()&&d.data().pts)||[];
+        if(!document.getElementById('bar').classList.contains('hidden')) renderQueue(_orders); });
+      F.onSnapshot(F.doc(FB.db,'config','current'), d=>{ if(!d.exists())return; const c=d.data();
+        if(c.whatsapp){ waNumber=String(c.whatsapp); refreshWaUI(); }
+        if(c.pin){ bossPin=String(c.pin); localStorage.setItem('mb_pin',bossPin); } });
+    }catch(e){ toast('Error Firebase: '+e.message); }
+  } else { pollLocal(); setInterval(pollLocal,4000); }
+  refreshWaUI();
+}
+
+// ---------- CLIENTE: carta ----------
+function renderMenu(){
+  const CATS={
+    es:{arroz:"🥘 Arroz del día — ración 18 € · con refresco 20 €",mojito:"Mojitos",coctel:"Cócteles",sinalcohol:"Cócteles sin alcohol",combinado:"Combinados",smoothie:"Smoothies de fruta fresca",batido:"Batidos",granizado:"Granizados",refresco:"Refrescos y agua"},
+    en:{arroz:"🥘 Rice of the day — portion €18 · with soft drink €20",mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alcohol-free cocktails",combinado:"Spirits & mixers",smoothie:"Fresh fruit smoothies",batido:"Milkshakes",granizado:"Slushies",refresco:"Soft drinks & water"},
+    de:{arroz:"🥘 Reis des Tages — Portion 18 € · mit Softdrink 20 €",mojito:"Mojitos",coctel:"Cocktails",sinalcohol:"Alkoholfreie Cocktails",combinado:"Longdrinks",smoothie:"Frische Frucht-Smoothies",batido:"Milchshakes",granizado:"Slush-Eis",refresco:"Softdrinks & Wasser"},
+    nl:{arroz:"🥘 Rijst van de dag — portie €18 · met frisdrank €20",mojito:"Mojito’s",coctel:"Cocktails",sinalcohol:"Alcoholvrije cocktails",combinado:"Sterke drank & mixers",smoothie:"Verse fruitsmoothies",batido:"Milkshakes",granizado:"Slush",refresco:"Frisdrank & water"}};
+  const cats=CATS[lang]||CATS.es;
+  let html='';
+  Object.keys(cats).forEach(c=>{
+    const items=MENU.filter(m=>m.cat===c); if(!items.length)return;
+    html+=`<div class="cat" data-c="${c}">${cats[c]}</div>`;
+    items.forEach(m=>{ const q=cart[m.id]||0;
+      const x=(MTR[m.id]&&MTR[m.id][lang])||[];      // [nombre, ingredientes] traducidos
+      const nom=x[0]||m.name, des=x[1]||m.d;
+      html+=`<div class="item"><div class="em">${m.emoji}</div>
+        <div class="nm"><b>${nom}</b><span>${des?des+' · ':''}${eur(m.price)}</span></div>
+        <div class="step"><button onclick="chg('${m.id}',-1)">−</button><b id="q-${m.id}">${q}</b><button onclick="chg('${m.id}',1)">+</button></div></div>`;
+    });
+  });
+  document.getElementById('menu').innerHTML=html; updateTotal();
+}
+function chg(id,d){ cart[id]=Math.max(0,(cart[id]||0)+d); if(!cart[id])delete cart[id];
+  const el=document.getElementById('q-'+id); if(el)el.textContent=cart[id]||0; updateTotal(); }
+function cartTotal(){ return Object.entries(cart).reduce((s,[id,q])=>{const m=MENU.find(x=>x.id===id);return s+(m?m.price*q:0)},0); }
+function updateTotal(){ const tt=eur(cartTotal()); document.getElementById('total').textContent=tt; document.getElementById('orderTotal').textContent=tt; }
+
+// ---------- CLIENTE: perfil «Mi barco» (nombre + color + foto, opcionales, guardados en el móvil) ----------
+const BOAT_COLORS=[["#d94a33","Rojo"],["#3e8fc0","Azul"],["#2b9db3","Turquesa"],["#7b4fa6","Morado"],
+  ["#57a154","Verde"],["#e39a2d","Naranja"],["#d34a72","Rosa"],["#41392e","Marrón"]];
+let myColor=localStorage.getItem('mb_color')||'', myPhoto=localStorage.getItem('mb_photo')||'';
+function colorName(hex){const c=BOAT_COLORS.find(x=>x[0]===hex);return c?c[1]:''}
+function renderSwatches(){
+  const el=document.getElementById('swatches'); if(!el)return;
+  el.innerHTML=BOAT_COLORS.map(([h,n])=>
+    `<button class="sw${myColor===h?' on':''}" style="background:${h}" onclick="setColor('${h}')" title="${n}" aria-label="${n}"></button>`).join('');
+}
+function setColor(h){ myColor=(myColor===h)?'':h;
+  if(myColor)localStorage.setItem('mb_color',myColor); else localStorage.removeItem('mb_color'); renderSwatches(); }
+function saveProfileName(){ localStorage.setItem('mb_name',document.getElementById('cname').value||''); }
+function setPhoto(inp){
+  const f=inp.files&&inp.files[0]; if(!f)return;
+  const img=new Image();
+  img.onload=()=>{
+    const s=Math.min(1,96/Math.max(img.width,img.height));
+    const cv=document.createElement('canvas'); cv.width=Math.max(1,Math.round(img.width*s)); cv.height=Math.max(1,Math.round(img.height*s));
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    myPhoto=cv.toDataURL('image/jpeg',.7);
+    try{ localStorage.setItem('mb_photo',myPhoto); }catch(_){}
+    URL.revokeObjectURL(img.src); refreshPhotoUI();
+  };
+  img.src=URL.createObjectURL(f); inp.value='';
+}
+function delPhoto(){ myPhoto=''; localStorage.removeItem('mb_photo'); refreshPhotoUI(); }
+function refreshPhotoUI(){
+  const p=document.getElementById('photoPrev'), r=document.getElementById('photoDelRow'); if(!p)return;
+  if(myPhoto){ p.src=myPhoto; p.classList.remove('hidden'); r.style.display='block'; }
+  else { p.classList.add('hidden'); r.style.display='none'; }
+}
+
+// ---------- CLIENTE: localización + mapa ----------
+function locateMe(){
+  if(!navigator.geolocation){toast('GPS no disponible');return;}
+  document.getElementById('locBtn').textContent='…';
+  navigator.geolocation.getCurrentPosition(p=>{
+    me={lat:p.coords.latitude,lng:p.coords.longitude}; document.getElementById('locBtn').textContent='✅ '+t('locate');
+    if(LMAPS.lmap)LMAPS.lmap.userMoved=false;   // recentrar al localizarse
+    drawMap();
+  },e=>{ document.getElementById('locBtn').textContent=t('locate'); toast(t('needLoc')); },{enableHighAccuracy:true,timeout:10000});
+}
+// ---------- Mapa real del mar (Leaflet: OpenStreetMap + capa náutica OpenSeaMap) ----------
+const LMAPS={};
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));  // sin «??»: los navegadores Android antiguos (Honor/Huawei) no lo entienden y matan todo el script
+function mkMap(id){
+  if(typeof L==='undefined')return null;            // sin Leaflet (offline) → respaldo SVG
+  if(LMAPS[id])return LMAPS[id];
+  const el=document.getElementById(id); if(!el)return null;
+  const map=L.map(el,{zoomControl:false});
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+  L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',{maxZoom:18,opacity:.9,attribution:'© OpenSeaMap'}).addTo(map);
+  map.setView([39.57,2.65],9);                      // vista inicial hasta recibir una posición
+  const M={map,layer:L.layerGroup().addTo(map),userMoved:false};
+  map.on('dragstart',()=>{M.userMoved=true;});      // si el usuario mueve el mapa, no re-encuadrar
+  LMAPS[id]=M; return M;
+}
+function fitMap(M,pts){
+  if(!pts.length||M.userMoved)return;
+  if(pts.length===1) M.map.setView([pts[0].lat,pts[0].lng],14);
+  else M.map.fitBounds(L.latLngBounds(pts.map(p=>[p.lat,p.lng])).pad(0.35),{maxZoom:15});
+}
+const pinIcon=(cls,html,s,bg)=>L.divIcon({className:'',html:`<div class="pin ${cls}"${bg?` style="background:${esc(bg)}"`:''}>${html}</div>`,iconSize:[s,s],iconAnchor:[s/2,s/2]});
+function drawMap(){
+  const dist=(me&&boat)?haversine(me,boat):null;
+  const M=mkMap('lmap');
+  if(M){
+    document.getElementById('mapsvg').style.display='none';
+    M.layer.clearLayers();
+    if(me&&boat) L.polyline([[me.lat,me.lng],[boat.lat,boat.lng]],{color:'#12303f',weight:2.5,dashArray:'6 8',opacity:.85}).addTo(M.layer);
+    if(boat) L.marker([boat.lat,boat.lng],{icon:pinIcon('pin-boat','🍹',34)}).addTo(M.layer).bindPopup('<b>Don Pepito</b> 🍹⛵');
+    if(me) L.marker([me.lat,me.lng],{icon:pinIcon('pin-me','',18)}).addTo(M.layer);
+    fitMap(M,[me,boat].filter(Boolean));
+  } else drawMapSVG();
+  const d=document.getElementById('distTxt'), sub=document.getElementById('distSub');
+  if(dist!=null){ d.textContent=(dist<1?Math.round(dist*1000)+' m':dist.toFixed(1)+' km'); sub.textContent=t('away'); }
+  else if(me&&!boat){ d.textContent='·'; sub.textContent='Esperando al barco…'; }
+  else { d.textContent='—'; sub.textContent=t('tapLoc'); }
+}
+// Respaldo sin conexión: mar dibujado en SVG (como antes)
+function drawMapSVG(){
+  const svg=document.getElementById('mapsvg'); const pts=[]; if(me)pts.push(me); if(boat)pts.push(boat);
+  let body='';
+  // olas decorativas
+  for(let y=40;y<230;y+=34) body+=`<path d="M0 ${y} q 25 -10 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0" stroke="rgba(255,255,255,.15)" fill="none" stroke-width="2"/>`;
+  if(pts.length){
+    const lats=pts.map(p=>p.lat),lngs=pts.map(p=>p.lng);
+    let minLa=Math.min(...lats),maxLa=Math.max(...lats),minLo=Math.min(...lngs),maxLo=Math.max(...lngs);
+    const pad=Math.max(0.0009,(maxLa-minLa)*0.4,(maxLo-minLo)*0.4);
+    minLa-=pad;maxLa+=pad;minLo-=pad;maxLo+=pad;
+    const X=lo=>40+(lo-minLo)/((maxLo-minLo)||1)*220, Y=la=>190-(la-minLa)/((maxLa-minLa)||1)*160;
+    if(me&&boat) body+=`<line x1="${X(me.lng)}" y1="${Y(me.lat)}" x2="${X(boat.lng)}" y2="${Y(boat.lat)}" stroke="#fff" stroke-dasharray="4 5" stroke-width="2" opacity="0.8"/>`;
+    if(boat) body+=marker(X(boat.lng),Y(boat.lat),'boat');
+    if(me) body+=marker(X(me.lng),Y(me.lat),'me');
+  }
+  svg.innerHTML=body;
+}
+function marker(x,y,type){
+  if(type==='boat') return `<g>
+    <ellipse cx="${x}" cy="${y+12}" rx="15" ry="4" fill="rgba(0,0,0,.28)"/>
+    <path d="M ${x-13} ${y+3} L ${x+13} ${y+3} L ${x+8} ${y+11} L ${x-8} ${y+11} Z" fill="#c99a5e"/>
+    <rect x="${x-1}" y="${y-13}" width="2.2" height="16" rx="1" fill="#e6c99a"/>
+    <path d="M ${x+1.3} ${y-12} L ${x+11} ${y+1} L ${x+1.3} ${y+1} Z" fill="#e6c99a"/></g>`;
+  return `<g><ellipse cx="${x}" cy="${y+9}" rx="8" ry="3" fill="rgba(0,0,0,.28)"/>
+    <circle cx="${x}" cy="${y}" r="7" fill="#f3efe7" stroke="#b47b3c" stroke-width="2.5"/></g>`;
+}
+function haversine(a,b){const R=6371,r=x=>x*Math.PI/180,dLa=r(b.lat-a.lat),dLo=r(b.lng-a.lng);
+  const h=Math.sin(dLa/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(h)));}
+
+// ---------- CLIENTE: pedir + seguir ----------
+async function placeOrder(){
+  const full=Object.entries(cart).map(([id,qty])=>{const m=MENU.find(x=>x.id===id);return {id,name:m.name,qty,price:m.price,emoji:m.emoji};});
+  if(!full.length){toast(t('empty'));return;}
+  if(!me){toast(t('needLoc'));locateMe();return;}
+  const name=(document.getElementById('cname').value||'').trim()||'Pedido';
+  const total=+cartTotal().toFixed(2);
+  const b=document.getElementById('orderBtn'); b.disabled=true;
+  try{
+    if(useFB()){
+      const F=FB.fs, ref=await F.addDoc(F.collection(FB.db,'orders'),
+        {name,items:full,lat:me.lat,lng:me.lng,status:'pendiente',total,created:Date.now()/1000,
+         color:myColor||null,photo:myPhoto||null});
+      myOrderId=ref.id;
+    }else{
+      const r=await (await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name,items:full.map(i=>({id:i.id,qty:i.qty})),lat:me.lat,lng:me.lng,
+          color:myColor||null,photo:myPhoto||null})})).json();
+      if(!r.ok){toast(r.mensaje||'Error');b.disabled=false;return;} myOrderId=r.id; myOrder=r;
+    }
+    localStorage.setItem('mb_oid',myOrderId); cart={}; renderMenu(); toast(t('ordered'));
+    if(!useFB()){ trackRender(); pollLocal(); }
+  }catch(e){ toast('Sin conexión — reintenta'); }
+  b.disabled=false;
+}
+function trackRender(){
+  const box=document.getElementById('etaBox'); if(!myOrder){box.classList.add('hidden');return;}
+  box.classList.remove('hidden');
+  const stt={pendiente:t('pending'),en_camino:t('onway'),entregado:t('delivered')}[myOrder.status]||myOrder.status;
+  const eta=myOrder.eta_min!=null?`<div class="eta"><div class="big">${myOrder.eta_min}</div><div><b>${t('min')}</b><br><small>${myOrder.status==='entregado'?'':t('away')}</small></div></div>`:'';
+  box.innerHTML=`<div class="card"><h2>${myOrder.name} · ${eur(myOrder.total)}</h2>
+    ${myOrder.status!=='entregado'?eta:''}
+    <div><span class="status st-${myOrder.status}">${stt}</span>
+      ${myOrder.status!=='entregado'&&myOrder.queue_pos?` · #${myOrder.queue_pos} ${t('queuePos')}`:''}</div>
+    <div class="note">${myOrder.items.map(i=>i.qty+'× '+i.emoji+' '+i.name).join(' · ')}</div>
+    <div class="note">${t('paynote')}</div>
+    ${myOrder.status==='pendiente'?`<button class="btn s" style="margin-top:12px" onclick="cancelOrder()">${t('cancel')}</button>`:''}</div>`;
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+async function cancelOrder(){
+  if(!myOrderId||!myOrder||myOrder.status!=='pendiente')return;
+  try{
+    if(useFB()){ const F=FB.fs; await F.deleteDoc(F.doc(FB.db,'orders',String(myOrderId))); }
+    else{ await fetch('/api/order/'+myOrderId,{method:'DELETE'}); }
+    myOrder=null; myOrderId=null; localStorage.removeItem('mb_oid');
+    trackRender(); toast(t('canceled')); if(!useFB()) pollLocal();
+  }catch(e){ toast('Sin conexión — reintenta'); }
+}
+
+// ---------- BARCO ----------
+let wakeLock=null;
+async function keepAwake(on){
+  try{
+    if(on&&'wakeLock' in navigator){ wakeLock=await navigator.wakeLock.request('screen'); }
+    else if(!on&&wakeLock){ await wakeLock.release(); wakeLock=null; }
+  }catch(_){}
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&shareId) keepAwake(true); });
+function toggleShare(){
+  const btn=document.getElementById('shareBtn');
+  if(shareId){ navigator.geolocation.clearWatch(shareId); shareId=null; keepAwake(false); btn.textContent='Compartir mi GPS en vivo'; btn.classList.remove('p'); return; }
+  if(!navigator.geolocation){toast('GPS no disponible');return;}
+  keepAwake(true);
+  shareId=navigator.geolocation.watchPosition(async p=>{
+    const pos={lat:p.coords.latitude,lng:p.coords.longitude,speed:+document.getElementById('speed').value||12,updated:Date.now()/1000};
+    await saveBoat(pos);
+    document.getElementById('boatPos').textContent='📍 Compartiendo: '+pos.lat.toFixed(5)+', '+pos.lng.toFixed(5);
+  },e=>toast('No pude leer el GPS'),{enableHighAccuracy:true});
+  btn.textContent='Dejar de compartir'; btn.classList.add('p');
+}
+async function saveBoat(pos){
+  if(useFB()){ const F=FB.fs; await F.setDoc(F.doc(FB.db,'boat','current'),pos);
+    try{  // recorrido del día: un punto si se ha movido >25 m o ha pasado >1 min
+      const now=pos.updated||Date.now()/1000;
+      if(!_lastTrk||haversine(_lastTrk,pos)>0.025||now-(_lastTrk.t||0)>60){
+        _lastTrk={lat:pos.lat,lng:pos.lng,t:now};
+        await F.setDoc(F.doc(FB.db,'track',dayKey()),{pts:F.arrayUnion({lat:pos.lat,lng:pos.lng,t:now})},{merge:true});
+      }
+    }catch(_){}
+  }
+  else{ await fetch('/api/boat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pos)}); }
+}
+async function pushSpeed(){ if(!boat){toast('Comparte el GPS primero');return;}
+  await saveBoat({lat:boat.lat,lng:boat.lng,speed:+document.getElementById('speed').value||12,updated:Date.now()/1000}); toast('Velocidad guardada'); }
+
+// ---------- WhatsApp: número editable (modo Barco) + pedir por WhatsApp (cliente) ----------
+function normWa(s){ let d=(s||'').replace(/\D/g,''); if(!d)return ''; if(d.length<=9)d='34'+d; return d; }
+function refreshWaUI(){ const el=document.getElementById('waNum'); if(el&&document.activeElement!==el)el.value='+'+waNumber; }
+async function saveWa(){
+  const d=normWa(document.getElementById('waNum').value);
+  if(d.length<9){ toast('Número no válido'); return; }
+  waNumber=d; localStorage.setItem('mb_wa',d);
+  try{ if(useFB()){ const F=FB.fs; await F.setDoc(F.doc(FB.db,'config','current'),{whatsapp:d},{merge:true}); } }catch(e){}
+  document.getElementById('waNum').value='+'+d; toast('WhatsApp guardado ✓');
+}
+function orderWhatsApp(){
+  const items=Object.entries(cart).filter(([,q])=>q>0);
+  if(!items.length){ toast(t('empty')); return; }
+  const lines=items.map(([id,q])=>{const m=MENU.find(x=>x.id===id);return q+'× '+m.emoji+' '+m.name;});
+  const nom=(document.getElementById('cname').value||'').trim();
+  let msg='¡Hola Don Pepito! Quiero pedir:\n'+lines.join('\n')+'\nTotal: '+eur(cartTotal());
+  if(nom)msg+='\nNombre/barco: '+nom;
+  if(myColor)msg+='\nColor del barco: '+colorName(myColor);
+  if(me)msg+='\nMi ubicación: https://maps.google.com/?q='+me.lat.toFixed(5)+','+me.lng.toFixed(5);
+  else msg+='\n(pulsa «Localizarme» en la app para enviar mi posición)';
+  window.open('https://wa.me/'+waNumber+'?text='+encodeURIComponent(msg),'_blank');
+}
+// Aviso al barco cuando entra un pedido nuevo (sonido + vibración + toast).
+let _seenOrders=null,_ac=null;
+function _audio(){ try{ _ac=_ac||new (window.AudioContext||window.webkitAudioContext)(); if(_ac.state==='suspended')_ac.resume(); }catch(_){} }
+document.addEventListener('pointerdown',_audio);
+function ding(){
+  try{ _audio(); if(!_ac)return; const now=_ac.currentTime;
+    [[880,0],[1174.7,.18]].forEach(([f,dt])=>{
+      const o=_ac.createOscillator(),g=_ac.createGain();
+      o.type='sine'; o.frequency.value=f; o.connect(g); g.connect(_ac.destination);
+      g.gain.setValueAtTime(.0001,now+dt); g.gain.exponentialRampToValueAtTime(.35,now+dt+.02);
+      g.gain.exponentialRampToValueAtTime(.0001,now+dt+.5);
+      o.start(now+dt); o.stop(now+dt+.55);
+    });
+  }catch(_){}
+}
+function alertNewOrders(pend){
+  const ids=pend.map(o=>String(o.id));
+  if(_seenOrders===null){ _seenOrders=new Set(ids); return; }   // primera carga: no avisar
+  const fresh=pend.filter(o=>!_seenOrders.has(String(o.id)));
+  ids.forEach(i=>_seenOrders.add(i));
+  if(!fresh.length)return;
+  if(document.getElementById('bar').classList.contains('hidden'))return;  // solo en modo Barco
+  ding(); if(navigator.vibrate)navigator.vibrate([180,90,180]);
+  toast(fresh.length>1?'🛎️ '+fresh.length+' pedidos nuevos':'🛎️ Pedido nuevo: '+fresh[0].name+' · '+eur(fresh[0].total));
+}
+function renderQueue(orders){
+  const pend=(orders||[]).filter(o=>o.status!=='entregado').sort((a,b)=>(a.created||0)-(b.created||0));
+  document.getElementById('qcount').textContent=pend.length;
+  alertNewOrders(pend);
+  drawFleet(pend);
+  document.getElementById('queue').innerHTML=pend.length?pend.map((o,i)=>`
+    <div class="qi"${o.color?` style="border-left:6px solid ${esc(o.color)}"`:''}><div class="n"${o.color?` style="background:${esc(o.color)}"`:''}>${i+1}</div>
+      ${o.photo?`<img class="qphoto" src="${esc(o.photo)}" alt="">`:''}
+      <div class="info"><b>${o.name} · ${eur(o.total)}</b>
+        <span>${o.items.map(x=>x.qty+'× '+x.name).join(', ')}</span>
+        <span>${o.eta_min!=null?o.eta_min+' min · ':''}${o.status==='en_camino'?'en camino':'pendiente'}</span></div>
+      <div class="acts">
+        ${o.status==='pendiente'?`<button class="mini" onclick="setOrder('${o.id}','en_camino')">En camino</button>`:''}
+        <button class="mini done" onclick="setOrder('${o.id}','entregado')">Entregado</button></div></div>`).join('')
+    :`<div class="note">No hay pedidos ahora mismo.</div>`;
+}
+// Caja de hoy: pedidos entregados del día, con hora y total (todo sale de los pedidos ya guardados).
+function renderCaja(orders){
+  const el=document.getElementById('cajaList'); if(!el)return;
+  const d0=new Date(); d0.setHours(0,0,0,0); const t0=d0.getTime()/1000;
+  const hoy=(orders||[]).filter(o=>(o.created||0)>=t0);
+  const ent=hoy.filter(o=>o.status==='entregado');
+  document.getElementById('cajaN').textContent=ent.length+' de '+hoy.length;
+  document.getElementById('cajaTot').textContent=eur(ent.reduce((s2,o)=>s2+(o.total||0),0));
+  el.innerHTML=ent.length?ent.slice().sort((a,b)=>(b.created||0)-(a.created||0)).map(o=>{
+    const h=new Date((o.created||0)*1000);
+    return ('0'+h.getHours()).slice(-2)+':'+('0'+h.getMinutes()).slice(-2)+' · '+esc(o.name)+' · '+eur(o.total||0);
+  }).join('<br>'):'Aún no hay entregas hoy.';
+}
+
+// Recorrido del barco de hoy (se guarda al compartir GPS; se pinta en el mapa de flota).
+const dayKey=()=>{const d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);};
+let trackPts=[], _lastTrk=null;
+
+// Mapa de flota: el Don Pepito + todos los barcos en cola, numerados por orden.
+function drawFleet(pend){
+  const c=document.getElementById('fleetCount'); if(c) c.textContent=pend.length;
+  const M=mkMap('lfleet');
+  if(M){
+    document.getElementById('fleetsvg').style.display='none';
+    M.layer.clearLayers();
+    if(trackPts.length>1) L.polyline(trackPts.map(p=>[p.lat,p.lng]),{color:'#2b9db3',weight:3,opacity:.85}).addTo(M.layer);  // recorrido de hoy
+    const pts=[]; pend.forEach(o=>{ if(o.lat!=null) pts.push({lat:o.lat,lng:o.lng}); });
+    if(boat){
+      pts.push({lat:boat.lat,lng:boat.lng});
+      pend.forEach(o=>{ if(o.lat!=null) L.polyline([[boat.lat,boat.lng],[o.lat,o.lng]],{color:'#9a6630',weight:1.5,dashArray:'4 6',opacity:.7}).addTo(M.layer); });
+    }
+    pend.forEach((o,i)=>{ if(o.lat!=null) L.marker([o.lat,o.lng],{icon:pinIcon('pin-num',i+1,26,o.color)}).addTo(M.layer)
+      .bindPopup(`<b>#${i+1} ${esc(o.name)}</b> · ${eur(o.total)}<br>${o.items.map(x=>x.qty+'× '+esc(x.name)).join(', ')}${o.eta_min!=null?'<br>'+o.eta_min+' min':''}${o.photo?`<br><img src="${esc(o.photo)}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;margin-top:6px">`:''}`); });
+    if(boat) L.marker([boat.lat,boat.lng],{icon:pinIcon('pin-boat','🍹',34)}).addTo(M.layer).bindPopup('<b>Don Pepito</b> 🍹⛵');
+    fitMap(M,pts);
+    return;
+  }
+  drawFleetSVG(pend);
+}
+// Respaldo sin conexión: flota dibujada en SVG (como antes)
+function drawFleetSVG(pend){
+  const svg=document.getElementById('fleetsvg'); if(!svg) return;
+  const pts=[]; pend.forEach(o=>{ if(o.lat!=null) pts.push({lat:o.lat,lng:o.lng}); });
+  if(boat) pts.push({lat:boat.lat,lng:boat.lng});
+  let body='';
+  for(let y=44;y<260;y+=34) body+=`<path d="M0 ${y} q 28 -9 56 0 t 56 0 t 56 0 t 56 0 t 56 0 t 56 0" stroke="rgba(255,255,255,.09)" fill="none" stroke-width="2"/>`;
+  if(pts.length){
+    const lats=pts.map(p=>p.lat),lngs=pts.map(p=>p.lng);
+    let minLa=Math.min(...lats),maxLa=Math.max(...lats),minLo=Math.min(...lngs),maxLo=Math.max(...lngs);
+    const pad=Math.max(0.0010,(maxLa-minLa)*0.35,(maxLo-minLo)*0.35);
+    minLa-=pad;maxLa+=pad;minLo-=pad;maxLo+=pad;
+    const X=lo=>36+(lo-minLo)/((maxLo-minLo)||1)*268, Y=la=>216-(la-minLa)/((maxLa-minLa)||1)*180;
+    if(boat) pend.forEach(o=>{ if(o.lat!=null) body+=`<line x1="${X(boat.lng)}" y1="${Y(boat.lat)}" x2="${X(o.lng)}" y2="${Y(o.lat)}" stroke="rgba(230,201,154,.30)" stroke-width="1.2" stroke-dasharray="3 4"/>`; });
+    pend.forEach((o,i)=>{ if(o.lat!=null) body+=numMarker(X(o.lng),Y(o.lat),i+1,o.color); });
+    if(boat) body+=marker(X(boat.lng),Y(boat.lat),'boat');
+  } else {
+    body+=`<text x="170" y="130" fill="#a9bcc4" font-size="13" text-anchor="middle">Sin barcos en cola</text>`;
+  }
+  svg.innerHTML=body;
+}
+function numMarker(x,y,n,color){
+  return `<g><ellipse cx="${x}" cy="${y+9}" rx="9" ry="3" fill="rgba(0,0,0,.28)"/>
+    <circle cx="${x}" cy="${y}" r="11" fill="${esc(color||'#1d6b78')}" stroke="#fffdf4" stroke-width="1.6"/>
+    <text x="${x}" y="${y+0.5}" font-size="12" font-weight="700" fill="#fffdf4" text-anchor="middle" dominant-baseline="central">${n}</text></g>`;
+}
+async function setOrder(id,status){
+  if(useFB()){ const F=FB.fs; await F.updateDoc(F.doc(FB.db,'orders',String(id)),{status}); }
+  else{ await fetch('/api/order/'+id+'/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})}); pollLocal(); }
+}
+
+// ---------- modo / arranque ----------
+function setMode(m){
+  if(m==='barco'&&localStorage.getItem('mb_unlocked')!=='1'){ askPin(); m='cliente'; }  // modo Barco solo con código
+  const cli=m==='cliente';
+  document.getElementById('cli').classList.toggle('hidden',!cli);
+  document.getElementById('bar').classList.toggle('hidden',cli);
+  document.getElementById('pill').classList.toggle('hidden',!cli);
+  document.getElementById('mCliente').classList.toggle('on',cli);
+  document.getElementById('mBarco').classList.toggle('on',!cli);
+  localStorage.setItem('mb_mode',m);
+  // el mapa que estaba oculto necesita recalcular su tamaño al mostrarse
+  setTimeout(()=>{ const M=LMAPS[cli?'lmap':'lfleet'];
+    if(M){ M.map.invalidateSize(); if(cli)drawMap(); else renderQueue(_orders); } },60);
+}
+let _tt; function toast(x){const e=document.getElementById('toast');e.textContent=x;e.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('show'),2600);}
+setMode(localStorage.getItem('mb_mode')||'cliente');
+document.getElementById('cname').value=localStorage.getItem('mb_name')||'';
+renderSwatches(); refreshPhotoUI();
+applyLang(); bootData();
+// ---------- código de acceso al modo Barco (código inicial: 1515 — cámbialo en «Acceso del patrón») ----------
+const PIN_DEFAULT='1515';
+let bossPin=localStorage.getItem('mb_pin')||PIN_DEFAULT;
+function askPin(){ const m=document.getElementById('pinModal'); if(!m)return; m.classList.add('show');
+  document.getElementById('pinErr').style.display='none'; document.getElementById('pinIn').value='';
+  setTimeout(()=>document.getElementById('pinIn').focus(),60); }
+function closePin(){ document.getElementById('pinModal').classList.remove('show'); }
+function tryPin(){
+  const v=document.getElementById('pinIn').value.trim();
+  if(v===bossPin){ localStorage.setItem('mb_unlocked','1'); closePin(); setMode('barco'); toast('Bienvenido, patrón ⚓'); }
+  else { document.getElementById('pinErr').style.display='block'; document.getElementById('pinIn').value='';
+    if(navigator.vibrate)navigator.vibrate(120); }
+}
+function lockBarco(){ localStorage.removeItem('mb_unlocked'); setMode('cliente'); toast('Modo Barco bloqueado 🔒'); }
+async function changePin(){
+  const cur=prompt('Código actual:'); if(cur===null)return;
+  if(cur.trim()!==bossPin){ toast('Código actual incorrecto'); return; }
+  const nue=(prompt('Código nuevo (4 a 6 números):')||'').trim();
+  if(!/^\d{4,6}$/.test(nue)){ toast('Tiene que ser de 4 a 6 números'); return; }
+  bossPin=nue; localStorage.setItem('mb_pin',nue);
+  try{ if(useFB()){ const F=FB.fs; await F.setDoc(F.doc(FB.db,'config','current'),{pin:nue},{merge:true}); } }catch(_){}
+  toast('Código cambiado ✓');
+}
+
+// ---------- Instalar / descargar la app ----------
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt=e; });
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent);
+function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;}
+function openInstall(){
+  document.getElementById('inst_ios').style.display=isIOS()?'block':'none';
+  document.getElementById('inst_android').style.display=isIOS()?'none':'block';
+  document.getElementById('installModal').classList.add('show');
+  const arr=document.getElementById('sharrow'), chr=/crios/i.test(navigator.userAgent);
+  const tip=document.getElementById('sharrowTip');
+  arr.classList.toggle('hidden',!isIOS()||isStandalone());          // flecha al botón Compartir
+  arr.classList.toggle('top',chr); arr.textContent=chr?'⬆️':'⬇️';   // Safari: abajo · Chrome iPhone: arriba dcha
+  tip.classList.toggle('hidden',!isIOS()||isStandalone());          // letrero: ese botón es del navegador
+  tip.classList.toggle('top',chr); tip.textContent=chr?t('tapup'):t('tapdown');
+  if(!isIOS()&&!isStandalone()) andPrep();                          // Android: dejar clarísimo cómo instalar
+}
+function andPrep(){
+  const btn=document.getElementById('pwaBtn'), w=document.getElementById('pwaWait'), man=document.getElementById('andManual');
+  if(deferredPrompt){ btn.style.display='block'; w.style.display='none'; man.style.display='none'; return; }
+  btn.style.display='none'; w.style.display='block';                // aún sin oferta de Chrome: espera breve
+  setTimeout(()=>{
+    if(deferredPrompt){ andPrep(); return; }
+    w.style.display='none'; man.style.display='block';              // no la ofrece → pasos a mano + flecha al menú ⋮
+    const arr=document.getElementById('sharrow');
+    arr.textContent='⬆️'; arr.classList.add('top'); arr.classList.remove('hidden');
+    const tip=document.getElementById('sharrowTip');
+    tip.textContent=t('tapup'); tip.classList.add('top'); tip.classList.remove('hidden');
+  },2200);
+}
+window.addEventListener('beforeinstallprompt',()=>{ if(document.getElementById('installModal').classList.contains('show')&&!isIOS()) andPrep(); });
+window.addEventListener('appinstalled',()=>{ closeInstall(); toast('¡Instalada! Busca el icono 🍹 en tu pantalla.'); });
+function closeInstall(){ document.getElementById('installModal').classList.remove('show');
+  document.getElementById('sharrow').classList.add('hidden');
+  document.getElementById('sharrowTip').classList.add('hidden'); }
+async function pwaInstall(){
+  if(deferredPrompt){ deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; closeInstall(); }
+  else andPrep();
+}
+if(isStandalone()){ const b=document.getElementById('installBtn'); if(b)b.onclick=showQR; }  // instalada → el botón pasa a enseñar el QR
+// el botón de la APK solo aparece si el archivo existe de verdad (empieza por "PK")
+fetch('Don-Pepito.apk',{headers:{'Range':'bytes=0-3'}}).then(r=>r.ok?r.text():'').then(t=>{
+  if(t.startsWith('PK')){ document.getElementById('apkBtnApp').classList.remove('hidden');
+    document.getElementById('apkNote').classList.remove('hidden');
+    document.getElementById('apkQR').classList.remove('hidden'); }
+}).catch(()=>{});
+// Compartir la app: QR a pantalla completa + enviar enlace
+function showQR(){ document.getElementById('qrFull').classList.add('show'); }
+async function shareApp(){
+  const url='https://donpepito-javea.web.app/?i=1';
+  if(navigator.share){ try{ await navigator.share({title:'Don Pepito 🍹',text:'Arroces y cócteles a tu barco, en el mar',url}); }catch(_){} return; }
+  try{ await navigator.clipboard.writeText(url); toast('Enlace copiado ✓'); }catch(_){ prompt('Copia el enlace:',url); }
+}
+
+// Si se llega desde el QR (?i=1), abrir directamente la guía de instalación
+if(new URLSearchParams(location.search).has('i')&&!isStandalone()) setTimeout(openInstall,600);
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
